@@ -1,4 +1,4 @@
-﻿namespace Doobry
+﻿namespace Doobry.Settings
 {
     public class Connection
     {

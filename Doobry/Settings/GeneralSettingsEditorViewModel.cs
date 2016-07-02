@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Doobry
+namespace Doobry.Settings
 {
-    public class SettingsEditorViewModel : INotifyPropertyChanged
+    public class GeneralSettingsEditorViewModel : INotifyPropertyChanged
     {
         private int? _maxItemCount;
 

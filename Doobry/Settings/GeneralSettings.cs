@@ -1,8 +1,8 @@
-﻿namespace Doobry
+﻿namespace Doobry.Settings
 {
-    public class Settings
+    public class GeneralSettings
     {
-        public Settings(int? maxItemCount)
+        public GeneralSettings(int? maxItemCount)
         {
             MaxItemCount = maxItemCount;
         }

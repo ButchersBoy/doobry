@@ -76,11 +76,12 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Command.cs" />
-    <Compile Include="Connection.cs" />
-    <Compile Include="ConnectionEditor.xaml.cs">
+    <Compile Include="LifeTimeAssist.cs" />
+    <Compile Include="Settings\Connection.cs" />
+    <Compile Include="Settings\ConnectionEditor.xaml.cs">
       <DependentUpon>ConnectionEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ConnectionEditorViewModel.cs" />
+    <Compile Include="Settings\ConnectionEditorViewModel.cs" />
     <Compile Include="DialogContentControl.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -109,11 +110,13 @@
       <DependentUpon>ResultSetExplorer.xaml</DependentUpon>
     </Compile>
     <Compile Include="ResultSetExplorerViewModel.cs" />
-    <Compile Include="Settings.cs" />
-    <Compile Include="SettingsEditor.xaml.cs">
-      <DependentUpon>SettingsEditor.xaml</DependentUpon>
+    <Compile Include="Settings\GeneralSettings.cs" />
+    <Compile Include="Settings\GeneralSettingsEditor.xaml.cs">
+      <DependentUpon>GeneralSettingsEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SettingsEditorViewModel.cs" />
+    <Compile Include="Settings\GeneralSettingsEditorViewModel.cs" />
+    <Compile Include="Settings\Persistance.cs" />
+    <Compile Include="Settings\Serializer.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -143,7 +146,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="ConnectionEditor.xaml">
+    <Page Include="Settings\ConnectionEditor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -155,7 +158,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SettingsEditor.xaml">
+    <Page Include="Settings\GeneralSettingsEditor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

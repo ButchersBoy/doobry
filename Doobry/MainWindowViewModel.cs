@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Doobry.Settings;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -13,7 +14,7 @@ namespace Doobry
     public class MainWindowViewModel : INotifyPropertyChanged
     {
         private Connection _connection;
-        private Settings _settings;
+        private Settings.GeneralSettings _generalSettings;
         private string _documentId;
         //TODO delete
         private ResultSet _resultSet;
@@ -22,8 +23,10 @@ namespace Doobry
 
         public MainWindowViewModel()
         {            
-            _settings = new Settings(10);
+            _generalSettings = new Settings.GeneralSettings(10);
 
+            StartupCommand = new Command(_ => RunStartup());
+            ShutDownCommand = new Command(_ => RunShutdown());
             FetchDocumentCommand = new Command(o => RunQueryAsync($"SELECT * FROM root r WHERE r.id = '{DocumentId}'")); 
             RunQueryCommand = new Command(o => RunQueryAsync(Query));
             EditConnectionCommand = new Command(o => EditConnectionAsync());
@@ -49,6 +52,10 @@ namespace Doobry
             private set { this.MutateVerbose(ref _resultSet, value, RaisePropertyChanged()); }
         }
 
+        public ICommand StartupCommand { get; }
+
+        public ICommand ShutDownCommand { get; }
+
         public ICommand FetchDocumentCommand { get; }
 
         public ICommand EditConnectionCommand { get; }
@@ -58,6 +65,33 @@ namespace Doobry
         public ICommand RunQueryCommand { get; }
 
         public ResultSetExplorerViewModel ResultSetExplorer { get; }
+
+
+        private void RunStartup()
+        {
+            string rawData;
+            if (new Persistance().TryLoadRaw(out rawData))
+            {
+                try
+                {
+                    var tuple = Serializer.Objectify(rawData);
+                    _connection = tuple.Item1;
+                    _generalSettings = tuple.Item2;
+                }
+                catch
+                {
+                    //TODO summit...                    
+                }                
+            }
+
+            if (_connection == null)
+                EditConnectionAsync();
+        }
+
+        private void RunShutdown()
+        {
+            //Serializer.
+        }
 
         private async void RunQueryAsync(string query)
         {
@@ -94,16 +128,17 @@ namespace Doobry
             if (result)
             {
                 _connection = new Connection(viewModel.Host, viewModel.AuthorisationKey, viewModel.DatabaseId, viewModel.CollectionId);
+                PersistSettings(_generalSettings, _connection);
             }
         }
 
         private async void EditSettingsAsync()
         {
-            var viewModel = new SettingsEditorViewModel
+            var viewModel = new GeneralSettingsEditorViewModel
             {
-                MaxItemCount = _settings.MaxItemCount
+                MaxItemCount = _generalSettings.MaxItemCount
             };
-            var settingsEditor = new SettingsEditor
+            var settingsEditor = new GeneralSettingsEditor
             {
                 DataContext = viewModel
             };
@@ -112,8 +147,20 @@ namespace Doobry
 
             if (result)
             {
-                _settings = new Settings(viewModel.MaxItemCount);
+                _generalSettings = new GeneralSettings(viewModel.MaxItemCount);
+                PersistSettings(_generalSettings, _connection);
             }
+        }
+
+        private void PersistSettings(GeneralSettings generalSettings, Connection connection)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                //TODO, handle errors, failures
+                var json = Serializer.Stringify(connection, generalSettings);
+
+                new Persistance().TrySaveRaw(json);
+            });
         }
 
         private static async Task<bool> ShowDialogAsync(object content, string title, PackIconKind icon)
@@ -136,7 +183,7 @@ namespace Doobry
             {
                 try
                 {
-                    var feedOptions = new FeedOptions { MaxItemCount = _settings.MaxItemCount };
+                    var feedOptions = new FeedOptions { MaxItemCount = _generalSettings.MaxItemCount };
                     var documentQuery = documentClient.CreateDocumentQuery(
                         UriFactory.CreateDocumentCollectionUri(_connection.DatabaseId, _connection.CollectionId), query, feedOptions);
 

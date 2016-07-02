@@ -15,7 +15,7 @@
         FontFamily="{DynamicResource MaterialDesignFont}"        
         Title="Doobry for DocumentDb" Height="550" Width="525"
         d:DataContext="{d:DesignInstance doobry:MainWindowViewModel, d:IsDesignTimeCreatable=False}">
-    <materialDesign:DialogHost>
+    <materialDesign:DialogHost doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}">
         <DockPanel>
             <materialDesign:ColorZone Mode="PrimaryMid" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
                                       DockPanel.Dock="Top">
@@ -50,7 +50,7 @@
                             </Button>
                         </StackPanel>
                     </materialDesign:ColorZone>
-                    <Button ToolTip="Run Query" Command="{Binding RunQueryCommand}"
+                    <Button ToolTip="Run Query - F9" Command="{Binding RunQueryCommand}"
                             Style="{DynamicResource MaterialDesignFloatingActionMiniLightButton}"
                             Margin="12 -2 0 0"
                             materialDesign:RippleAssist.IsCentered="True">
