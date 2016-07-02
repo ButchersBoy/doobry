@@ -1,0 +1,86 @@
+﻿<Window x:Class="Doobry.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"        
+        xmlns:doobry="clr-namespace:Doobry"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"        
+        Title="Doobry for DocumentDb" Height="550" Width="525"
+        d:DataContext="{d:DesignInstance doobry:MainWindowViewModel, d:IsDesignTimeCreatable=False}">
+    <materialDesign:DialogHost>
+        <DockPanel>
+            <materialDesign:ColorZone Mode="PrimaryMid" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
+                                      DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal">
+                    <Button ToolTip="Database Settings..." Command="{Binding EditConnectionCommand}"
+                            Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                            materialDesign:RippleAssist.IsCentered="True">
+                        <materialDesign:PackIcon Kind="Database" />
+                    </Button>
+                    <Button ToolTip="General Settings..." Command="{Binding EditSettingsCommand}"
+                            Margin="16 0 0 0"
+                            Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                            materialDesign:RippleAssist.IsCentered="True">
+                        <materialDesign:PackIcon Kind="Settings" />
+                    </Button>
+                    <materialDesign:ColorZone Mode="Light" CornerRadius="2" Padding="16 2 16 2" Margin="16 0 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox materialDesign:HintAssist.Hint="Document ID"                                     
+                                     Text="{Binding DocumentId, UpdateSourceTrigger=PropertyChanged}"                                     
+                                     materialDesign:TextFieldAssist.DecorationVisibility="Hidden" 
+                                     BorderThickness="0"
+                                     VerticalAlignment="Center">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding FetchDocumentCommand}"></KeyBinding>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <Button Command="{Binding FetchDocumentCommand}" ToolTip="Fetch Document"
+                                    Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                    materialDesign:RippleAssist.IsCentered="True"
+                                    VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Download" />
+                            </Button>
+                        </StackPanel>
+                    </materialDesign:ColorZone>
+                    <Button ToolTip="Run Query" Command="{Binding RunQueryCommand}"
+                            Style="{DynamicResource MaterialDesignFloatingActionMiniLightButton}"
+                            Margin="12 -2 0 0"
+                            materialDesign:RippleAssist.IsCentered="True">
+                        <materialDesign:PackIcon Kind="Play" />
+                    </Button>
+                </StackPanel>
+            </materialDesign:ColorZone>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="3" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <TextBox Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}"
+                         AcceptsReturn="True" AcceptsTab="True"
+                         materialDesign:HintAssist.Hint="Query"
+                         VerticalAlignment="Stretch"
+                         VerticalContentAlignment="Top"
+                         HorizontalScrollBarVisibility="Auto"
+                         VerticalScrollBarVisibility="Auto"
+                         FontFamily="Courier New">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="F9" Command="{Binding RunQueryCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
+                <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext"
+                              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                              />
+                <doobry:ResultSetExplorer Grid.Row="2" DataContext="{Binding ResultSetExplorer}" />
+            </Grid>
+        </DockPanel>
+    </materialDesign:DialogHost>
+</Window>
