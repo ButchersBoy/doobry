@@ -72,23 +72,44 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddDocumentController.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Command.cs" />
+    <Compile Include="Infrastructure\Command.cs" />
+    <Compile Include="DocumentEditor.xaml.cs">
+      <DependentUpon>DocumentEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DocumentEditorToolbar.xaml.cs">
+      <DependentUpon>DocumentEditorToolbar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DocumentEditorViewModel.cs" />
+    <Compile Include="Infrastructure\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Infrastructure\CancellableDialog.xaml.cs">
+      <DependentUpon>CancellableDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Infrastructure\CancellableDialogViewModel.cs" />
+    <Compile Include="Infrastructure\MessageDialog.cs" />
     <Compile Include="LifeTimeAssist.cs" />
+    <Compile Include="QueryRunner.xaml.cs">
+      <DependentUpon>QueryRunner.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QueryRunnerToolbar.xaml.cs">
+      <DependentUpon>QueryRunnerToolbar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QueryRunnerViewModel.cs" />
     <Compile Include="Settings\Connection.cs" />
     <Compile Include="Settings\ConnectionEditor.xaml.cs">
       <DependentUpon>ConnectionEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\ConnectionEditorViewModel.cs" />
-    <Compile Include="DialogContentControl.cs" />
+    <Compile Include="Infrastructure\DialogContentControl.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="NotifyPropertyChangedExtension.cs" />
-    <Compile Include="ProgressRing.xaml.cs">
+    <Compile Include="Infrastructure\ProgressRing.xaml.cs">
       <DependentUpon>ProgressRing.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -136,6 +157,26 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="DocumentEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DocumentEditorToolbar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Infrastructure\CancellableDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QueryRunner.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QueryRunnerToolbar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ResultSetExplorer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -154,7 +195,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ProgressRing.xaml">
+    <Page Include="Infrastructure\ProgressRing.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -163,6 +204,7 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Azure.DocumentDB.1.8.0\build\Microsoft.Azure.DocumentDB.targets" Condition="Exists('..\packages\Microsoft.Azure.DocumentDB.1.8.0\build\Microsoft.Azure.DocumentDB.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

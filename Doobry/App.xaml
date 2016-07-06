@@ -10,7 +10,10 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.BlueGrey.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Indigo.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.Red.Named.Primary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="{StaticResource RedPrimary500}" />
+            <SolidColorBrush x:Key="ErrorForegroundBrush" Color="{StaticResource RedPrimary500Foreground}" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

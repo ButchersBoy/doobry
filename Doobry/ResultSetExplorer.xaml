@@ -4,28 +4,67 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Doobry"
+             xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:ResultSetExplorerViewModel, d:IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <infrastructure:BooleanToVisibilityConverter2 x:Key="InvertedBooleanToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+    </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="3" />
-            <ColumnDefinition Width="10*" />
-        </Grid.ColumnDefinitions>
-        <ListBox ItemsSource="{Binding ResultSet.Results}" DisplayMemberPath="Row"
-                 SelectedIndex="{Binding SelectedRow}"
-                 x:Name="ResultsItems"/>
-        <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext"
+        <Grid Visibility="{Binding IsError, Converter={StaticResource InvertedBooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3" />
+                <ColumnDefinition Width="10*" />
+            </Grid.ColumnDefinitions>
+            <DockPanel>
+                <Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" 
+                        Command="{Binding FetchMoreCommand}"
+                        Style="{DynamicResource MaterialDesignFlatButton}"
+                        ToolTip="Load More Results"                        
+                        Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <materialDesign:PackIcon Kind="DotsHorizontal" />
+                </Button>
+                <ListBox ItemsSource="{Binding ResultSet.Results}" DisplayMemberPath="Row"
+                         SelectedIndex="{Binding SelectedRow}"
+                         x:Name="ResultsItems"/>
+            </DockPanel>
+            <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                       />
-        <TextBox IsReadOnly="True" 
-                 TextWrapping="NoWrap" Text="{Binding ElementName=ResultsItems, Path=SelectedItem.Data, Mode=OneWay}" 
-                 Grid.Column="2"
-                 VerticalAlignment="Stretch"
-                 VerticalContentAlignment="Top"
-                 HorizontalScrollBarVisibility="Auto"
-                 VerticalScrollBarVisibility="Auto"
-                 FontFamily="Courier New"/>
+            <TextBox IsReadOnly="True" 
+                     TextWrapping="NoWrap" Text="{Binding ElementName=ResultsItems, Path=SelectedItem.Data, Mode=OneWay}" 
+                     Grid.Column="2"
+                     VerticalAlignment="Stretch"
+                     VerticalContentAlignment="Top"
+                     HorizontalScrollBarVisibility="Auto"
+                     VerticalScrollBarVisibility="Auto"
+                     FontFamily="Courier New"
+                     Background="{DynamicResource MaterialDesignSelection}" />
+        </Grid>
+        <Grid Visibility="{Binding IsError, Converter={StaticResource BooleanToVisibilityConverter}}"
+              VerticalAlignment="Stretch"
+              >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border Background="{StaticResource ErrorBackgroundBrush}" Padding="8">
+                <TextBlock Text="Error running query" Foreground="{StaticResource ErrorForegroundBrush}" FontWeight="Bold" />
+            </Border>
+            <TextBox IsReadOnly="True"                      
+                     Grid.Row="1"
+                     TextWrapping="NoWrap" Text="{Binding Error, Mode=OneWay}" 
+                     VerticalAlignment="Stretch"
+                     VerticalContentAlignment="Top"
+                     HorizontalScrollBarVisibility="Auto"
+                     VerticalScrollBarVisibility="Auto"
+                     FontFamily="Courier New"
+                     Background="{DynamicResource MaterialDesignSelection}" />
+        </Grid>
     </Grid>
+    
 </UserControl>

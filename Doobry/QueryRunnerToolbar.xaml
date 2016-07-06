@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="Doobry.QueryRunnerToolbar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Doobry"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance local:MainWindowViewModel, d:IsDesignTimeCreatable=False}">
+    <materialDesign:ColorZone Mode="PrimaryMid" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
+                              >
+        <StackPanel Orientation="Horizontal">
+            <Button ToolTip="Database Settings..." Command="{Binding EditConnectionCommand, Mode=OneTime}"
+                    Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                    materialDesign:RippleAssist.IsCentered="True">
+                <materialDesign:PackIcon Kind="Database" />
+            </Button>
+            <Button ToolTip="General Settings..." Command="{Binding EditSettingsCommand, Mode=OneTime}"
+                    Margin="16 0 0 0"
+                    Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                    materialDesign:RippleAssist.IsCentered="True">
+                <materialDesign:PackIcon Kind="Settings" />
+            </Button>
+            <materialDesign:ColorZone Mode="Light" CornerRadius="2" Padding="16 2 16 2" Margin="16 0 0 0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox materialDesign:HintAssist.Hint="Document ID"                                     
+                                Text="{Binding DocumentId, UpdateSourceTrigger=PropertyChanged}"                                     
+                                materialDesign:TextFieldAssist.DecorationVisibility="Hidden" 
+                                BorderThickness="0"
+                                VerticalAlignment="Center">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding FetchDocumentCommand}"></KeyBinding>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <Button Command="{Binding FetchDocumentCommand, Mode=OneTime}" ToolTip="Fetch Document"
+                            Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                            materialDesign:RippleAssist.IsCentered="True"
+                            VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="Download" />
+                    </Button>
+                </StackPanel>
+            </materialDesign:ColorZone>
+            <Button ToolTip="Run Query - F9" Command="{Binding QueryRunnerViewModel.RunQueryCommand, Mode=OneTime}"
+                                Style="{DynamicResource MaterialDesignFloatingActionMiniLightButton}"
+                                Margin="24 -4 0 -4"
+                                materialDesign:RippleAssist.IsCentered="True">
+                <materialDesign:PackIcon Kind="Play" />
+            </Button>
+            <Button ToolTip="Document Editor..."
+                    Command="{x:Static materialDesign:Transitioner.MoveNextCommand}"                    
+                    Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Margin="16 0 0 0">
+                <materialDesign:PackIcon Kind="FileDocument" />
+            </Button>
+        </StackPanel>
+    </materialDesign:ColorZone>
+</UserControl>

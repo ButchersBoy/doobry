@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="Doobry.DocumentEditorToolbar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300"
+             d:DataContext="{d:DesignInstance doobry:MainWindowViewModel, d:IsDesignTimeCreatable=False}">
+    <materialDesign:ColorZone Mode="PrimaryDark" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
+                              >
+        <StackPanel Orientation="Horizontal">
+            <Button ToolTip="Back to Query Editor" 
+                    Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}"
+                    Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                    materialDesign:RippleAssist.IsCentered="True">
+                <materialDesign:PackIcon Kind="ArrowLeft" />
+            </Button>
+            <Button ToolTip="Save Document - CTRL+S" 
+                    Command="{Binding DocumentEditorViewModel.SaveCommand, Mode=OneTime}"
+                    Style="{DynamicResource MaterialDesignFloatingActionMiniLightButton}"
+                    Margin="12 -2 0 0"
+                    materialDesign:RippleAssist.IsCentered="True">
+                <materialDesign:PackIcon Kind="CloudUpload" />
+            </Button>
+        </StackPanel>
+    </materialDesign:ColorZone>
+
+</UserControl>

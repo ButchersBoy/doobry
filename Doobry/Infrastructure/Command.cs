@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Doobry
+namespace Doobry.Infrastructure
 {
     public class Command : ICommand
     {

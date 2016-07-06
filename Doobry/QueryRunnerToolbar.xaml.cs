@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Doobry
 {
     /// <summary>
-    /// Interaction logic for ProgressRing.xaml
+    /// Interaction logic for QueryRunnerToolbar.xaml
     /// </summary>
-    public partial class ProgressRing : UserControl
+    public partial class QueryRunnerToolbar : UserControl
     {
-        public ProgressRing()
+        public QueryRunnerToolbar()
         {
             InitializeComponent();
         }

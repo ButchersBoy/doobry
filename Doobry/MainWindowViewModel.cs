@@ -2,8 +2,11 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
+using Doobry.Infrastructure;
 using Doobry.Settings;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Azure.Documents;
@@ -14,42 +17,26 @@ namespace Doobry
     public class MainWindowViewModel : INotifyPropertyChanged
     {
         private Connection _connection;
-        private Settings.GeneralSettings _generalSettings;
-        private string _documentId;
-        //TODO delete
-        private ResultSet _resultSet;
-        private string _query;        
-
+        private GeneralSettings _generalSettings;
+        private string _documentId;        
 
         public MainWindowViewModel()
         {            
-            _generalSettings = new Settings.GeneralSettings(10);
+            _generalSettings = new GeneralSettings(10);
 
             StartupCommand = new Command(_ => RunStartup());
             ShutDownCommand = new Command(_ => RunShutdown());
-            FetchDocumentCommand = new Command(o => RunQueryAsync($"SELECT * FROM root r WHERE r.id = '{DocumentId}'")); 
-            RunQueryCommand = new Command(o => RunQueryAsync(Query));
+            FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));             
             EditConnectionCommand = new Command(o => EditConnectionAsync());
-            EditSettingsCommand = new Command(o => EditSettingsAsync());
-            ResultSetExplorer = new ResultSetExplorerViewModel();
+            EditSettingsCommand = new Command(o => EditSettingsAsync());            
+            QueryRunnerViewModel = new QueryRunnerViewModel(() => _connection, () => _generalSettings);
+            DocumentEditorViewModel = new DocumentEditorViewModel(() => _connection);
         }
 
         public string DocumentId
         {
             get { return _documentId; }
             set { this.MutateVerbose(ref _documentId, value, RaisePropertyChanged()); }
-        }
-
-        public string Query
-        {
-            get { return _query; }
-            set { this.MutateVerbose(ref _query, value, RaisePropertyChanged()); }
-        }
-
-        public ResultSet ResultSet
-        {
-            get { return _resultSet; }
-            private set { this.MutateVerbose(ref _resultSet, value, RaisePropertyChanged()); }
         }
 
         public ICommand StartupCommand { get; }
@@ -60,12 +47,11 @@ namespace Doobry
 
         public ICommand EditConnectionCommand { get; }
 
-        public ICommand EditSettingsCommand { get; }
+        public ICommand EditSettingsCommand { get; }        
 
-        public ICommand RunQueryCommand { get; }
+        public QueryRunnerViewModel QueryRunnerViewModel { get; }
 
-        public ResultSetExplorerViewModel ResultSetExplorer { get; }
-
+        public DocumentEditorViewModel DocumentEditorViewModel { get; }
 
         private void RunStartup()
         {
@@ -93,20 +79,7 @@ namespace Doobry
             //Serializer.
         }
 
-        private async void RunQueryAsync(string query)
-        {
-            //TODO disable commands
-            if (query == null || _connection == null) return;
-
-            await DialogHost.Show(new ProgressRing(), delegate (object sender, DialogOpenedEventArgs args)
-            {
-                Task<ResultSet>.Factory.StartNew(() => RunQuery(query)).ContinueWith(task =>
-                {
-                    ResultSetExplorer.ResultSet = task.Result;
-                    args.Session.Close();
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-            });
-        }
+        
 
         private async void EditConnectionAsync()
         {
@@ -125,11 +98,10 @@ namespace Doobry
 
             var result = await ShowDialogAsync(connectionEditor, "Database", PackIconKind.Database);
 
-            if (result)
-            {
-                _connection = new Connection(viewModel.Host, viewModel.AuthorisationKey, viewModel.DatabaseId, viewModel.CollectionId);
-                PersistSettings(_generalSettings, _connection);
-            }
+            if (!result) return;
+
+            _connection = new Connection(viewModel.Host, viewModel.AuthorisationKey, viewModel.DatabaseId, viewModel.CollectionId);
+            PersistSettings(_generalSettings, _connection);
         }
 
         private async void EditSettingsAsync()
@@ -145,14 +117,13 @@ namespace Doobry
 
             var result = await ShowDialogAsync(settingsEditor, "Settings", PackIconKind.Settings);
 
-            if (result)
-            {
-                _generalSettings = new GeneralSettings(viewModel.MaxItemCount);
-                PersistSettings(_generalSettings, _connection);
-            }
+            if (!result) return;
+
+            _generalSettings = new GeneralSettings(viewModel.MaxItemCount);
+            PersistSettings(_generalSettings, _connection);
         }
 
-        private void PersistSettings(GeneralSettings generalSettings, Connection connection)
+        private static void PersistSettings(GeneralSettings generalSettings, Connection connection)
         {
             Task.Factory.StartNew(() =>
             {
@@ -175,34 +146,6 @@ namespace Doobry
             var result = await DialogHost.Show(dialogContentControl);
 
             return bool.TrueString.Equals(result);
-        }
-
-        private ResultSet RunQuery(string query)
-        {
-            using (var documentClient = new DocumentClient(new Uri(_connection.Host), _connection.AuthorisationKey))
-            {
-                try
-                {
-                    var feedOptions = new FeedOptions { MaxItemCount = _generalSettings.MaxItemCount };
-                    var documentQuery = documentClient.CreateDocumentQuery(
-                        UriFactory.CreateDocumentCollectionUri(_connection.DatabaseId, _connection.CollectionId), query, feedOptions);
-
-                    var resultSet = new ResultSet(documentQuery.AsEnumerable().Select((dy, row) => new Result(row, dy.ToString())));
-                    
-                    return resultSet;
-                }
-                catch (DocumentClientException de)
-                {
-                    var baseException = de.GetBaseException();
-                    return new ResultSet(baseException.Message);
-                }
-                catch (Exception e)
-                {
-                    var baseException = e.GetBaseException();
-                    return new ResultSet(baseException.Message);
-                }
-            }
-
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
