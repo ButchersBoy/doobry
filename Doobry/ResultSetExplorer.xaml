@@ -35,15 +35,32 @@
             <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                       />
-            <TextBox IsReadOnly="True" 
-                     TextWrapping="NoWrap" Text="{Binding ElementName=ResultsItems, Path=SelectedItem.Data, Mode=OneWay}" 
-                     Grid.Column="2"
-                     VerticalAlignment="Stretch"
-                     VerticalContentAlignment="Top"
-                     HorizontalScrollBarVisibility="Auto"
-                     VerticalScrollBarVisibility="Auto"
-                     FontFamily="Courier New"
-                     Background="{DynamicResource MaterialDesignSelection}" />
+            <DockPanel Grid.Column="2" Background="{DynamicResource MaterialDesignSelection}">
+                <materialDesign:ColorZone DockPanel.Dock="Top" materialDesign:ShadowAssist.ShadowDepth="Depth1" Mode="Light" Padding="4 2 2 2" Margin="2 2 3 2" CornerRadius="2">
+                    <StackPanel Orientation="Horizontal">
+                        <Button ToolTip="Edit Document..." 
+                                Command="{Binding EditConnectionCommand, Mode=OneTime}"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                materialDesign:RippleAssist.IsCentered="True">
+                            <materialDesign:PackIcon Kind="FileDocument" />
+                        </Button>
+                        <Button ToolTip="Delete Document..." 
+                                Command="{Binding EditConnectionCommand, Mode=OneTime}"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                materialDesign:RippleAssist.IsCentered="True">
+                            <materialDesign:PackIcon Kind="Delete" />
+                        </Button>
+                    </StackPanel>
+                </materialDesign:ColorZone>
+                <TextBox IsReadOnly="True" 
+                         TextWrapping="NoWrap" Text="{Binding ElementName=ResultsItems, Path=SelectedItem.Data, Mode=OneWay}" 
+                         VerticalAlignment="Stretch"
+                         VerticalContentAlignment="Top"
+                         HorizontalScrollBarVisibility="Auto"
+                         VerticalScrollBarVisibility="Auto"
+                         FontFamily="Courier New"
+                         Background="{DynamicResource MaterialDesignSelection}" />
+            </DockPanel>
         </Grid>
         <Grid Visibility="{Binding IsError, Converter={StaticResource BooleanToVisibilityConverter}}"
               VerticalAlignment="Stretch"
