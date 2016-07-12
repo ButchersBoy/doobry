@@ -19,10 +19,9 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <materialDesign:ColorZone Mode="Light" CornerRadius="2" materialDesign:ShadowAssist.ShadowDepth="Depth1" 
-                                  Padding="8 4 8 4" Margin="0 2 0 6">
+                                  Padding="8 4 8 4" Margin="0 6 4 6">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -46,16 +45,16 @@
             </Grid>            
         </materialDesign:ColorZone>
         <TextBox materialDesign:HintAssist.Hint="Label" materialDesign:HintAssist.IsFloating="True" Margin="4"
-                 Grid.Row="1" 
+                 Grid.Row="0" Grid.Column="1" 
                  Text="{Binding SelectedConnection.Label, UpdateSourceTrigger=PropertyChanged}" />
         <TextBox Grid.ColumnSpan="2" materialDesign:HintAssist.Hint="Host" materialDesign:HintAssist.IsFloating="True" Margin="4"
-                 Grid.Row="2" 
+                 Grid.Row="1" 
                  Text="{Binding SelectedConnection.Host, UpdateSourceTrigger=PropertyChanged}" />
-        <TextBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" materialDesign:HintAssist.Hint="Authorisation Key" materialDesign:HintAssist.IsFloating="True" Margin="4"
+        <TextBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" materialDesign:HintAssist.Hint="Authorisation Key" materialDesign:HintAssist.IsFloating="True" Margin="4"
                  Text="{Binding SelectedConnection.AuthorisationKey, UpdateSourceTrigger=PropertyChanged}" />
-        <TextBox Grid.Column="0" Grid.Row="4" materialDesign:HintAssist.Hint="Database ID" materialDesign:HintAssist.IsFloating="True" Margin="4"
+        <TextBox Grid.Column="0" Grid.Row="3" materialDesign:HintAssist.Hint="Database ID" materialDesign:HintAssist.IsFloating="True" Margin="4"
                  Text="{Binding SelectedConnection.DatabaseId, UpdateSourceTrigger=PropertyChanged}" />
-        <TextBox Grid.Column="1" Grid.Row="5" materialDesign:HintAssist.Hint="Collection ID" materialDesign:HintAssist.IsFloating="True" Margin="4" 
+        <TextBox Grid.Column="1" Grid.Row="3" materialDesign:HintAssist.Hint="Collection ID" materialDesign:HintAssist.IsFloating="True" Margin="4" 
                  Text="{Binding SelectedConnection.CollectionId, UpdateSourceTrigger=PropertyChanged}" />
     </Grid>
 </UserControl>
