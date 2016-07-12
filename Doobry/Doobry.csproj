@@ -99,6 +99,7 @@
     </Compile>
     <Compile Include="QueryRunnerViewModel.cs" />
     <Compile Include="Settings\Connection.cs" />
+    <Compile Include="Settings\ConnectionCache.cs" />
     <Compile Include="Settings\ConnectionsEditor.xaml.cs">
       <DependentUpon>ConnectionsEditor.xaml</DependentUpon>
     </Compile>

@@ -15,8 +15,15 @@ namespace Doobry.Settings
         private readonly ObservableCollection<ConnectionEditorViewModel> _connections = new ObservableCollection<ConnectionEditorViewModel>();
         private ConnectionEditorViewModel _selectedConnection;
 
-        public ConnectionsEditorViewModel()
+        public ConnectionsEditorViewModel(IEnumerable<ConnectionEditorViewModel> connectionEditorViewModels)
         {
+            if (connectionEditorViewModels == null) throw new ArgumentNullException(nameof(connectionEditorViewModels));
+
+            foreach (var connectionEditorViewModel in connectionEditorViewModels)
+            {
+                _connections.Add(connectionEditorViewModel);
+            }            
+
             AddConnectionCommand = new Command(_ =>
             {
                 var vm = new ConnectionEditorViewModel();

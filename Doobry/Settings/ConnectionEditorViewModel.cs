@@ -11,6 +11,17 @@ namespace Doobry.Settings
         private string _databaseId;
         private string _collectionId;
 
+        public ConnectionEditorViewModel()
+        {
+        }
+
+        public ConnectionEditorViewModel(Guid id)
+        {
+            Id = id;
+        }
+
+        public Guid? Id { get; }
+
         public string Label
         {
             get { return _label; }

@@ -16,6 +16,7 @@ namespace Doobry
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        private static readonly ConnectionCache ConnectionCache = new ConnectionCache();
         private Connection _connection;
         private GeneralSettings _generalSettings;
         private string _documentId;        
@@ -83,24 +84,39 @@ namespace Doobry
 
         private async void EditConnectionAsync()
         {
-            var viewModel = new ConnectionEditorViewModel();
-            if (_connection != null)
+            ConnectionEditorViewModel selectConnectionEditorViewModel = null;
+            var connectionEditorViewModels = ConnectionCache.Select(cn =>
             {
-                viewModel.Host = _connection.Host;
-                viewModel.AuthorisationKey = _connection.AuthorisationKey;
-                viewModel.CollectionId = _connection.CollectionId;
-                viewModel.DatabaseId = _connection.DatabaseId;
-            }
+                var connectionEditorViewModel = cn.ToViewModel();
+                if (_connection != null && connectionEditorViewModel.Id == _connection.Id)
+                    selectConnectionEditorViewModel = connectionEditorViewModel;
+                return connectionEditorViewModel;
+            }).ToList();
+            var connectionsEditorViewModel = new ConnectionsEditorViewModel(connectionEditorViewModels)
+            {
+                SelectedConnection = selectConnectionEditorViewModel
+            };
+            if (!connectionEditorViewModels.Any())
+                connectionsEditorViewModel.AddConnectionCommand.Execute(null);
             var connectionsEditor = new ConnectionsEditor
             {
-                DataContext = viewModel
+                DataContext = connectionsEditorViewModel
             };
 
             var result = await ShowDialogAsync(connectionsEditor, "Database", PackIconKind.Database);
 
             if (!result) return;
 
-            _connection = new Connection(viewModel.Label, viewModel.Host, viewModel.AuthorisationKey, viewModel.DatabaseId, viewModel.CollectionId);
+            var connections = connectionsEditorViewModel.Connections.Select(cnVm =>
+            {
+                var cn = cnVm.ToConnection();
+                if (cnVm == connectionsEditorViewModel.SelectedConnection)
+                    _connection = cn;
+                return cn;
+            }).ToList();
+
+            ConnectionCache.Reset(connections);
+
             PersistSettings(_generalSettings, _connection);
         }
 

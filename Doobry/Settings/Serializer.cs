@@ -22,6 +22,7 @@ namespace Doobry.Settings
         private static JObject ToJson(Connection connection)
         {
             dynamic cn = new JObject();
+            cn.Id = connection.Id;
             cn.Label = connection.Label;
             cn.Host = connection.Host;
             cn.AuthorisationKey = connection.AuthorisationKey;
@@ -42,6 +43,7 @@ namespace Doobry.Settings
         {
             dynamic jObj = JObject.Parse(data);
             var connection = new Connection(
+                jObj.Connection.Id.Value,
                 jObj.Connection.Label.Value,
                 jObj.Connection.Host.Value, 
                 jObj.Connection.AuthorisationKey.Value, 
