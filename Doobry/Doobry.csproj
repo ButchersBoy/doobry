@@ -99,8 +99,8 @@
     </Compile>
     <Compile Include="QueryRunnerViewModel.cs" />
     <Compile Include="Settings\Connection.cs" />
-    <Compile Include="Settings\ConnectionEditor.xaml.cs">
-      <DependentUpon>ConnectionEditor.xaml</DependentUpon>
+    <Compile Include="Settings\ConnectionsEditor.xaml.cs">
+      <DependentUpon>ConnectionsEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\ConnectionEditorViewModel.cs" />
     <Compile Include="Infrastructure\DialogContentControl.cs" />
@@ -131,6 +131,7 @@
       <DependentUpon>ResultSetExplorer.xaml</DependentUpon>
     </Compile>
     <Compile Include="ResultSetExplorerViewModel.cs" />
+    <Compile Include="Settings\ConnectionsEditorViewModel.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\GeneralSettingsEditor.xaml.cs">
       <DependentUpon>GeneralSettingsEditor.xaml</DependentUpon>
@@ -187,7 +188,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Settings\ConnectionEditor.xaml">
+    <Page Include="Settings\ConnectionsEditor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

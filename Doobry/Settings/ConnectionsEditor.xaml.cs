@@ -5,9 +5,9 @@ namespace Doobry.Settings
     /// <summary>
     /// Interaction logic for ConnectionEditor.xaml
     /// </summary>
-    public partial class ConnectionEditor : UserControl
+    public partial class ConnectionsEditor : UserControl
     {
-        public ConnectionEditor()
+        public ConnectionsEditor()
         {
             InitializeComponent();
         }

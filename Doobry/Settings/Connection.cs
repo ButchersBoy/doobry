@@ -2,12 +2,17 @@
 {
     public class Connection
     {
-        public Connection(string host, string authorisationKey, string databaseId, string collectionId)
+        public Connection(string label, string host, string authorisationKey, string databaseId, string collectionId)
         {
-            Host = host;
+            Label = label;
             AuthorisationKey = authorisationKey;
             DatabaseId = databaseId;
             CollectionId = collectionId;
+        }
+
+        public string Label
+        {
+            get;
         }
 
         public string Host

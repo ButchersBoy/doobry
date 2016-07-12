@@ -91,16 +91,16 @@ namespace Doobry
                 viewModel.CollectionId = _connection.CollectionId;
                 viewModel.DatabaseId = _connection.DatabaseId;
             }
-            var connectionEditor = new ConnectionEditor
+            var connectionsEditor = new ConnectionsEditor
             {
                 DataContext = viewModel
             };
 
-            var result = await ShowDialogAsync(connectionEditor, "Database", PackIconKind.Database);
+            var result = await ShowDialogAsync(connectionsEditor, "Database", PackIconKind.Database);
 
             if (!result) return;
 
-            _connection = new Connection(viewModel.Host, viewModel.AuthorisationKey, viewModel.DatabaseId, viewModel.CollectionId);
+            _connection = new Connection(viewModel.Label, viewModel.Host, viewModel.AuthorisationKey, viewModel.DatabaseId, viewModel.CollectionId);
             PersistSettings(_generalSettings, _connection);
         }
 

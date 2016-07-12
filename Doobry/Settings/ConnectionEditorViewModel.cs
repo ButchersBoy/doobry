@@ -5,10 +5,17 @@ namespace Doobry.Settings
 {
     public class ConnectionEditorViewModel : INotifyPropertyChanged
     {
+        private string _label;
         private string _host;
         private string _authorisationKey;
         private string _databaseId;
         private string _collectionId;
+
+        public string Label
+        {
+            get { return _label; }
+            set { this.MutateVerbose(ref _label, value, RaisePropertyChanged()); }
+        }
 
         public string Host
         {

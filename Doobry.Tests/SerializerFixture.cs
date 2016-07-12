@@ -14,7 +14,7 @@ namespace Doobry.Tests
         [Fact]
         public void MakesJson()
         {
-            var connection = new Connection("AAA", "BBB", "CCC", "DDD");
+            var connection = new Connection("AAA", "BBB", "CCC", "DDD", "EEE");
             var generalSettings = new GeneralSettings(5);
 
             var stringify = Serializer.Stringify(connection, generalSettings);
@@ -25,7 +25,7 @@ namespace Doobry.Tests
         [Fact]
         public void WillRoundTrip()
         {
-            var connection = new Connection("AAA", "BBB", "CCC", "DDD");
+            var connection = new Connection("AAA", "BBB", "CCC", "DDD", "EEE");
             var generalSettings = new GeneralSettings(5);
             var data = Serializer.Stringify(connection, generalSettings);
 
@@ -38,7 +38,7 @@ namespace Doobry.Tests
         [Fact]
         public void WillRoundTripNull()
         {
-            var connection = new Connection("AAA", "BBB", "CCC", "DDD");
+            var connection = new Connection("AAA", "BBB", "CCC", "DDD", "EEE");
             var generalSettings = new GeneralSettings(null);
             var data = Serializer.Stringify(connection, generalSettings);
 
