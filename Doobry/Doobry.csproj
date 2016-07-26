@@ -40,6 +40,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dragablz, Version=0.0.3.165, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dragablz.0.0.3.165\lib\net45\Dragablz.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MaterialDesignColors, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.1.2\lib\net45\MaterialDesignColors.dll</HintPath>
       <Private>True</Private>
@@ -89,6 +93,7 @@
       <DependentUpon>CancellableDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\CancellableDialogViewModel.cs" />
+    <Compile Include="Infrastructure\InterTabClient.cs" />
     <Compile Include="Infrastructure\MessageDialog.cs" />
     <Compile Include="LifeTimeAssist.cs" />
     <Compile Include="QueryRunner.xaml.cs">
@@ -98,6 +103,7 @@
       <DependentUpon>QueryRunnerToolbar.xaml</DependentUpon>
     </Compile>
     <Compile Include="QueryRunnerViewModel.cs" />
+    <Compile Include="Settings\ApplicationStructureAnalayzer.cs" />
     <Compile Include="Settings\Connection.cs" />
     <Compile Include="Settings\ConnectionCache.cs" />
     <Compile Include="Settings\ConnectionsEditor.xaml.cs">
@@ -138,8 +144,15 @@
       <DependentUpon>GeneralSettingsEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\GeneralSettingsEditorViewModel.cs" />
+    <Compile Include="Settings\LayoutStructure.cs" />
+    <Compile Include="Settings\LayoutStructureBranch.cs" />
+    <Compile Include="Settings\LayoutStructureTabItem.cs" />
+    <Compile Include="Settings\LayoutStructureTabSet.cs" />
+    <Compile Include="Settings\LayoutStructureWindow.cs" />
     <Compile Include="Settings\Persistance.cs" />
     <Compile Include="Settings\Serializer.cs" />
+    <Compile Include="Settings\SettingsContainer.cs" />
+    <Compile Include="TabViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

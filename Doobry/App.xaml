@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Doobry"
-             StartupUri="MainWindow.xaml">
+             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"             
+             Startup="App_OnStartup">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -11,9 +12,11 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.BlueGrey.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Indigo.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.Red.Named.Primary.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/materialdesign.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="{StaticResource RedPrimary500}" />
             <SolidColorBrush x:Key="ErrorForegroundBrush" Color="{StaticResource RedPrimary500Foreground}" />
+            <Style TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource MaterialDesignAlternateTabablzControlStyle}" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

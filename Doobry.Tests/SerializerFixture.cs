@@ -14,10 +14,12 @@ namespace Doobry.Tests
         [Fact]
         public void MakesJson()
         {
-            var connection = new Connection(Guid.NewGuid(), "AAA", "BBB", "CCC", "DDD", "EEE");
+            var connection1 = new Connection(Guid.NewGuid(), "AAA", "BBB", "CCC", "DDD", "EEE");
+            var connection2 = new Connection(Guid.NewGuid(), "111", "222", "333", "444", "555");
             var generalSettings = new GeneralSettings(5);
+            var connectionCache = new ConnectionCache(new[] {connection1, connection2});
 
-            var stringify = Serializer.Stringify(connection, generalSettings);
+            var stringify = Serializer.Stringify(connectionCache, generalSettings);
 
             stringify.ShouldNotBeNullOrWhiteSpace();
         }
@@ -25,26 +27,42 @@ namespace Doobry.Tests
         [Fact]
         public void WillRoundTrip()
         {
-            var connection = new Connection(Guid.NewGuid(), "AAA", "BBB", "CCC", "DDD", "EEE");
+            var connection1Id = Guid.NewGuid();
+            var connection2Id = Guid.NewGuid();
+            var connection1 = new Connection(connection1Id, "AAA", "BBB", "CCC", "DDD", "EEE");
+            var connection2 = new Connection(connection2Id, "111", "222", "333", "444", "555");
             var generalSettings = new GeneralSettings(5);
-            var data = Serializer.Stringify(connection, generalSettings);
+            var connectionCache = new ConnectionCache(new[] { connection1, connection2 });
 
-            var tuple = Serializer.Objectify(data);
+            var data = Serializer.Stringify(connectionCache, generalSettings);
+            var settingsContainer = Serializer.Objectify(data);
 
-            tuple.Item1.AuthorisationKey.ShouldBe(connection.AuthorisationKey);
-            tuple.Item2.MaxItemCount.ShouldBe(generalSettings.MaxItemCount);
+            settingsContainer.GeneralSettings.MaxItemCount.ShouldBe(generalSettings.MaxItemCount);
+            settingsContainer.ConnectionCache.Get(connection1Id).Id.ShouldBe(connection1Id);
+            settingsContainer.ConnectionCache.Get(connection1Id).AuthorisationKey.ShouldBe(connection1.AuthorisationKey);
+            settingsContainer.ConnectionCache.Get(connection1Id).CollectionId.ShouldBe(connection1.CollectionId);
+            settingsContainer.ConnectionCache.Get(connection1Id).DatabaseId.ShouldBe(connection1.DatabaseId);
+            settingsContainer.ConnectionCache.Get(connection1Id).Host.ShouldBe(connection1.Host);
+            settingsContainer.ConnectionCache.Get(connection1Id).Label.ShouldBe(connection1.Label);
+            settingsContainer.ConnectionCache.Get(connection2Id).Id.ShouldBe(connection2Id);
+            settingsContainer.ConnectionCache.Get(connection2Id).AuthorisationKey.ShouldBe(connection2.AuthorisationKey);
+            settingsContainer.ConnectionCache.Get(connection2Id).CollectionId.ShouldBe(connection2.CollectionId);
+            settingsContainer.ConnectionCache.Get(connection2Id).DatabaseId.ShouldBe(connection2.DatabaseId);
+            settingsContainer.ConnectionCache.Get(connection2Id).Host.ShouldBe(connection2.Host);
+            settingsContainer.ConnectionCache.Get(connection2Id).Label.ShouldBe(connection2.Label);
+
+            settingsContainer.GeneralSettings.MaxItemCount.ShouldBe(generalSettings.MaxItemCount);
         }
 
         [Fact]
         public void WillRoundTripNull()
         {
-            var connection = new Connection(Guid.NewGuid(), "AAA", "BBB", "CCC", "DDD", "EEE");
             var generalSettings = new GeneralSettings(null);
-            var data = Serializer.Stringify(connection, generalSettings);
+            var data = Serializer.Stringify(new ConnectionCache(), generalSettings);
 
-            var tuple = Serializer.Objectify(data);
-            
-            tuple.Item2.MaxItemCount.ShouldBeNull();
+            var settingsContainer = Serializer.Objectify(data);
+
+            settingsContainer.GeneralSettings.MaxItemCount.ShouldBeNull();
         }
     }
 }

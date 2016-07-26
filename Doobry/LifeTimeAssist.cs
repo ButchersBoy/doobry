@@ -17,7 +17,7 @@ namespace Doobry
         {
             var frameworkElement = dependencyObject as FrameworkElement;
             if (frameworkElement != null)
-                frameworkElement.Loaded += (sender, args) => GetRunOnLoad(frameworkElement)?.Execute(null);
+                frameworkElement.Loaded += (sender, args) => GetRunOnLoad(frameworkElement)?.Execute(dependencyObject);
         }
 
         public static void SetRunOnLoad(DependencyObject element, ICommand value)
@@ -30,24 +30,24 @@ namespace Doobry
             return (ICommand) element.GetValue(RunOnLoadProperty);
         }
 
-        public static readonly DependencyProperty RunOnUnloadProperty = DependencyProperty.RegisterAttached(
-            "RunOnUnload", typeof(ICommand), typeof(LifeTimeAssist), new PropertyMetadata(default(ICommand), RunOnUnloadPropertyChangedCallback));
+        public static readonly DependencyProperty RunOnWindowUnloadingProperty = DependencyProperty.RegisterAttached(
+            "RunOnWindowUnloading", typeof(ICommand), typeof(LifeTimeAssist), new PropertyMetadata(default(ICommand), RunOnWindowClosingPropertyChangedCallback));
 
-        private static void RunOnUnloadPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        private static void RunOnWindowClosingPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
-            var frameworkElement = dependencyObject as FrameworkElement;
-            if (frameworkElement != null)
-                frameworkElement.Loaded += (sender, args) => GetRunOnUnload(frameworkElement)?.Execute(null);
+            var window = dependencyObject as Window;
+            if (window != null)
+                window.Closing += (sender, args) => GetRunOnWindowUnloading(window)?.Execute(dependencyObject);
         }
 
-        public static void SetRunOnUnload(DependencyObject element, ICommand value)
+        public static void SetRunOnWindowUnloading(DependencyObject element, ICommand value)
         {
-            element.SetValue(RunOnUnloadProperty, value);
+            element.SetValue(RunOnWindowUnloadingProperty, value);
         }
 
-        public static ICommand GetRunOnUnload(DependencyObject element)
+        public static ICommand GetRunOnWindowUnloading(DependencyObject element)
         {
-            return (ICommand) element.GetValue(RunOnUnloadProperty);
+            return (ICommand) element.GetValue(RunOnWindowUnloadingProperty);
         }
     }
 }

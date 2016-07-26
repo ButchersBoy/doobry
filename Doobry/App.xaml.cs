@@ -13,5 +13,21 @@ namespace Doobry
     /// </summary>
     public partial class App : Application
     {
+        private void App_OnStartup(object sender, StartupEventArgs e)
+        {            
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var mainWindow = new MainWindow
+            {
+                DataContext = new MainWindowViewModel()
+            };
+            mainWindow.Show();
+        }
     }
+
+    /*
+    public class EntryPoint
+    {
+        public static void Main()
+    }
+    */
 }

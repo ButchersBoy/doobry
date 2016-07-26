@@ -40,12 +40,14 @@
                     <StackPanel Orientation="Horizontal">
                         <Button ToolTip="Edit Document..." 
                                 Command="{Binding EditConnectionCommand, Mode=OneTime}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}"
                                 materialDesign:RippleAssist.IsCentered="True">
                             <materialDesign:PackIcon Kind="FileDocument" />
                         </Button>
                         <Button ToolTip="Delete Document..." 
                                 Command="{Binding EditConnectionCommand, Mode=OneTime}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}"
                                 materialDesign:RippleAssist.IsCentered="True">
                             <materialDesign:PackIcon Kind="Delete" />

@@ -6,6 +6,9 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"        
         xmlns:doobry="clr-namespace:Doobry"
+        xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+        xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
+        xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -14,18 +17,36 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"        
         Title="Doobry for DocumentDb" Height="550" Width="525"
-        d:DataContext="{d:DesignInstance doobry:MainWindowViewModel, d:IsDesignTimeCreatable=False}">
+        d:DataContext="{d:DesignInstance doobry:MainWindowViewModel, d:IsDesignTimeCreatable=False}"
+        doobry:LifeTimeAssist.RunOnWindowUnloading="{Binding ShutDownCommand}">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type doobry:TabViewModel}">
+            <materialDesign:Transitioner SelectedIndex="{Binding ViewIndex}" x:Name="Transitioner"
+                                         Margin="0 1 0 0">
+                <DockPanel>
+                    <doobry:QueryRunnerToolbar DockPanel.Dock="Top" />
+                    <doobry:QueryRunner DataContext="{Binding QueryRunnerViewModel}" />
+                </DockPanel>
+                <DockPanel>
+                    <doobry:DocumentEditorToolbar DockPanel.Dock="Top" />
+                    <doobry:DocumentEditor DataContext="{Binding DocumentEditorViewModel}"  />
+                </DockPanel>
+            </materialDesign:Transitioner>
+        </DataTemplate>
+    </Window.Resources>
     <materialDesign:DialogHost doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}">
-
-        <materialDesign:Transitioner SelectedIndex="0" x:Name="Transitioner">
-            <DockPanel>
-                <doobry:QueryRunnerToolbar DockPanel.Dock="Top" />
-                <doobry:QueryRunner DataContext="{Binding QueryRunnerViewModel}" />
-            </DockPanel>
-            <DockPanel>
-                <doobry:DocumentEditorToolbar DockPanel.Dock="Top" />
-                <doobry:DocumentEditor DataContext="{Binding DocumentEditorViewModel}"  />
-            </DockPanel>
-        </materialDesign:Transitioner>
+        <dockablz:Layout>
+            <dragablz:TabablzControl x:Name="InitialTabablzControl" 
+                                     ItemsSource="{Binding Tabs}"
+                                     HeaderMemberPath="Name"
+                                     BorderThickness="0"
+                                     ShowDefaultAddButton="True"
+                                     ShowDefaultCloseButton="True"
+                                     NewItemFactory="{Binding NewItemFactory}">
+                <dragablz:TabablzControl.InterTabController>
+                    <dragablz:InterTabController InterTabClient="{x:Static infrastructure:InterTabClient.Instance}" />
+                </dragablz:TabablzControl.InterTabController>
+            </dragablz:TabablzControl>
+        </dockablz:Layout>
     </materialDesign:DialogHost>
 </Window>

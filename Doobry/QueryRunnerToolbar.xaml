@@ -10,12 +10,16 @@
     <materialDesign:ColorZone Mode="PrimaryMid" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
                               >
         <StackPanel Orientation="Horizontal">
-            <Button ToolTip="Database Settings..." Command="{Binding EditConnectionCommand, Mode=OneTime}"
+            <Button ToolTip="Database Settings..." 
+                    Command="{Binding EditConnectionCommand, Mode=OneTime}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
                     Style="{DynamicResource MaterialDesignToolForegroundButton}"
                     materialDesign:RippleAssist.IsCentered="True">
                 <materialDesign:PackIcon Kind="Database" />
             </Button>
-            <Button ToolTip="General Settings..." Command="{Binding EditSettingsCommand, Mode=OneTime}"
+            <Button ToolTip="General Settings..." 
+                    Command="{Binding EditSettingsCommand, Mode=OneTime}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
                     Margin="16 0 0 0"
                     Style="{DynamicResource MaterialDesignToolForegroundButton}"
                     materialDesign:RippleAssist.IsCentered="True">
