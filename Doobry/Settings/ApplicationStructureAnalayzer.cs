@@ -51,7 +51,7 @@ namespace Doobry.Settings
         {
             //figure out the current ID: if there is no context, this is 
             //root, otherwise, the parent will have assigned the id
-            Guid id;
+            Guid id;            
             if (context == null)
                 id = Guid.NewGuid();
             else
@@ -68,8 +68,8 @@ namespace Doobry.Settings
                 IdOrNull(branchAccessor.SecondItemBranchAccessor),
                 IdOrNull(branchAccessor.FirstItemTabablzControl),
                 IdOrNull(branchAccessor.SecondItemTabablzControl),
-                branchAccessor.Branch?.Orientation,
-                branchAccessor.Branch?.GetFirstProportion());
+                branchAccessor.Branch.Orientation,
+                branchAccessor.Branch.GetFirstProportion());
             branches.Add(layoutStructureBranch);
 
             //run throw the child branches or tab controls

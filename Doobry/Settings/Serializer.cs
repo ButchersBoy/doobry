@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -90,7 +91,7 @@ namespace Doobry.Settings
 
             dynamic ts = new JObject();
             ts.id = tabSet.Id;
-            ts.TabItems = new JArray(tabSet.TabItems.Select(ToJson));            
+            ts.tabItems = new JArray(tabSet.TabItems.Select(ToJson));            
             return ts;
         }
 
@@ -99,14 +100,14 @@ namespace Doobry.Settings
             if (tabItem == null) throw new ArgumentNullException(nameof(tabItem));
 
             dynamic ti = new JObject();
-            ti.ConnectionId = tabItem.ConnectionId;
+            ti.connectionId = tabItem.ConnectionId;
             return ti;
         }
 
         public static SettingsContainer Objectify(string data)
         {
             dynamic jObj = JObject.Parse(data);            
-            JArray connectionsJArray = jObj.Connections;
+            JArray connectionsJArray = jObj.connections;
             var connections = connectionsJArray.Select(jt =>
                 new Connection(
                     Guid.Parse(jt["id"].ToString()),
@@ -117,9 +118,58 @@ namespace Doobry.Settings
                     jt["collectionId"].ToString()));
             var connectionCache = new ConnectionCache(connections);            
 
-            var generalSettings = new GeneralSettings((int?)jObj.General.MaxItemCount.Value);
+            var generalSettings = new GeneralSettings((int?)jObj.general.maxItemCount.Value);
 
-            return new SettingsContainer(connectionCache, generalSettings);
+            var layoutStructure = ObjectifyLayout(jObj.layout);
+
+            return new SettingsContainer(connectionCache, generalSettings, layoutStructure);
+        }
+
+        private static LayoutStructure ObjectifyLayout(dynamic layout)
+        {
+            JArray windowsJArray = layout.windows;
+            var layoutStructureWindows = windowsJArray.Select(ObjectifyWindow);
+
+            return new LayoutStructure(layoutStructureWindows);
+        }
+
+        private static LayoutStructureWindow ObjectifyWindow(JToken windowJToken)
+        {
+            return new LayoutStructureWindow(
+                ((JArray)windowJToken.SelectToken("branches")).Select(ObjectifyBranch),
+                ((JArray)windowJToken.SelectToken("tabSets")).Select(ObjectifyTabSet));            
+        }
+
+        private static LayoutStructureBranch ObjectifyBranch(JToken branchJToken)
+        {
+            return new LayoutStructureBranch(
+                Guid.Parse(branchJToken["id"].ToString()),                
+                GetNullableGuid(branchJToken, "childFirstBranchId"),
+                GetNullableGuid(branchJToken, "childSecondBranchId"),
+                GetNullableGuid(branchJToken, "childFirstTabSetId"),
+                GetNullableGuid(branchJToken, "childSecondTabSetId"),
+                branchJToken["orientaion"].ToObject<Orientation>(),
+                branchJToken["ratio"].ToObject<double>());
+        }
+
+        private static LayoutStructureTabSet ObjectifyTabSet(JToken tabSetJToken)
+        {
+            return new LayoutStructureTabSet(
+                Guid.Parse(tabSetJToken["id"].ToString()),
+                ((JArray)tabSetJToken.SelectToken("tabItems")).Select(ObjectifyTabItem));
+        }
+
+        private static LayoutStructureTabItem ObjectifyTabItem(JToken tabItemJToken)
+        {
+            return new LayoutStructureTabItem(GetNullableGuid(tabItemJToken, "connectionId"));
+        }
+
+        private static Guid? GetNullableGuid(JToken token, string path)
+        {
+            Guid guid;
+            return Guid.TryParse((token.SelectToken(path)?.ToString()) ?? "", out guid)
+                ? guid
+                : (Guid?)null;
         }
     }
 }

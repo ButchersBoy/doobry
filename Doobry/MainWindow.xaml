@@ -34,15 +34,16 @@
             </materialDesign:Transitioner>
         </DataTemplate>
     </Window.Resources>
-    <materialDesign:DialogHost doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}">
+    <materialDesign:DialogHost>
         <dockablz:Layout>
+            
             <dragablz:TabablzControl x:Name="InitialTabablzControl" 
-                                     ItemsSource="{Binding Tabs}"
                                      HeaderMemberPath="Name"
                                      BorderThickness="0"
                                      ShowDefaultAddButton="True"
                                      ShowDefaultCloseButton="True"
-                                     NewItemFactory="{Binding NewItemFactory}">
+                                     NewItemFactory="{x:Static doobry:MainWindowViewModel.NewItemFactory}"
+                                     doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}">
                 <dragablz:TabablzControl.InterTabController>
                     <dragablz:InterTabController InterTabClient="{x:Static infrastructure:InterTabClient.Instance}" />
                 </dragablz:TabablzControl.InterTabController>

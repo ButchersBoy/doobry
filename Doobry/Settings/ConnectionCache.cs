@@ -37,6 +37,11 @@ namespace Doobry.Settings
             return _connectionIndex[id];
         }
 
+        public bool TryGet(Guid id, out Connection connection)
+        {
+            return _connectionIndex.TryGetValue(id, out connection);
+        }
+
         public IEnumerator<Connection> GetEnumerator()
         {
             return _connectionIndex.Values.GetEnumerator();

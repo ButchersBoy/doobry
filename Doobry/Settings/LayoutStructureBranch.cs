@@ -5,7 +5,7 @@ namespace Doobry.Settings
 {
     public class LayoutStructureBranch
     {
-        public LayoutStructureBranch(Guid id, Guid? childFirstBranchId, Guid? childSecondBranchId, Guid? childFirstTabSetId, Guid? childSecondTabSetId, Orientation? orientation, double? ratio)
+        public LayoutStructureBranch(Guid id, Guid? childFirstBranchId, Guid? childSecondBranchId, Guid? childFirstTabSetId, Guid? childSecondTabSetId, Orientation orientation, double ratio)
         {
             Id = id;
             ChildFirstBranchId = childFirstBranchId;
@@ -26,8 +26,8 @@ namespace Doobry.Settings
 
         public Guid? ChildSecondTabSetId { get; }
 
-        public Orientation? Orientation { get; }
+        public Orientation Orientation { get; }
 
-        public double? Ratio { get; }
+        public double Ratio { get; }
     }
 }

@@ -19,7 +19,7 @@ namespace Doobry.Tests
             var generalSettings = new GeneralSettings(5);
             var connectionCache = new ConnectionCache(new[] {connection1, connection2});
 
-            var stringify = Serializer.Stringify(connectionCache, generalSettings);
+            var stringify = Serializer.Stringify(connectionCache, generalSettings, new LayoutStructure(Enumerable.Empty<LayoutStructureWindow>()));
 
             stringify.ShouldNotBeNullOrWhiteSpace();
         }
@@ -34,7 +34,7 @@ namespace Doobry.Tests
             var generalSettings = new GeneralSettings(5);
             var connectionCache = new ConnectionCache(new[] { connection1, connection2 });
 
-            var data = Serializer.Stringify(connectionCache, generalSettings);
+            var data = Serializer.Stringify(connectionCache, generalSettings, new LayoutStructure(Enumerable.Empty<LayoutStructureWindow>()));
             var settingsContainer = Serializer.Objectify(data);
 
             settingsContainer.GeneralSettings.MaxItemCount.ShouldBe(generalSettings.MaxItemCount);
@@ -58,7 +58,7 @@ namespace Doobry.Tests
         public void WillRoundTripNull()
         {
             var generalSettings = new GeneralSettings(null);
-            var data = Serializer.Stringify(new ConnectionCache(), generalSettings);
+            var data = Serializer.Stringify(new ConnectionCache(), generalSettings, new LayoutStructure(Enumerable.Empty<LayoutStructureWindow>()));
 
             var settingsContainer = Serializer.Objectify(data);
 

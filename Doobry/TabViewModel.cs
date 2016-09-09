@@ -16,11 +16,17 @@ namespace Doobry
         private GeneralSettings _generalSettings;
         private int _viewIndex;
         private string _documentId;
-        private string _name;        
+        private string _name;
 
-        public TabViewModel()
+        public TabViewModel() : this(null)
+        {
+            
+        }
+
+        public TabViewModel(Connection connection)
         {
             _generalSettings = new GeneralSettings(10);
+            _connection = connection;
 
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject)sender));
@@ -66,7 +72,7 @@ namespace Doobry
             ConnectionEditorViewModel selectConnectionEditorViewModel = null;
             var connectionEditorViewModels = MainWindowViewModel.ConnectionCache.Select(cn =>
             {
-                var connectionEditorViewModel = Extensions.ToViewModel(cn);
+                var connectionEditorViewModel = cn.ToViewModel();
                 if (_connection != null && connectionEditorViewModel.Id == _connection.Id)
                     selectConnectionEditorViewModel = connectionEditorViewModel;
                 return connectionEditorViewModel;
