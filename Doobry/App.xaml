@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Doobry"
-             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"             
+             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+             xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
              Startup="App_OnStartup">
     <Application.Resources>
         <ResourceDictionary>
@@ -17,6 +18,8 @@
             <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="{StaticResource RedPrimary500}" />
             <SolidColorBrush x:Key="ErrorForegroundBrush" Color="{StaticResource RedPrimary500Foreground}" />
             <Style TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource MaterialDesignAlternateTabablzControlStyle}" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <infrastructure:EnumToIntConverter x:Key="EnumToIntConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

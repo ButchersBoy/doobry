@@ -38,18 +38,18 @@ namespace Doobry.Tests
             var settingsContainer = Serializer.Objectify(data);
 
             settingsContainer.GeneralSettings.MaxItemCount.ShouldBe(generalSettings.MaxItemCount);
-            settingsContainer.ConnectionCache.Get(connection1Id).Id.ShouldBe(connection1Id);
-            settingsContainer.ConnectionCache.Get(connection1Id).AuthorisationKey.ShouldBe(connection1.AuthorisationKey);
-            settingsContainer.ConnectionCache.Get(connection1Id).CollectionId.ShouldBe(connection1.CollectionId);
-            settingsContainer.ConnectionCache.Get(connection1Id).DatabaseId.ShouldBe(connection1.DatabaseId);
-            settingsContainer.ConnectionCache.Get(connection1Id).Host.ShouldBe(connection1.Host);
-            settingsContainer.ConnectionCache.Get(connection1Id).Label.ShouldBe(connection1.Label);
-            settingsContainer.ConnectionCache.Get(connection2Id).Id.ShouldBe(connection2Id);
-            settingsContainer.ConnectionCache.Get(connection2Id).AuthorisationKey.ShouldBe(connection2.AuthorisationKey);
-            settingsContainer.ConnectionCache.Get(connection2Id).CollectionId.ShouldBe(connection2.CollectionId);
-            settingsContainer.ConnectionCache.Get(connection2Id).DatabaseId.ShouldBe(connection2.DatabaseId);
-            settingsContainer.ConnectionCache.Get(connection2Id).Host.ShouldBe(connection2.Host);
-            settingsContainer.ConnectionCache.Get(connection2Id).Label.ShouldBe(connection2.Label);
+            settingsContainer.ConnectionCache.Get(connection1Id).Value.Id.ShouldBe(connection1Id);
+            settingsContainer.ConnectionCache.Get(connection1Id).Value.AuthorisationKey.ShouldBe(connection1.AuthorisationKey);
+            settingsContainer.ConnectionCache.Get(connection1Id).Value.CollectionId.ShouldBe(connection1.CollectionId);
+            settingsContainer.ConnectionCache.Get(connection1Id).Value.DatabaseId.ShouldBe(connection1.DatabaseId);
+            settingsContainer.ConnectionCache.Get(connection1Id).Value.Host.ShouldBe(connection1.Host);
+            settingsContainer.ConnectionCache.Get(connection1Id).Value.Label.ShouldBe(connection1.Label);
+            settingsContainer.ConnectionCache.Get(connection2Id).Value.Id.ShouldBe(connection2Id);
+            settingsContainer.ConnectionCache.Get(connection2Id).Value.AuthorisationKey.ShouldBe(connection2.AuthorisationKey);
+            settingsContainer.ConnectionCache.Get(connection2Id).Value.CollectionId.ShouldBe(connection2.CollectionId);
+            settingsContainer.ConnectionCache.Get(connection2Id).Value.DatabaseId.ShouldBe(connection2.DatabaseId);
+            settingsContainer.ConnectionCache.Get(connection2Id).Value.Host.ShouldBe(connection2.Host);
+            settingsContainer.ConnectionCache.Get(connection2Id).Value.Label.ShouldBe(connection2.Label);
 
             settingsContainer.GeneralSettings.MaxItemCount.ShouldBe(generalSettings.MaxItemCount);
         }

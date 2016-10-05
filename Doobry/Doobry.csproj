@@ -44,6 +44,10 @@
       <HintPath>..\packages\Dragablz.0.0.3.171\lib\net45\Dragablz.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="DynamicData, Version=4.8.1.1181, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicData.4.8.1.1181\lib\net45\DynamicData.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MaterialDesignColors, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.1.2\lib\net45\MaterialDesignColors.dll</HintPath>
       <Private>True</Private>
@@ -60,8 +64,24 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="StructureMap, Version=4.4.1.451, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StructureMap.4.4.1\lib\net45\StructureMap.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -93,6 +113,9 @@
       <DependentUpon>CancellableDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\CancellableDialogViewModel.cs" />
+    <Compile Include="Infrastructure\DialogHeader.cs" />
+    <Compile Include="Infrastructure\EnumToIntConverter.cs" />
+    <Compile Include="Infrastructure\EqualityToVisibilityConverter.cs" />
     <Compile Include="Infrastructure\InterTabClient.cs" />
     <Compile Include="Infrastructure\MessageDialog.cs" />
     <Compile Include="LifeTimeAssist.cs" />
@@ -106,8 +129,12 @@
     <Compile Include="Settings\ApplicationStructureAnalayzer.cs" />
     <Compile Include="Settings\Connection.cs" />
     <Compile Include="Settings\ConnectionCache.cs" />
-    <Compile Include="Settings\ConnectionsEditor.xaml.cs">
-      <DependentUpon>ConnectionsEditor.xaml</DependentUpon>
+    <Compile Include="Settings\ConnectionEditor.xaml.cs">
+      <DependentUpon>ConnectionEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\ConnectionManagementController.cs" />
+    <Compile Include="Settings\ConnectionsManager.xaml.cs">
+      <DependentUpon>ConnectionsManager.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\ConnectionEditorViewModel.cs" />
     <Compile Include="Infrastructure\DialogContentControl.cs" />
@@ -138,7 +165,8 @@
       <DependentUpon>ResultSetExplorer.xaml</DependentUpon>
     </Compile>
     <Compile Include="ResultSetExplorerViewModel.cs" />
-    <Compile Include="Settings\ConnectionsEditorViewModel.cs" />
+    <Compile Include="Settings\ConnectionsManagerMode.cs" />
+    <Compile Include="Settings\ConnectionsManagerViewModel.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\GeneralSettingsEditor.xaml.cs">
       <DependentUpon>GeneralSettingsEditor.xaml</DependentUpon>
@@ -196,13 +224,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Settings\ConnectionEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Settings\ConnectionsEditor.xaml">
+    <Page Include="Settings\ConnectionsManager.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

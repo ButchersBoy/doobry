@@ -36,16 +36,15 @@
     </Window.Resources>
     <materialDesign:DialogHost>
         <dockablz:Layout>
-            
             <dragablz:TabablzControl x:Name="InitialTabablzControl" 
                                      HeaderMemberPath="Name"
                                      BorderThickness="0"
                                      ShowDefaultAddButton="True"
                                      ShowDefaultCloseButton="True"
-                                     NewItemFactory="{x:Static doobry:MainWindowViewModel.NewItemFactory}"
+                                     NewItemFactory="{x:Static doobry:App.NewItemFactory}"
                                      doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}">
                 <dragablz:TabablzControl.InterTabController>
-                    <dragablz:InterTabController InterTabClient="{x:Static infrastructure:InterTabClient.Instance}" />
+                    <dragablz:InterTabController InterTabClient="{x:Static doobry:App.InterTabClient}" />
                 </dragablz:TabablzControl.InterTabController>
             </dragablz:TabablzControl>
         </dockablz:Layout>

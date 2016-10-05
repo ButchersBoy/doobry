@@ -10,7 +10,7 @@ namespace Doobry.Settings
 {
     public static class Serializer
     {
-        public static string Stringify(ConnectionCache connectionCache, GeneralSettings generalSettings, LayoutStructure layoutStructure)
+        public static string Stringify(IConnectionCache connectionCache, GeneralSettings generalSettings, LayoutStructure layoutStructure)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));

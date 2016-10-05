@@ -28,5 +28,14 @@ namespace Doobry.Infrastructure
             get { return (PackIconKind) GetValue(IconProperty); }
             set { SetValue(IconProperty, value); }
         }
+
+        public static readonly DependencyProperty ShowStandardButtonsProperty = DependencyProperty.Register(
+            "ShowStandardButtons", typeof(bool), typeof(DialogContentControl), new PropertyMetadata(true));
+
+        public bool ShowStandardButtons
+        {
+            get { return (bool) GetValue(ShowStandardButtonsProperty); }
+            set { SetValue(ShowStandardButtonsProperty, value); }
+        }
     }
 }

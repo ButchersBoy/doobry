@@ -1,11 +1,13 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Doobry.Infrastructure;
 using Doobry.Settings;
+using DynamicData.Kernel;
 using MaterialDesignThemes.Wpf;
 
 namespace Doobry
@@ -13,20 +15,24 @@ namespace Doobry
     public class TabViewModel : INotifyPropertyChanged
     {
         private Connection _connection;
+        private readonly IConnectionCache _connectionCache;
         private GeneralSettings _generalSettings;
         private int _viewIndex;
         private string _documentId;
         private string _name;
 
-        public TabViewModel() : this(null)
+        public TabViewModel(IConnectionCache connectionCache) : this(null, connectionCache)
         {
             
         }
 
-        public TabViewModel(Connection connection)
+        public TabViewModel(Connection connection, IConnectionCache connectionCache)
         {
+            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+
             _generalSettings = new GeneralSettings(10);
             _connection = connection;
+            _connectionCache = connectionCache;
 
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject)sender));
@@ -69,6 +75,23 @@ namespace Doobry
 
         private async void EditConnectionAsync(DependencyObject sender)
         {
+            Debug.Assert(sender != null);
+
+            var connectionOption = await new ConnectionManagementController(_connectionCache).Select(sender);
+
+            _connection = connectionOption.ValueOr(() => null);
+
+
+            /*
+            var connectionsManagerViewModel = new ConnectionsManagerViewModel(_connectionCache);
+            var connectionsManager = new ConnectionsManager
+            {
+                DataContext = connectionsManagerViewModel
+            };
+
+            await ShowDialogAsync(connectionsManager, "Database", PackIconKind.Database, sender);
+
+            /*
             ConnectionEditorViewModel selectConnectionEditorViewModel = null;
             var connectionEditorViewModels = MainWindowViewModel.ConnectionCache.Select(cn =>
             {
@@ -77,13 +100,11 @@ namespace Doobry
                     selectConnectionEditorViewModel = connectionEditorViewModel;
                 return connectionEditorViewModel;
             }).ToList();
-            var connectionsEditorViewModel = new ConnectionsEditorViewModel(connectionEditorViewModels)
+            var connectionsEditorViewModel = new ConnectionsManagerViewModel(connectionEditorViewModels)
             {
                 SelectedConnection = selectConnectionEditorViewModel
             };
-            if (!connectionEditorViewModels.Any())
-                connectionsEditorViewModel.AddConnectionCommand.Execute(null);
-            var connectionsEditor = new ConnectionsEditor
+            var connectionsEditor = new ConnectionsManager
             {
                 DataContext = connectionsEditorViewModel
             };
@@ -98,11 +119,12 @@ namespace Doobry
                 if (cnVm == connectionsEditorViewModel.SelectedConnection)
                     SetConnection(cn);
                 return cn;
-            }).ToList();
+            }).ToList();            
 
             MainWindowViewModel.ConnectionCache.Reset(connections);
 
             PersistSettings(_generalSettings, _connection);
+            */
         }
 
         private async void EditSettingsAsync(DependencyObject sender)
@@ -140,9 +162,9 @@ namespace Doobry
             Task.Factory.StartNew(() =>
             {
                 //TODO, handle errors, failures
-                var json = Serializer.Stringify(connection, generalSettings);
+                //var json = Serializer.Stringify( connection, generalSettings);
 
-                new Persistance().TrySaveRaw(json);
+                //new Persistance().TrySaveRaw(json);
             });
         }
 
@@ -152,7 +174,8 @@ namespace Doobry
             {
                 Content = content,
                 Title = title,
-                Icon = icon
+                Icon = icon,
+                ShowStandardButtons = false
             };
             
             var result = await (sender == null ? DialogHost.Show(dialogContentControl) : sender.ShowDialog(dialogContentControl));

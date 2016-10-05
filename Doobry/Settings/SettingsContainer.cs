@@ -4,7 +4,7 @@ namespace Doobry.Settings
 {
     public class SettingsContainer
     {
-        public SettingsContainer(ConnectionCache connectionCache, GeneralSettings generalSettings, LayoutStructure layoutStructure)
+        public SettingsContainer(IConnectionCache connectionCache, GeneralSettings generalSettings, LayoutStructure layoutStructure)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
@@ -14,7 +14,7 @@ namespace Doobry.Settings
             LayoutStructure = layoutStructure;
         }
 
-        public ConnectionCache ConnectionCache { get; }
+        public IConnectionCache ConnectionCache { get; }
 
         public GeneralSettings GeneralSettings { get; }
 

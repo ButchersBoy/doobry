@@ -1,0 +1,110 @@
+﻿<UserControl x:Class="Doobry.Settings.ConnectionsManager"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:settings="clr-namespace:Doobry.Settings"
+             xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
+             mc:Ignorable="d" 
+             Width="720"
+             d:DataContext="{d:DesignInstance settings:ConnectionsManagerViewModel, d:IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate DataType="{x:Type settings:Connection}">
+                <materialDesign:Card materialDesign:ShadowAssist.ShadowDepth="Depth1" Margin="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <materialDesign:ColorZone Mode="PrimaryLight" Padding="8 2 8 2"
+                                                  Grid.ColumnSpan="3">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}"
+                                           Text="{Binding Label}"
+                                           ToolTip="{Binding Label}"
+                                           Margin="48 6 0 0"
+                                           VerticalAlignment="Bottom"
+                                           TextTrimming="CharacterEllipsis"
+                                           />
+                                <materialDesign:PopupBox HorizontalAlignment="Right" Margin="6 0 2 0" 
+                                                         VerticalAlignment="Center"
+                                                         Grid.Column="1">
+                                    <materialDesign:PopupBox.ToggleContent>
+                                        <materialDesign:PackIcon Height="14" Width="14" Kind="DotsVertical" />
+                                    </materialDesign:PopupBox.ToggleContent>
+                                    <TextBlock>Delete</TextBlock>
+                                </materialDesign:PopupBox>
+                            </Grid>
+                        </materialDesign:ColorZone>
+                        <Button Command="{Binding ElementName=Transitioner, Path=DataContext.EditConnectionCommand}"
+                                CommandParameter="{Binding }"
+                                Style="{DynamicResource MaterialDesignFloatingActionMiniDarkButton}"
+                                materialDesign:ShadowAssist.ShadowDepth="Depth0"
+                                HorizontalAlignment="Left" VerticalAlignment="Bottom"                                 
+                                Margin="8 0 8 -20">
+                            <materialDesign:PackIcon Kind="Pencil" />
+                        </Button>
+                        <TextBlock Text="{Binding Host}" 
+                                   Style="{StaticResource MaterialDesignBody1TextBlock}" 
+                                   Margin="56 4 8 4"
+                                   Grid.Row="1" />
+                        <TextBlock Text="{Binding DatabaseId}" 
+                                   Style="{StaticResource MaterialDesignBody1TextBlock}" 
+                                   Margin="56 4 8 4"
+                                   Grid.Row="2" />
+                        <TextBlock Text="{Binding CollectionId}" 
+                                   Style="{StaticResource MaterialDesignBody1TextBlock}" 
+                                   Margin="56 4 8 4"
+                                   Grid.Row="3" />
+                    </Grid>
+                </materialDesign:Card>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <infrastructure:DialogHeader Icon="Database" Title="Connections" />
+        <materialDesign:Transitioner SelectedIndex="{Binding Mode, Converter={StaticResource EnumToIntConverter}}" x:Name="Transitioner"
+                                     Grid.Row="1"
+                                     Height="260">
+            <ScrollViewer Margin="4" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Connections}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+            <settings:ConnectionEditor DataContext="{Binding ConnectionEditor}"
+                                       VerticalAlignment="Stretch"
+                                       Margin="0 8 0 0"
+                                       />
+        </materialDesign:Transitioner>
+        <Button Style="{DynamicResource MaterialDesignFloatingActionAccentButton}"
+                HorizontalAlignment="Right"
+                Margin="0 0 52 -28"
+                Command="{Binding AddConnectionCommand}"
+                Visibility="{Binding Mode, Converter={StaticResource EnumToIntConverter}, ConverterParameter={x:Static settings:ConnectionsManagerMode.Selector}}">
+            <materialDesign:PackIcon Kind="Plus" Height="24" Width="24" />
+        </Button>
+    </Grid>
+</UserControl>

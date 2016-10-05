@@ -1,8 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Windows.Input;
+using Doobry.Infrastructure;
 
 namespace Doobry.Settings
 {
+    public enum ConnectionEditorDisplayMode
+    {
+        Dialog,
+        MultiEdit
+    }
+
     public class ConnectionEditorViewModel : INotifyPropertyChanged
     {
         private string _label;
@@ -10,15 +18,34 @@ namespace Doobry.Settings
         private string _authorisationKey;
         private string _databaseId;
         private string _collectionId;
+        private ConnectionEditorDisplayMode _displayMode;
 
-        public ConnectionEditorViewModel()
-        {
-        }
+        public ConnectionEditorViewModel(Action<ConnectionEditorViewModel> saveHandler, Action cancelHandler)
+            : this(null, saveHandler, cancelHandler)
+            
+        { }
 
-        public ConnectionEditorViewModel(Guid id)
+        public ConnectionEditorViewModel(Connection connection, Action<ConnectionEditorViewModel> saveHandler, Action cancelHandler)
         {
-            Id = id;
-        }
+            if (saveHandler == null) throw new ArgumentNullException(nameof(saveHandler));
+            if (cancelHandler == null) throw new ArgumentNullException(nameof(cancelHandler));
+
+            SaveCommand = new Command(_ => saveHandler(this));
+            CancelCommand = new Command(_ => cancelHandler());
+
+            if (connection == null) return;
+
+            Id = connection.Id;
+            _label = connection.Label;
+            _host = connection.Host;
+            _authorisationKey = connection.AuthorisationKey;
+            _databaseId = connection.DatabaseId;
+            _collectionId = connection.CollectionId;
+        }        
+
+        public ICommand SaveCommand { get; }
+
+        public ICommand CancelCommand { get; }
 
         public Guid? Id { get; }
 
@@ -50,6 +77,12 @@ namespace Doobry.Settings
         {
             get { return _collectionId; }
             set { this.MutateVerbose(ref _collectionId, value, RaisePropertyChanged()); }
+        }
+
+        public ConnectionEditorDisplayMode DisplayMode
+        {
+            get { return _displayMode; }
+            set { this.MutateVerbose(ref _displayMode, value, RaisePropertyChanged()); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

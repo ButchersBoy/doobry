@@ -3,8 +3,36 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:system="clr-namespace:System;assembly=mscorlib"
-    xmlns:doobry="clr-namespace:Doobry"
     xmlns:infrastructure="clr-namespace:Doobry.Infrastructure">
+
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+    <Style TargetType="{x:Type infrastructure:DialogHeader}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type infrastructure:DialogHeader}">
+                    <materialDesign:ColorZone Mode="PrimaryMid" VerticalContentAlignment="Center" Padding="8 4 8 4">
+                        <Grid VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <materialDesign:PackIcon Kind="{TemplateBinding Icon}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="8 0 0 0"
+                                       Style="{DynamicResource MaterialDesignTitleTextBlock}"
+                                       Text="{TemplateBinding Title}" />
+                            <Button Grid.Column="1" HorizontalAlignment="Right" Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                    materialDesign:RippleAssist.IsCentered="True"
+                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
+                                <materialDesign:PackIcon Kind="Close" />
+                            </Button>
+                        </Grid>
+                    </materialDesign:ColorZone>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 
     <Style TargetType="{x:Type infrastructure:DialogContentControl}">
         <Setter Property="Template">
@@ -16,23 +44,10 @@
                             <RowDefinition />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <materialDesign:ColorZone Mode="PrimaryMid" DockPanel.Dock="Top" VerticalContentAlignment="Center" Padding="8 4 8 4">
-                            <Grid VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <materialDesign:PackIcon Kind="{TemplateBinding Icon}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="8 0 0 0"
-                                           Style="{DynamicResource MaterialDesignTitleTextBlock}"
-                                           Text="{TemplateBinding Title}" />
-                                <Button Grid.Column="1" HorizontalAlignment="Right" Style="{DynamicResource MaterialDesignToolForegroundButton}"
-                                        materialDesign:RippleAssist.IsCentered="True"
-                                        Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
-                                    <materialDesign:PackIcon Kind="Close" />
-                                </Button>
-                            </Grid>
-                        </materialDesign:ColorZone>
+                        <infrastructure:DialogHeader DockPanel.Dock="Top"
+                                                     Icon="{TemplateBinding Icon}"
+                                                     Title="{TemplateBinding Title}"
+                                                     />
                         <ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}"
                                           ContentTemplate="{TemplateBinding ContentTemplate}"
                                           TextElement.Foreground="{TemplateBinding Foreground}"
@@ -41,7 +56,8 @@
                                           Margin="{TemplateBinding Padding}"
                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8 16 8 8">
+                        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8 16 8 8"
+                                    Visibility="{TemplateBinding ShowStandardButtons, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Button IsCancel="True"
                                     Style="{DynamicResource MaterialDesignFlatButton}"
                                     Width="88"

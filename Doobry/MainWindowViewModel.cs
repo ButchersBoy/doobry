@@ -14,6 +14,7 @@ using Doobry.Infrastructure;
 using Doobry.Settings;
 using Dragablz;
 using Dragablz.Dockablz;
+using DynamicData.Kernel;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -22,20 +23,18 @@ namespace Doobry
 {
     public class MainWindowViewModel// : INotifyPropertyChanged
     {
-        //TODO put these somewhere nice!
-        public static readonly ConnectionCache ConnectionCache = new ConnectionCache();
+        private readonly IConnectionCache _connectionCache;
         public static GeneralSettings GeneralSettings = new GeneralSettings(10);
 
-        private static bool IsStartupInitiated;
+        private static bool _isStartupInitiated;
 
-        static MainWindowViewModel()
+        public MainWindowViewModel(IConnectionCache connectionCache)
         {
-            NewItemFactory = () => new TabViewModel();
-        }
+            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
 
-        public MainWindowViewModel()
-        {            
-            StartupCommand = new Command(sender => RunStartup(sender));
+            _connectionCache = connectionCache;
+
+            StartupCommand = new Command(RunStartup);
             ShutDownCommand = new Command(o => RunShutdown());
             Tabs = new ObservableCollection<TabViewModel>();            
         }
@@ -46,12 +45,10 @@ namespace Doobry
 
         public ICommand ShutDownCommand { get; }
 
-        public static Func<object> NewItemFactory { get; }
-
         private void RunStartup(object sender)
         {
-            if (IsStartupInitiated) return;
-            IsStartupInitiated = true;
+            if (_isStartupInitiated) return;
+            _isStartupInitiated = true;
 
             //TODO assert this stuff, provide a fall back
             var senderDependencyObject = sender as DependencyObject;
@@ -81,14 +78,14 @@ namespace Doobry
 
             if (!TabablzControl.GetLoadedInstances().SelectMany(tc => tc.Items.OfType<object>()).Any())
             {
-                var tabViewModel = new TabViewModel();
+                var tabViewModel = new TabViewModel(_connectionCache);
                 Tabs.Add(tabViewModel);
                 TabablzControl.SelectItem(tabViewModel);
                 tabViewModel.EditConnectionCommand.Execute(null);
             }            
         }
 
-        private void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure, ConnectionCache connectionCache)
+        private static void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure, IConnectionCache connectionCache)
         {
             //we only currently support a single window, can build on in future
             var layoutStructureWindow = layoutStructure.Windows.Single();
@@ -111,7 +108,7 @@ namespace Doobry
             LayoutStructureBranch layoutStructureBranch,
             IDictionary<Guid, LayoutStructureBranch> layoutStructureBranchIndex,
             IDictionary<Guid, LayoutStructureTabSet> layoutStructureTabSetIndex,
-            ConnectionCache connectionCache)
+            IConnectionCache connectionCache)
         {
             var newSiblingTabablzControl = new TabablzControl
             {
@@ -119,7 +116,8 @@ namespace Doobry
                 BorderThickness = new Thickness(0),
                 ShowDefaultAddButton = true,
                 ShowDefaultCloseButton = true,
-                NewItemFactory = NewItemFactory
+                //TODO we can inject this now we have a proper CI container
+                NewItemFactory = App.NewItemFactory
             };
             var branchResult = Layout.Branch(intoTabablzControl, newSiblingTabablzControl, layoutStructureBranch.Orientation, false, layoutStructureBranch.Ratio);
 
@@ -146,16 +144,16 @@ namespace Doobry
             }
         }
 
-        private static void BuildTabSet(LayoutStructureTabSet layoutStructureTabSet, TabablzControl intoTabablzControl, ConnectionCache connectionCache)
+        private static void BuildTabSet(LayoutStructureTabSet layoutStructureTabSet, TabablzControl intoTabablzControl, IConnectionCache connectionCache)
         {
             foreach (var layoutStructureTabItem in layoutStructureTabSet.TabItems)
-            {
+            {                
                 Connection connection = null;
                 if (layoutStructureTabItem.ConnectionId.HasValue)
                 {
-                    connectionCache.TryGet(layoutStructureTabItem.ConnectionId.Value, out connection);
+                    connection = connectionCache.Get(layoutStructureTabItem.ConnectionId.Value).ValueOrDefault();
                 }                
-                var tabViewModel = new TabViewModel(connection);
+                var tabViewModel = new TabViewModel(connection, connectionCache);
                 intoTabablzControl.AddToSource(tabViewModel);                
             }
         }
@@ -184,7 +182,7 @@ namespace Doobry
         private void RunApplicationShutdown()
         {
             var layoutStructure = LayoutAnalayzer.GetLayoutStructure();
-            var data = Serializer.Stringify(ConnectionCache, GeneralSettings, layoutStructure);
+            var data = Serializer.Stringify(_connectionCache, GeneralSettings, layoutStructure);
 
             new Persistance().TrySaveRaw(data);
 

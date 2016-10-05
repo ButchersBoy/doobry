@@ -11,16 +11,19 @@ namespace Doobry.Infrastructure
 {
     public class InterTabClient : IInterTabClient
     {
-        static InterTabClient()
+        private readonly Func<MainWindowViewModel> _mainWindowViewModelFactory;
+
+        public InterTabClient(Func<MainWindowViewModel> mainWindowViewModelFactory)
         {
-            Instance = new InterTabClient();
+            if (mainWindowViewModelFactory == null) throw new ArgumentNullException(nameof(mainWindowViewModelFactory));
+            _mainWindowViewModelFactory = mainWindowViewModelFactory;
         }
 
         public INewTabHost<Window> GetNewHost(IInterTabClient interTabClient, object partition, TabablzControl source)
         {
             var mainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel()
+                DataContext = _mainWindowViewModelFactory()
             };
 
             return new NewTabHost<Window>(mainWindow, mainWindow.InitialTabablzControl);
@@ -30,8 +33,5 @@ namespace Doobry.Infrastructure
         {
             return TabEmptiedResponse.CloseWindowOrLayoutBranch;
         }
-
-        public static InterTabClient Instance { get; }
-        
     }
 }
