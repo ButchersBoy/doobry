@@ -21,21 +21,31 @@ namespace Doobry
     {
         private readonly Func<Connection> _connectionProvider;
         private readonly Func<GeneralSettings> _generalSettingsProvider;
-        private readonly Command _fetchMoreCommand;         
+        private readonly Action<Result> _editHandler;
+        private readonly Command _fetchMoreCommand;
         private string _query;
         private TextBox _textBox;
         private Tuple<DocumentClient, IDocumentQuery<dynamic>> _activeDocumentQuery;
 
-        public QueryRunnerViewModel(Func<Connection> connectionProvider, Func<GeneralSettings> generalSettingsProvider)
+        public QueryRunnerViewModel(
+            Func<Connection> connectionProvider,
+            Func<GeneralSettings> generalSettingsProvider,
+            Action<Result> editHandler)
         {
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
             if (generalSettingsProvider == null) throw new ArgumentNullException(nameof(generalSettingsProvider));
+            if (editHandler == null) throw new ArgumentNullException(nameof(editHandler));
 
             _connectionProvider = connectionProvider;
             _generalSettingsProvider = generalSettingsProvider;
-            RunQueryCommand = new Command(o => RunQuery());
+            _editHandler = editHandler;
+            RunQueryCommand = new Command(_ => RunQuery());
             _fetchMoreCommand = new Command(_ => FetchMore(), _ => _activeDocumentQuery != null && _activeDocumentQuery.Item2.HasMoreResults);
-            ResultSetExplorer = new ResultSetExplorerViewModel(_fetchMoreCommand);
+
+            var editDocumentCommand = new Command(o => _editHandler((Result)o), o => o is Result);
+            var deleteDocumentCommand = new Command(o => DeleteDocument((Result)o), o => o is Result);
+
+            ResultSetExplorer = new ResultSetExplorerViewModel(_fetchMoreCommand, editDocumentCommand, deleteDocumentCommand);
         }
 
         public static readonly DependencyProperty SelfProperty = DependencyProperty.RegisterAttached(
@@ -53,7 +63,7 @@ namespace Doobry
 
         public static QueryRunnerViewModel GetSelf(DependencyObject element)
         {
-            return (QueryRunnerViewModel) element.GetValue(SelfProperty);
+            return (QueryRunnerViewModel)element.GetValue(SelfProperty);
         }
 
         internal void Receive(TextBox textBox)
@@ -86,7 +96,7 @@ namespace Doobry
             RunQueryAsync(query);
         }
 
-        private async void RunQueryAsync(string query) 
+        private async void RunQueryAsync(string query)
         {
             var connection = _connectionProvider();
 
@@ -122,7 +132,7 @@ namespace Doobry
                 {
                     ResultSet resultSet = null;
 
-                    Task.Factory.StartNew(async () => 
+                    Task.Factory.StartNew(async () =>
                     {
                         resultSet = await RunQuery(connection, maxItemCount, query);
                         waitHandle.Set();
@@ -143,18 +153,18 @@ namespace Doobry
 
         private async Task<ResultSet> RunQuery(Connection connection, int? maxItemCount, string query)
         {
-            _activeDocumentQuery?.Item1.Dispose();
-
-            var documentClient = new DocumentClient(new Uri(connection.Host), connection.AuthorisationKey);
-            var feedOptions = new FeedOptions {MaxItemCount = maxItemCount};
-            var documentQuery = documentClient.CreateDocumentQuery(
-                UriFactory.CreateDocumentCollectionUri(connection.DatabaseId, connection.CollectionId), query,
-                feedOptions).AsDocumentQuery();
-
-            _activeDocumentQuery = new Tuple<DocumentClient, IDocumentQuery<dynamic>>(documentClient, documentQuery);
-
             try
             {
+                _activeDocumentQuery?.Item1.Dispose();
+
+                var documentClient = CreateDocumentClient(connection);
+                var feedOptions = new FeedOptions { MaxItemCount = maxItemCount };
+                var documentQuery = documentClient.CreateDocumentQuery(
+                    UriFactory.CreateDocumentCollectionUri(connection.DatabaseId, connection.CollectionId), query,
+                    feedOptions).AsDocumentQuery();
+
+                _activeDocumentQuery = new Tuple<DocumentClient, IDocumentQuery<dynamic>>(documentClient, documentQuery);
+
                 var results =
                     (await documentQuery.ExecuteNextAsync()).Select((dy, row) => new Result(row, dy.ToString()));
 
@@ -181,6 +191,11 @@ namespace Doobry
             }
         }
 
+        private static DocumentClient CreateDocumentClient(Connection connection)
+        {
+            return new DocumentClient(new Uri(connection.Host), connection.AuthorisationKey);
+        }
+
         private async void FetchMore()
         {
             await FetchNextUnloadedResults(ResultSetExplorer.ResultSet);
@@ -196,6 +211,46 @@ namespace Doobry
             _fetchMoreCommand.Refresh();
         }
 
+        private async void DeleteDocument(Result result)
+        {
+            var dialogContentControl = new DialogContentControl
+            {
+                Padding = new Thickness(16),
+                Title = "Confirm Delete",
+                Content = $"Are you sure you wish to delete this document?{Environment.NewLine + Environment.NewLine}id: {result.Id.Raw + Environment.NewLine}_self: {result.Id.Self}"
+            };
+            var confirmation = await DialogHost.Show(dialogContentControl);
+            if (!bool.TrueString.Equals(confirmation)) return;
+
+            var progressRing = new ProgressRing();
+            await DialogHost.Show(progressRing, delegate (object sender, DialogOpenedEventArgs args)
+            {
+                Task.Factory.StartNew(async () =>
+                {
+                    using (var client = CreateDocumentClient(_connectionProvider()))
+                    {
+                        await client.DeleteDocumentAsync(result.Id.Self);
+                    }
+                }).ContinueWith(task =>
+                {
+                    if (task.Exception != null)
+                    {
+                        args.Session.UpdateContent(new MessageDialog
+                        {
+                            Title = "Delete Error",
+                            Content = task.Exception.Flatten().Message
+                        });
+                    }
+                    else
+                    {
+                        args.Session.Close();
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            });
+
+
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private Action<PropertyChangedEventArgs> RaisePropertyChanged()
@@ -204,4 +259,3 @@ namespace Doobry
         }
     }
 }
- 

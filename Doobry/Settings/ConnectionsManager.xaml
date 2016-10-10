@@ -12,65 +12,66 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <CubicEase EasingMode="EaseOut" x:Key="DisableEase" />
+            <BounceEase EasingMode="EaseOut" x:Key="EnableEase" />
             <DataTemplate DataType="{x:Type settings:Connection}">
                 <materialDesign:Card materialDesign:ShadowAssist.ShadowDepth="Depth1" Margin="4">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
                             <RowDefinition />
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <materialDesign:ColorZone Mode="PrimaryLight" Padding="8 2 8 2"
                                                   Grid.ColumnSpan="3">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                            <StackPanel Margin="16">
                                 <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}"
                                            Text="{Binding Label}"
                                            ToolTip="{Binding Label}"
-                                           Margin="48 6 0 0"
-                                           VerticalAlignment="Bottom"
+                                           Margin="0 0 0 0"
                                            TextTrimming="CharacterEllipsis"
                                            />
-                                <materialDesign:PopupBox HorizontalAlignment="Right" Margin="6 0 2 0" 
-                                                         VerticalAlignment="Center"
-                                                         Grid.Column="1">
-                                    <materialDesign:PopupBox.ToggleContent>
-                                        <materialDesign:PackIcon Height="14" Width="14" Kind="DotsVertical" />
-                                    </materialDesign:PopupBox.ToggleContent>
-                                    <TextBlock>Delete</TextBlock>
-                                </materialDesign:PopupBox>
-                            </Grid>
+                                <TextBlock Text="{Binding Host}" 
+                                           Style="{StaticResource MaterialDesignBody1TextBlock}" 
+                                           Margin="0 4 0 4" />
+                                <TextBlock Text="{Binding DatabaseId}" 
+                                           Style="{StaticResource MaterialDesignBody1TextBlock}" 
+                                           Margin="0 4 0 4" />
+                                <TextBlock Text="{Binding CollectionId}" 
+                                           Style="{StaticResource MaterialDesignBody1TextBlock}" 
+                                           Margin="0 4 0 4" />
+                            </StackPanel>
                         </materialDesign:ColorZone>
-                        <Button Command="{Binding ElementName=Transitioner, Path=DataContext.EditConnectionCommand}"
-                                CommandParameter="{Binding }"
-                                Style="{DynamicResource MaterialDesignFloatingActionMiniDarkButton}"
-                                materialDesign:ShadowAssist.ShadowDepth="Depth0"
-                                HorizontalAlignment="Left" VerticalAlignment="Bottom"                                 
-                                Margin="8 0 8 -20">
-                            <materialDesign:PackIcon Kind="Pencil" />
-                        </Button>
-                        <TextBlock Text="{Binding Host}" 
-                                   Style="{StaticResource MaterialDesignBody1TextBlock}" 
-                                   Margin="56 4 8 4"
-                                   Grid.Row="1" />
-                        <TextBlock Text="{Binding DatabaseId}" 
-                                   Style="{StaticResource MaterialDesignBody1TextBlock}" 
-                                   Margin="56 4 8 4"
-                                   Grid.Row="2" />
-                        <TextBlock Text="{Binding CollectionId}" 
-                                   Style="{StaticResource MaterialDesignBody1TextBlock}" 
-                                   Margin="56 4 8 4"
-                                   Grid.Row="3" />
+                        <DockPanel Grid.Row="1"  Margin="4 0 4 4">
+                            <Button Style="{DynamicResource MaterialDesignFlatButton}"
+                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                    CommandParameter="{Binding }"
+                                    Margin="0 4 0 0" Width="80"
+                                    DockPanel.Dock="Left">
+                                SELECT
+                            </Button>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 4 0 0">
+                                <Button Style="{DynamicResource MaterialDesignFlatButton}"
+                                        Command="{Binding ElementName=Transitioner, Path=DataContext.EditConnectionCommand}"
+                                        CommandParameter="{Binding }">
+                                    <materialDesign:PackIcon Kind="Pencil" />
+                                </Button>
+                                <!--
+                                <Button Style="{DynamicResource MaterialDesignFlatButton}"
+                                        Margin="2 0 0 0">
+                                    <materialDesign:PackIcon Kind="ContentDuplicate" />
+                                </Button>
+                                -->
+                                <Button Style="{DynamicResource MaterialDesignFlatButton}"
+                                        Command="{Binding ElementName=Transitioner, Path=DataContext.DeleteConnectionCommand}"
+                                        CommandParameter="{Binding }"
+                                        Margin="2 0 0 0">
+                                    <materialDesign:PackIcon Kind="Delete" />
+                                </Button>
+                            </StackPanel>
+                        </DockPanel>
                     </Grid>
                 </materialDesign:Card>
             </DataTemplate>
@@ -84,26 +85,68 @@
         <infrastructure:DialogHeader Icon="Database" Title="Connections" />
         <materialDesign:Transitioner SelectedIndex="{Binding Mode, Converter={StaticResource EnumToIntConverter}}" x:Name="Transitioner"
                                      Grid.Row="1"
-                                     Height="260">
+                                     Height="480">
             <ScrollViewer Margin="4" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding Connections}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Columns="2" />
+                            <UniformGrid Columns="2" VerticalAlignment="Top" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </ScrollViewer>
             <settings:ConnectionEditor DataContext="{Binding ConnectionEditor}"
                                        VerticalAlignment="Stretch"
-                                       Margin="0 8 0 0"
-                                       />
+                                       Margin="0 8 0 0" />
         </materialDesign:Transitioner>
-        <Button Style="{DynamicResource MaterialDesignFloatingActionAccentButton}"
-                HorizontalAlignment="Right"
-                Margin="0 0 52 -28"
+        <Button HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Grid.Row="1"
+                Margin="0 0 32 32"
                 Command="{Binding AddConnectionCommand}"
-                Visibility="{Binding Mode, Converter={StaticResource EnumToIntConverter}, ConverterParameter={x:Static settings:ConnectionsManagerMode.Selector}}">
+                ToolTip="Add a new database connection..."
+                RenderTransformOrigin=".5,.5">
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                </TransformGroup>
+            </Button.RenderTransform>
+            <Button.Style>
+                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFloatingActionAccentButton}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Mode}" Value="{x:Static settings:ConnectionsManagerMode.ItemEditor}">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="1" />
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0" EasingFunction="{StaticResource DisableEase}" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="1" />
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0" EasingFunction="{StaticResource DisableEase}" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                            <DataTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="0" />
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="1" EasingFunction="{StaticResource EnableEase}" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="0" />
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="1" EasingFunction="{StaticResource EnableEase}" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.ExitActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
             <materialDesign:PackIcon Kind="Plus" Height="24" Width="24" />
         </Button>
     </Grid>

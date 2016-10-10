@@ -20,13 +20,50 @@ namespace Doobry
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
+            System.Net.WebRequest.DefaultWebProxy.Credentials
+                = System.Net.CredentialCache.DefaultNetworkCredentials;
+
+            IGeneralSettings generalSettings = null;
+            IConnectionCache connectionCache = null;
+            IInitialLayoutStructureProvider initialLayoutStructureProvider = null;
+
+            string rawData;
+            if (new Persistance().TryLoadRaw(out rawData))
+            {
+                try
+                {
+                    var settingsContainer = Serializer.Objectify(rawData);                    
+                    generalSettings = settingsContainer.GeneralSettings;
+                    connectionCache = settingsContainer.ConnectionCache;
+                    initialLayoutStructureProvider = new InitialLayoutStructureProvider(settingsContainer.LayoutStructure);
+                }
+                catch (Exception exc)
+                {
+                    //TODO summit
+                    System.Diagnostics.Debug.WriteLine(exc.Message);                                        
+                }
+            }
+
+            generalSettings = generalSettings ?? new GeneralSettings(10);
+            connectionCache = connectionCache ?? new ConnectionCache();
+            initialLayoutStructureProvider = initialLayoutStructureProvider ?? new InitialLayoutStructureProvider();
+
             var container = new Container(_ =>
             {
-                _.For<IConnectionCache>(Lifecycles.Singleton).Use<ConnectionCache>();
+                _.ForSingletonOf<IGeneralSettings>().Use(generalSettings);
+                _.ForSingletonOf<IConnectionCache>().Use(connectionCache);
+                _.ForSingletonOf<IInitialLayoutStructureProvider>().Use(initialLayoutStructureProvider);
+                _.AddRegistry<DoobryRegistry>();
+                _.Scan(scanner =>
+                {
+                    scanner.TheCallingAssembly();
+                    scanner.WithDefaultConventions();
+                });
+
             });                      
         
             //grease the Dragablz wheels    
-            NewItemFactory = () => new TabViewModel(container.GetInstance<IConnectionCache>());
+            NewItemFactory = () => new TabViewModel(Guid.NewGuid(), container.GetInstance<IConnectionCache>());
             InterTabClient = new InterTabClient(container.GetInstance<MainWindowViewModel>);
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -42,10 +79,11 @@ namespace Doobry
         public static IInterTabClient InterTabClient { get; private set; }
     }
 
-    /*
-    public class EntryPoint
+    public class DoobryRegistry : Registry
     {
-        public static void Main()
+        public DoobryRegistry()
+        {
+            ForSingletonOf<IManualSaver>().Use<ManualSaver>();
+        }
     }
-    */
 }

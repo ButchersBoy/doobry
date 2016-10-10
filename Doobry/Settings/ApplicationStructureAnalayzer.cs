@@ -83,11 +83,15 @@ namespace Doobry.Settings
                 DocumentTabSet(layoutStructureBranch.ChildSecondTabSetId.Value, branchAccessor.SecondItemTabablzControl, layoutStructureTabSets);
         }
 
-        private static void DocumentTabSet(Guid id, TabablzControl firstItemTabablzControl, ICollection<LayoutStructureTabSet> layoutStructureTabSets)
+        private static void DocumentTabSet(Guid id, TabablzControl tabablzControl, ICollection<LayoutStructureTabSet> layoutStructureTabSets)
         {
-            var layoutStructureTabSet = new LayoutStructureTabSet(id,
-                firstItemTabablzControl.Items.OfType<TabViewModel>()
-                    .Select(tvm => new LayoutStructureTabItem(tvm.ConnectionId))
+            var selectedTabItemId = (tabablzControl.SelectedItem as TabViewModel)?.Id;
+
+            var layoutStructureTabSet = new LayoutStructureTabSet(
+                id,
+                selectedTabItemId,
+                tabablzControl.Items.OfType<TabViewModel>()
+                    .Select(tvm => new LayoutStructureTabItem(tvm.Id, tvm.ConnectionId))
                 );
 
             layoutStructureTabSets.Add(layoutStructureTabSet);

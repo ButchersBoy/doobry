@@ -10,7 +10,7 @@ namespace Doobry.Settings
 {
     public static class Serializer
     {
-        public static string Stringify(IConnectionCache connectionCache, GeneralSettings generalSettings, LayoutStructure layoutStructure)
+        public static string Stringify(IConnectionCache connectionCache, IGeneralSettings generalSettings, LayoutStructure layoutStructure)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
@@ -20,17 +20,6 @@ namespace Doobry.Settings
             settings.connections = new JArray(connectionCache.Select(ToJson));
             settings.general = ToJson(generalSettings);
             settings.layout = ToJson(layoutStructure);
-            return settings.ToString();
-        }
-
-        [Obsolete]
-        public static string Stringify(Connection connection, GeneralSettings generalSettings)
-        {
-            //see http://www.newtonsoft.com/json/help/html/CreateJsonDynamic.htm
-
-            dynamic settings = new JObject();
-            settings.connection = ToJson(connection);
-            settings.general = ToJson(generalSettings);
             return settings.ToString();
         }
 
@@ -46,7 +35,7 @@ namespace Doobry.Settings
             return cn;
         }
 
-        private static JObject ToJson(GeneralSettings generalSettings)
+        private static JObject ToJson(IGeneralSettings generalSettings)
         {
             dynamic gs = new JObject();
             gs.maxItemCount = generalSettings.MaxItemCount;
@@ -91,6 +80,7 @@ namespace Doobry.Settings
 
             dynamic ts = new JObject();
             ts.id = tabSet.Id;
+            ts.selectedTabItemId = tabSet.SelectedTabItemId;
             ts.tabItems = new JArray(tabSet.TabItems.Select(ToJson));            
             return ts;
         }
@@ -100,6 +90,7 @@ namespace Doobry.Settings
             if (tabItem == null) throw new ArgumentNullException(nameof(tabItem));
 
             dynamic ti = new JObject();
+            ti.id = tabItem.Id;
             ti.connectionId = tabItem.ConnectionId;
             return ti;
         }
@@ -156,18 +147,21 @@ namespace Doobry.Settings
         {
             return new LayoutStructureTabSet(
                 Guid.Parse(tabSetJToken["id"].ToString()),
+                GetNullableGuid(tabSetJToken, "selectedTabItemId"),
                 ((JArray)tabSetJToken.SelectToken("tabItems")).Select(ObjectifyTabItem));
         }
 
         private static LayoutStructureTabItem ObjectifyTabItem(JToken tabItemJToken)
         {
-            return new LayoutStructureTabItem(GetNullableGuid(tabItemJToken, "connectionId"));
+            return new LayoutStructureTabItem(
+                Guid.Parse(tabItemJToken["id"].ToString()), 
+                GetNullableGuid(tabItemJToken, "connectionId"));
         }
 
         private static Guid? GetNullableGuid(JToken token, string path)
         {
             Guid guid;
-            return Guid.TryParse((token.SelectToken(path)?.ToString()) ?? "", out guid)
+            return Guid.TryParse(token.SelectToken(path)?.ToString() ?? "", out guid)
                 ? guid
                 : (Guid?)null;
         }

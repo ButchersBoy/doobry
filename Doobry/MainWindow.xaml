@@ -21,8 +21,16 @@
         doobry:LifeTimeAssist.RunOnWindowUnloading="{Binding ShutDownCommand}">
     <Window.Resources>
         <DataTemplate DataType="{x:Type doobry:TabViewModel}">
+            <DataTemplate.Resources>
+                <Style TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">
+                    <Setter Property="Background" Value="{DynamicResource MaterialDesignDivider}" />
+                </Style>
+            </DataTemplate.Resources>
             <materialDesign:Transitioner SelectedIndex="{Binding ViewIndex}" x:Name="Transitioner"
-                                         Margin="0 1 0 0">
+                                         Margin="0 1 0 0"
+                                         IsTabStop="False"
+                                         Focusable="False"
+                                         SelectionChanged="Transitioner_OnSelectionChanged">
                 <DockPanel>
                     <doobry:QueryRunnerToolbar DockPanel.Dock="Top" />
                     <doobry:QueryRunner DataContext="{Binding QueryRunnerViewModel}" />
@@ -33,20 +41,22 @@
                 </DockPanel>
             </materialDesign:Transitioner>
         </DataTemplate>
+        <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{x:Static doobry:App.InterTabClient}" />
+        <Style TargetType="dragablz:TabablzControl" BasedOn="{StaticResource {x:Type dragablz:TabablzControl}}">
+            <Setter Property="IsTabStop" Value="False" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="ShowDefaultAddButton" Value="True" />
+            <Setter Property="ShowDefaultCloseButton" Value="True" />
+            <Setter Property="HeaderMemberPath" Value="Name" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="NewItemFactory" Value="{x:Static doobry:App.NewItemFactory}" />
+            <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
+        </Style>
     </Window.Resources>
-    <materialDesign:DialogHost>
-        <dockablz:Layout>
-            <dragablz:TabablzControl x:Name="InitialTabablzControl" 
-                                     HeaderMemberPath="Name"
-                                     BorderThickness="0"
-                                     ShowDefaultAddButton="True"
-                                     ShowDefaultCloseButton="True"
-                                     NewItemFactory="{x:Static doobry:App.NewItemFactory}"
-                                     doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}">
-                <dragablz:TabablzControl.InterTabController>
-                    <dragablz:InterTabController InterTabClient="{x:Static doobry:App.InterTabClient}" />
-                </dragablz:TabablzControl.InterTabController>
-            </dragablz:TabablzControl>
+    <materialDesign:DialogHost IsTabStop="False" Focusable="False">
+        <dockablz:Layout IsTabStop="False" Focusable="False">
+            <dragablz:TabablzControl x:Name="InitialTabablzControl"                                      
+                                     doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}"/> 
         </dockablz:Layout>
     </materialDesign:DialogHost>
 </Window>

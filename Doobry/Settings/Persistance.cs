@@ -10,7 +10,7 @@ namespace Doobry.Settings
     public class Persistance
     {
         private const string FileName = "doobry-settings-auto.doobry";
-        private readonly string FilePath =
+        public static readonly string FilePath =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FileName);
 
         public bool TryLoadRaw(out string rawData)

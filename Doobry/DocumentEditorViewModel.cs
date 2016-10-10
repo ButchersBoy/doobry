@@ -18,15 +18,19 @@ namespace Doobry
     public class DocumentEditorViewModel : INotifyPropertyChanged
     {
         private readonly Func<Connection> _connectionProvider;
-        private string _content = "{ hello : \"world\" }";
+        private const string SampleContent = "{ hello : \"world\" }";
+        private string _content = SampleContent;
 
         public DocumentEditorViewModel(Func<Connection> connectionProvider)
         {
             this._connectionProvider = connectionProvider;
             SaveCommand = new Command(_ => Save());
+            NewCommand = new Command(_ => Content = SampleContent);
         }
 
         public ICommand SaveCommand { get; }
+
+        public ICommand NewCommand { get; }
 
         public string Content
         {

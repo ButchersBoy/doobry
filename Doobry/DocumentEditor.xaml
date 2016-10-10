@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:doobry="clr-namespace:Doobry"
+             xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance doobry:DocumentEditorViewModel, IsDesignTimeCreatable=False}">
@@ -15,9 +16,12 @@
              VerticalContentAlignment="Top"
              HorizontalScrollBarVisibility="Auto"
              VerticalScrollBarVisibility="Auto"
-             FontFamily="Courier New">
+             FontFamily="Courier New"
+             infrastructure:FocusAssist.IsViableTarget="True">
         <TextBox.InputBindings>
+            <KeyBinding Key="Escape" Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}" />
             <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}" />
+            <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewCommand}" />
         </TextBox.InputBindings>
     </TextBox>
 </UserControl>

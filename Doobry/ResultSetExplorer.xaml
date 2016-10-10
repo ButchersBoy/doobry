@@ -10,7 +10,6 @@
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:ResultSetExplorerViewModel, d:IsDesignTimeCreatable=False}">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <infrastructure:BooleanToVisibilityConverter2 x:Key="InvertedBooleanToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
     </UserControl.Resources>
     <Grid>
@@ -39,15 +38,15 @@
                 <materialDesign:ColorZone DockPanel.Dock="Top" materialDesign:ShadowAssist.ShadowDepth="Depth1" Mode="Light" Padding="4 2 2 2" Margin="2 2 3 2" CornerRadius="2">
                     <StackPanel Orientation="Horizontal">
                         <Button ToolTip="Edit Document..." 
-                                Command="{Binding EditConnectionCommand, Mode=OneTime}"
-                                CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
+                                Command="{Binding EditDocumentCommand, Mode=OneTime}"
+                                CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}"
                                 materialDesign:RippleAssist.IsCentered="True">
                             <materialDesign:PackIcon Kind="FileDocument" />
                         </Button>
                         <Button ToolTip="Delete Document..." 
-                                Command="{Binding EditConnectionCommand, Mode=OneTime}"
-                                CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
+                                Command="{Binding DeleteDocumentCommand, Mode=OneTime}"
+                                CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}"
                                 materialDesign:RippleAssist.IsCentered="True">
                             <materialDesign:PackIcon Kind="Delete" />

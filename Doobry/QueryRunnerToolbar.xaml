@@ -7,8 +7,8 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:MainWindowViewModel, d:IsDesignTimeCreatable=False}">
-    <materialDesign:ColorZone Mode="PrimaryMid" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
-                              >
+    <materialDesign:ColorZone Mode="PrimaryLight" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
+                              CornerRadius="0">
         <StackPanel Orientation="Horizontal">
             <Button ToolTip="Database Settings..." 
                     Command="{Binding EditConnectionCommand, Mode=OneTime}"
@@ -45,12 +45,12 @@
                 </StackPanel>
             </materialDesign:ColorZone>
             <Button ToolTip="Run Query - F9" Command="{Binding QueryRunnerViewModel.RunQueryCommand, Mode=OneTime}"
-                                Style="{DynamicResource MaterialDesignFloatingActionMiniLightButton}"
-                                Margin="24 -4 0 -4"
-                                materialDesign:RippleAssist.IsCentered="True">
+                    Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButton}"
+                    Margin="24 -4 0 -4"
+                    materialDesign:RippleAssist.IsCentered="True">
                 <materialDesign:PackIcon Kind="Play" />
             </Button>
-            <Button ToolTip="Document Editor..."
+            <Button ToolTip="Document Editor... - F2"
                     Command="{x:Static materialDesign:Transitioner.MoveNextCommand}"                    
                     Style="{DynamicResource MaterialDesignToolForegroundButton}"
                     materialDesign:RippleAssist.IsCentered="True"

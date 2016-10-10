@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Doobry.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using MaterialDesignThemes.Wpf.Transitions;
 
 namespace Doobry
 {
@@ -23,6 +26,13 @@ namespace Doobry
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Transitioner_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var transitioner = (Transitioner) sender;
+            var transitionerSlides = LogicalTreeHelper.GetChildren(transitioner).OfType<DependencyObject>().ToList();
+            FocusAssist.FocusViableTarget(transitionerSlides[transitioner.SelectedIndex]);
         }
     }
 }

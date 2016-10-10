@@ -49,6 +49,8 @@ namespace Doobry.Settings
 
         public Guid? Id { get; }
 
+        public string SettingsFilePath => Persistance.FilePath;
+
         public string Label
         {
             get { return _label; }

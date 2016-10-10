@@ -21,10 +21,13 @@ namespace Doobry.Settings
         public async Task<Optional<Connection>> Select(DependencyObject nearTo)
         {
             if (nearTo == null) throw new ArgumentNullException(nameof(nearTo));
+
+            Connection connection;
+
             if (!_connectionCache.Any())
             {
                 var connectionEditor = new ConnectionEditor();
-                var connection = await nearTo.ShowDialog(connectionEditor, delegate(object sender, DialogOpenedEventArgs args)                
+                connection = await nearTo.ShowDialog(connectionEditor, delegate(object sender, DialogOpenedEventArgs args)                
                 {
                     var connectionEditorViewModel = new ConnectionEditorViewModel(vm => SaveHandler(vm, args.Session), args.Session.Close);
                     connectionEditor.DataContext = connectionEditorViewModel;
@@ -34,13 +37,13 @@ namespace Doobry.Settings
             }
 
             var connectionsManager = new ConnectionsManager();
-            await nearTo.ShowDialog(connectionsManager, delegate(object sender, DialogOpenedEventArgs args)
+            connection = await nearTo.ShowDialog(connectionsManager, delegate(object sender, DialogOpenedEventArgs args)
             {
                 var connectionsManagerViewModel = new ConnectionsManagerViewModel(_connectionCache);
                 connectionsManager.DataContext = connectionsManagerViewModel;
-            });
+            }) as Connection;
 
-            return Optional<Connection>.None;
+            return Optional<Connection>.Create(connection);
         }
 
         

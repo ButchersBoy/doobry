@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Doobry"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:QueryRunnerViewModel, d:IsDesignTimeCreatable=False}">
@@ -22,14 +23,16 @@
                  VerticalContentAlignment="Top"
                  HorizontalScrollBarVisibility="Auto"
                  VerticalScrollBarVisibility="Auto"
-                 FontFamily="Courier New">
+                 FontFamily="Courier New"
+                 infrastructure:FocusAssist.IsViableTarget="True">
             <TextBox.InputBindings>
                 <KeyBinding Key="F9" Command="{Binding RunQueryCommand}" />
+                <KeyBinding Key="F2" Command="{x:Static materialDesign:Transitioner.MoveNextCommand}" />
             </TextBox.InputBindings>
         </TextBox>
         <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext"
-                              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                              />
+                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                      />
         <local:ResultSetExplorer Grid.Row="2" DataContext="{Binding ResultSetExplorer}" />
     </Grid>
 </UserControl>

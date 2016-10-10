@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Doobry.Infrastructure;
 using DynamicData;
+using DynamicData.Controllers;
+using DynamicData.Operators;
 
 namespace Doobry.Settings
 {    
@@ -20,8 +22,9 @@ namespace Doobry.Settings
 
         public ConnectionsManagerViewModel(IConnectionCache connectionCache)
         {
-            _connectionCache = connectionCache;
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+
+            _connectionCache = connectionCache;
 
             AddConnectionCommand = new Command(_ =>
             {
@@ -41,9 +44,15 @@ namespace Doobry.Settings
                     DisplayMode = ConnectionEditorDisplayMode.MultiEdit
                 };
                 Mode = ConnectionsManagerMode.ItemEditor;
+            }, o => o is Connection);            
+            DeleteConnectionCommand = new Command(o =>
+            {
+                var connection = o as Connection;
+                if (connection == null) return;
+                _connectionCache.Delete(connection.Id);
             }, o => o is Connection);
 
-            _disposable = connectionCache.Connect().Bind(out _connections).Subscribe();
+            _disposable = connectionCache.Connect().Sort(SortExpressionComparer<Connection>.Ascending(c => c.Label)).Bind(out _connections).Subscribe();
             if (_connections.Count == 0) AddConnectionCommand.Execute(null);
         }
 
@@ -56,6 +65,8 @@ namespace Doobry.Settings
         public ICommand AddConnectionCommand { get; }
 
         public ICommand EditConnectionCommand { get; }
+
+        public ICommand DeleteConnectionCommand { get; }
 
         public Connection SelectedConnection
         {

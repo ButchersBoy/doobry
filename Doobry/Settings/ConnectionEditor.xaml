@@ -10,6 +10,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:ConnectionEditorViewModel, d:IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <DockPanel MinWidth="480">
         <Grid DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
@@ -17,6 +24,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition />
                 <RowDefinition />
                 <RowDefinition />
                 <RowDefinition />
@@ -35,14 +43,18 @@
                      Margin="16 4 16 4"
                      Grid.Row="2" Grid.ColumnSpan="2"                  
                      Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" />
-            <TextBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" materialDesign:HintAssist.Hint="Authorisation Key" materialDesign:HintAssist.IsFloating="True" 
+            <TextBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" materialDesign:HintAssist.Hint="Authorisation Key *" materialDesign:HintAssist.IsFloating="True" 
                      Margin="16 4 16 4"
                      Text="{Binding AuthorisationKey, UpdateSourceTrigger=PropertyChanged}" />
-            <TextBox Grid.Column="0" Grid.Row="4" materialDesign:HintAssist.Hint="Database ID" materialDesign:HintAssist.IsFloating="True" 
-                     Margin="16 4 8 4"
+            <TextBlock Text="{Binding SettingsFilePath, StringFormat={}* Stored in plain text in: {0}}"
+                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                       Margin="16 4 16 4"
+                       Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" />
+            <TextBox Grid.Column="0" Grid.Row="5" materialDesign:HintAssist.Hint="Database ID" materialDesign:HintAssist.IsFloating="True" 
+                     Margin="16 12 8 4"
                      Text="{Binding DatabaseId, UpdateSourceTrigger=PropertyChanged}" />
-            <TextBox Grid.Column="1" Grid.Row="4" materialDesign:HintAssist.Hint="Collection ID" materialDesign:HintAssist.IsFloating="True" 
-                     Margin="8 4 16 4"
+            <TextBox Grid.Column="1" Grid.Row="5" materialDesign:HintAssist.Hint="Collection ID" materialDesign:HintAssist.IsFloating="True" 
+                     Margin="8 12 16 4"
                      Text="{Binding CollectionId, UpdateSourceTrigger=PropertyChanged}" />
 
         </Grid>

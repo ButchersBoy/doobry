@@ -15,11 +15,13 @@ namespace Doobry
         private bool _isError;
         private string _error;
 
-        public ResultSetExplorerViewModel(ICommand fetchMoreCommand)
+        public ResultSetExplorerViewModel(ICommand fetchMoreCommand, ICommand editDocumentCommand, ICommand deleteDocumentCommand)
         {
             if (fetchMoreCommand == null) throw new ArgumentNullException(nameof(fetchMoreCommand));
             
             FetchMoreCommand = fetchMoreCommand;
+            EditDocumentCommand = editDocumentCommand;
+            DeleteDocumentCommand = deleteDocumentCommand;
         }
 
         public ResultSet ResultSet
@@ -53,6 +55,10 @@ namespace Doobry
         }
 
         public ICommand FetchMoreCommand { get; }
+
+        public ICommand DeleteDocumentCommand { get; }
+
+        public ICommand EditDocumentCommand { get; }
 
         public bool IsError
         {

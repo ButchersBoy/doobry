@@ -9,9 +9,9 @@
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance doobry:MainWindowViewModel, d:IsDesignTimeCreatable=False}">
     <materialDesign:ColorZone Mode="PrimaryDark" materialDesign:ShadowAssist.ShadowDepth="Depth2" Padding="14 6 14 6"
-                              >
+                              CornerRadius="0">
         <StackPanel Orientation="Horizontal">
-            <Button ToolTip="Back to Query Editor" 
+            <Button ToolTip="Back to Query Editor - ESC" 
                     Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}"
                     Style="{DynamicResource MaterialDesignToolForegroundButton}"
                     materialDesign:RippleAssist.IsCentered="True">
@@ -19,10 +19,17 @@
             </Button>
             <Button ToolTip="Save Document - CTRL+S" 
                     Command="{Binding DocumentEditorViewModel.SaveCommand, Mode=OneTime}"
-                    Style="{DynamicResource MaterialDesignFloatingActionMiniLightButton}"
+                    Style="{DynamicResource MaterialDesignFloatingActionMiniAccentButton}"
                     Margin="12 -2 0 0"
                     materialDesign:RippleAssist.IsCentered="True">
                 <materialDesign:PackIcon Kind="CloudUpload" />
+            </Button>
+            <Button ToolTip="New Document - CTRL+N"
+                    Command="{Binding DocumentEditorViewModel.NewCommand, Mode=OneTime}"                    
+                    Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Margin="16 0 0 0">
+                <materialDesign:PackIcon Kind="File" />
             </Button>
         </StackPanel>
     </materialDesign:ColorZone>

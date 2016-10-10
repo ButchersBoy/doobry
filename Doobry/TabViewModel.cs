@@ -14,22 +14,21 @@ namespace Doobry
 {
     public class TabViewModel : INotifyPropertyChanged
     {
-        private Connection _connection;
         private readonly IConnectionCache _connectionCache;
-        private GeneralSettings _generalSettings;
+        private readonly GeneralSettings _generalSettings;
+        private Connection _connection;
         private int _viewIndex;
         private string _documentId;
         private string _name;
 
-        public TabViewModel(IConnectionCache connectionCache) : this(null, connectionCache)
-        {
-            
-        }
+        public TabViewModel(Guid id, IConnectionCache connectionCache) : this(id, null, connectionCache)
+        { }
 
-        public TabViewModel(Connection connection, IConnectionCache connectionCache)
+        public TabViewModel(Guid id, Connection connection, IConnectionCache connectionCache)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
 
+            Id = id;
             _generalSettings = new GeneralSettings(10);
             _connection = connection;
             _connectionCache = connectionCache;
@@ -37,11 +36,13 @@ namespace Doobry
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject)sender));
             EditSettingsCommand = new Command(sender => EditSettingsAsync((DependencyObject)sender));
-            QueryRunnerViewModel = new QueryRunnerViewModel(() => _connection, () => _generalSettings);
+            QueryRunnerViewModel = new QueryRunnerViewModel(() => _connection, () => _generalSettings, EditDocumentHandler);
             DocumentEditorViewModel = new DocumentEditorViewModel(() => _connection);
 
             SetName();
         }
+
+        public Guid Id { get; }
 
         public string Name
         {
@@ -73,58 +74,21 @@ namespace Doobry
 
         public Guid? ConnectionId => _connection?.Id;
 
+        private void EditDocumentHandler(Result result)
+        {
+            if (result == null) throw new ArgumentNullException(nameof(result));
+
+            DocumentEditorViewModel.Content = result.Data;
+            ViewIndex = 1;
+        }
+
         private async void EditConnectionAsync(DependencyObject sender)
         {
             Debug.Assert(sender != null);
 
             var connectionOption = await new ConnectionManagementController(_connectionCache).Select(sender);
 
-            _connection = connectionOption.ValueOr(() => null);
-
-
-            /*
-            var connectionsManagerViewModel = new ConnectionsManagerViewModel(_connectionCache);
-            var connectionsManager = new ConnectionsManager
-            {
-                DataContext = connectionsManagerViewModel
-            };
-
-            await ShowDialogAsync(connectionsManager, "Database", PackIconKind.Database, sender);
-
-            /*
-            ConnectionEditorViewModel selectConnectionEditorViewModel = null;
-            var connectionEditorViewModels = MainWindowViewModel.ConnectionCache.Select(cn =>
-            {
-                var connectionEditorViewModel = cn.ToViewModel();
-                if (_connection != null && connectionEditorViewModel.Id == _connection.Id)
-                    selectConnectionEditorViewModel = connectionEditorViewModel;
-                return connectionEditorViewModel;
-            }).ToList();
-            var connectionsEditorViewModel = new ConnectionsManagerViewModel(connectionEditorViewModels)
-            {
-                SelectedConnection = selectConnectionEditorViewModel
-            };
-            var connectionsEditor = new ConnectionsManager
-            {
-                DataContext = connectionsEditorViewModel
-            };
-
-            var result = await ShowDialogAsync(connectionsEditor, "Database", PackIconKind.Database, sender);
-
-            if (!result) return;
-
-            var connections = connectionsEditorViewModel.Connections.Select(cnVm =>
-            {
-                var cn = cnVm.ToConnection();
-                if (cnVm == connectionsEditorViewModel.SelectedConnection)
-                    SetConnection(cn);
-                return cn;
-            }).ToList();            
-
-            MainWindowViewModel.ConnectionCache.Reset(connections);
-
-            PersistSettings(_generalSettings, _connection);
-            */
+            SetConnection(connectionOption.ValueOr(() => _connection));
         }
 
         private async void EditSettingsAsync(DependencyObject sender)
@@ -138,12 +102,9 @@ namespace Doobry
                 DataContext = viewModel
             };
 
-            var result = await ShowDialogAsync(settingsEditor, "Settings", PackIconKind.Settings, sender);
+            await ShowDialogAsync(settingsEditor, "Settings", PackIconKind.Settings, sender);            
 
-            if (!result) return;
-
-            _generalSettings = new GeneralSettings(viewModel.MaxItemCount);
-            PersistSettings(_generalSettings, _connection);
+            _generalSettings.MaxItemCount = viewModel.MaxItemCount;            
         }
 
         private void SetConnection(Connection connection)
@@ -155,17 +116,6 @@ namespace Doobry
         private void SetName()
         {
             Name = _connection?.Label ?? "(no connection)";
-        }
-
-        private static void PersistSettings(GeneralSettings generalSettings, Connection connection)
-        {
-            Task.Factory.StartNew(() =>
-            {
-                //TODO, handle errors, failures
-                //var json = Serializer.Stringify( connection, generalSettings);
-
-                //new Persistance().TrySaveRaw(json);
-            });
         }
 
         private static async Task<bool> ShowDialogAsync(object content, string title, PackIconKind icon, DependencyObject sender)

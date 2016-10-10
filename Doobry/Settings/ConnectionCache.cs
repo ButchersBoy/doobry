@@ -16,6 +16,7 @@ namespace Doobry.Settings
 
         IObservable<IChangeSet<Connection, Guid>> Connect();
         void AddOrUpdate(Connection connection);
+        void Delete(Guid id);
     }
 
     public class ConnectionCache : IConnectionCache, IDisposable
@@ -44,6 +45,11 @@ namespace Doobry.Settings
         public void AddOrUpdate(Connection connection)
         {            
             _connectionSoureCache.AddOrUpdate(connection);
+        }
+
+        public void Delete(Guid id)
+        {
+            _connectionSoureCache.Remove(id);
         }
 
         public void Dispose()

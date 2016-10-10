@@ -2,37 +2,36 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
 using Doobry.Infrastructure;
 using Doobry.Settings;
 using Dragablz;
 using Dragablz.Dockablz;
 using DynamicData.Kernel;
-using MaterialDesignThemes.Wpf;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 
 namespace Doobry
 {
-    public class MainWindowViewModel// : INotifyPropertyChanged
+    public class MainWindowViewModel
     {
         private readonly IConnectionCache _connectionCache;
-        public static GeneralSettings GeneralSettings = new GeneralSettings(10);
+        private readonly IGeneralSettings _generalSettings;
+        private readonly IInitialLayoutStructureProvider _initialLayoutStructureProvider;
 
         private static bool _isStartupInitiated;
 
-        public MainWindowViewModel(IConnectionCache connectionCache)
+        public MainWindowViewModel(IConnectionCache connectionCache, IGeneralSettings generalSettings, IInitialLayoutStructureProvider initialLayoutStructureProvider)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
+            if (initialLayoutStructureProvider == null)
+                throw new ArgumentNullException(nameof(initialLayoutStructureProvider));
 
             _connectionCache = connectionCache;
+            _generalSettings = generalSettings;
+            _initialLayoutStructureProvider = initialLayoutStructureProvider;
 
             StartupCommand = new Command(RunStartup);
             ShutDownCommand = new Command(o => RunShutdown());
@@ -55,94 +54,140 @@ namespace Doobry
             var mainWindow = Window.GetWindow(senderDependencyObject) as MainWindow;
             var rootTabControl = mainWindow.InitialTabablzControl;
 
-
-            string rawData;
-            if (new Persistance().TryLoadRaw(out rawData))
+            LayoutStructure layoutStructure;
+            if (_initialLayoutStructureProvider.TryTake(out layoutStructure))
             {
-                try
-                {
-                    var settingsContainer = Serializer.Objectify(rawData);
-                    //_connection = settingsContainer.ConnectionCache;
-                    GeneralSettings = settingsContainer.GeneralSettings;
-
-                    RestoreLayout(rootTabControl, settingsContainer.LayoutStructure, settingsContainer.ConnectionCache);
-                }
-                catch (Exception exc)
-                {
-                    System.Diagnostics.Debug.WriteLine(exc.Message);
-                    //rootTabControl.ShowDialog(exc.Message);
-
-                    //TODO summit...                    
-                }                
+                RestoreLayout(rootTabControl, layoutStructure, _connectionCache);
             }
 
-            if (!TabablzControl.GetLoadedInstances().SelectMany(tc => tc.Items.OfType<object>()).Any())
-            {
-                var tabViewModel = new TabViewModel(_connectionCache);
-                Tabs.Add(tabViewModel);
-                TabablzControl.SelectItem(tabViewModel);
-                tabViewModel.EditConnectionCommand.Execute(null);
-            }            
+            if (TabablzControl.GetLoadedInstances().SelectMany(tc => tc.Items.OfType<object>()).Any()) return;
+
+            var tabViewModel = new TabViewModel(Guid.NewGuid(), _connectionCache);
+            rootTabControl.AddToSource(tabViewModel);
+            Tabs.Add(tabViewModel);
+            TabablzControl.SelectItem(tabViewModel);
+            tabViewModel.EditConnectionCommand.Execute(rootTabControl);
         }
 
-        private static void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure, IConnectionCache connectionCache)
+        private void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure, IConnectionCache connectionCache)
         {
             //we only currently support a single window, can build on in future
             var layoutStructureWindow = layoutStructure.Windows.Single();
+            
+            var layoutStructureTabSets = layoutStructureWindow.TabSets.ToDictionary(tabSet => tabSet.Id);
+
             if (layoutStructureWindow.Branches.Any())
             {
                 var branchIndex = layoutStructureWindow.Branches.ToDictionary(b => b.Id);
                 var rootBranch = GetRoot(branchIndex);
-                var tabSetIndex = layoutStructureWindow.TabSets.ToDictionary(ts => ts.Id);
-                BuildLayout(rootTabControl, rootBranch, branchIndex, tabSetIndex, connectionCache);
+
+                //do the nasty recursion to build the layout, populate the tabs after, keep it simple...
+                foreach (var tuple in BuildLayout(rootTabControl, rootBranch, branchIndex))
+                {
+                    PopulateTabControl(tuple.Item2, layoutStructureTabSets[tuple.Item1]);
+                }
             }
             else
             {
-                var layoutStructureTabSet = layoutStructureWindow.TabSets.Single();
-                BuildTabSet(layoutStructureTabSet, rootTabControl, connectionCache);
+                PopulateTabControl(rootTabControl, layoutStructureTabSets.Values.First());
             }
         }
 
-        private static void BuildLayout(
+        private void PopulateTabControl(TabablzControl tabablzControl, LayoutStructureTabSet layoutStructureTabSet)
+        {
+            foreach (var tabItem in layoutStructureTabSet.TabItems)
+            {
+                Connection connection = null;
+                if (tabItem.ConnectionId.HasValue)
+                {
+                    connection = _connectionCache.Get(tabItem.ConnectionId.Value).ValueOrDefault();
+                }
+                var tabViewModel = new TabViewModel(tabItem.Id, connection, _connectionCache);
+                tabablzControl.AddToSource(tabViewModel);
+
+                if (tabViewModel.Id == layoutStructureTabSet.SelectedTabItemId)
+                {
+                    tabablzControl.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        tabablzControl.SetCurrentValue(Selector.SelectedItemProperty, tabViewModel);
+                    }), DispatcherPriority.Loaded);                    
+                }
+            }
+        }
+
+        public static readonly DependencyProperty TabSetIdProperty = DependencyProperty.RegisterAttached(
+            "TabSetId", typeof(Guid?), typeof(MainWindowViewModel), new PropertyMetadata(default(Guid?)));
+
+        public static void SetTabSetId(DependencyObject element, Guid? value)
+        {
+            element.SetValue(TabSetIdProperty, value);
+        }
+
+        public static Guid? GetTabSetId(DependencyObject element)
+        {
+            return (Guid?) element.GetValue(TabSetIdProperty);
+        }
+
+        private static IEnumerable<Tuple<Guid, TabablzControl>> BuildLayout(
             TabablzControl intoTabablzControl, 
             LayoutStructureBranch layoutStructureBranch,
-            IDictionary<Guid, LayoutStructureBranch> layoutStructureBranchIndex,
-            IDictionary<Guid, LayoutStructureTabSet> layoutStructureTabSetIndex,
-            IConnectionCache connectionCache)
-        {
-            var newSiblingTabablzControl = new TabablzControl
-            {
-                HeaderMemberPath = "Name",
-                BorderThickness = new Thickness(0),
-                ShowDefaultAddButton = true,
-                ShowDefaultCloseButton = true,
-                //TODO we can inject this now we have a proper CI container
-                NewItemFactory = App.NewItemFactory
-            };
-            var branchResult = Layout.Branch(intoTabablzControl, newSiblingTabablzControl, layoutStructureBranch.Orientation, false, layoutStructureBranch.Ratio);
+            IDictionary<Guid, LayoutStructureBranch> layoutStructureBranchIndex)
+        {            
+            var newSiblingTabablzControl = CreateTabablzControl();
+            var branchResult = Layout.Branch(intoTabablzControl, newSiblingTabablzControl, layoutStructureBranch.Orientation, false, layoutStructureBranch.Ratio);            
 
             if (layoutStructureBranch.ChildFirstBranchId.HasValue)
             {
                 var firstChildBranch = layoutStructureBranchIndex[layoutStructureBranch.ChildFirstBranchId.Value];
-                BuildLayout(branchResult.TabablzControl, firstChildBranch, layoutStructureBranchIndex, layoutStructureTabSetIndex, connectionCache);
+                foreach (var tuple in BuildLayout(intoTabablzControl, firstChildBranch, layoutStructureBranchIndex))
+                    yield return tuple;
             }
             else if (layoutStructureBranch.ChildFirstTabSetId.HasValue)
             {
-                BuildTabSet(layoutStructureTabSetIndex[layoutStructureBranch.ChildFirstTabSetId.Value], intoTabablzControl,
-                    connectionCache);
+                SetTabSetId(intoTabablzControl, layoutStructureBranch.ChildFirstTabSetId.Value);
+                yield return new Tuple<Guid, TabablzControl>(layoutStructureBranch.ChildFirstTabSetId.Value, intoTabablzControl);
             }            
 
             if (layoutStructureBranch.ChildSecondBranchId.HasValue)
             {
                 var secondChildBranch = layoutStructureBranchIndex[layoutStructureBranch.ChildSecondBranchId.Value];
-                BuildLayout(branchResult.TabablzControl, secondChildBranch, layoutStructureBranchIndex, layoutStructureTabSetIndex, connectionCache);
+                foreach (var tuple in BuildLayout(branchResult.TabablzControl, secondChildBranch, layoutStructureBranchIndex))
+                    yield return tuple;
             }
             else if (layoutStructureBranch.ChildSecondTabSetId.HasValue)
             {
-                BuildTabSet(layoutStructureTabSetIndex[layoutStructureBranch.ChildSecondTabSetId.Value], newSiblingTabablzControl,
-                    connectionCache);
-            }
+                SetTabSetId(newSiblingTabablzControl, layoutStructureBranch.ChildSecondTabSetId.Value);
+                yield return new Tuple<Guid, TabablzControl>(layoutStructureBranch.ChildSecondTabSetId.Value, newSiblingTabablzControl);
+            }         
         }
+
+        private IEnumerable<Tuple<Guid, IList<TabViewModel>>> CreateTabItemSets(IEnumerable<LayoutStructureTabSet> tabSets)
+        {
+            return tabSets.Select(tabSet =>
+                        new Tuple<Guid, IList<TabViewModel>>(tabSet.Id, CreateTabItemSet(tabSet))
+            );
+        }
+
+        private IList<TabViewModel> CreateTabItemSet(LayoutStructureTabSet layoutStructureTabSet)
+        {
+            var result = new List<TabViewModel>();
+            foreach (var layoutStructureTabItem in layoutStructureTabSet.TabItems)
+            {
+                Connection connection = null;
+                if (layoutStructureTabItem.ConnectionId.HasValue)
+                {
+                    connection = _connectionCache.Get(layoutStructureTabItem.ConnectionId.Value).ValueOrDefault();
+                }
+                var tabViewModel = new TabViewModel(layoutStructureTabSet.Id, connection, _connectionCache);
+                result.Add(tabViewModel);
+            }            
+            return result;
+        }
+
+        private static TabablzControl CreateTabablzControl()
+        {
+            return new TabablzControl();
+        }        
 
         private static void BuildTabSet(LayoutStructureTabSet layoutStructureTabSet, TabablzControl intoTabablzControl, IConnectionCache connectionCache)
         {
@@ -153,8 +198,11 @@ namespace Doobry
                 {
                     connection = connectionCache.Get(layoutStructureTabItem.ConnectionId.Value).ValueOrDefault();
                 }                
-                var tabViewModel = new TabViewModel(connection, connectionCache);
-                intoTabablzControl.AddToSource(tabViewModel);                
+                var tabViewModel = new TabViewModel(layoutStructureTabSet.Id, connection, connectionCache);
+                intoTabablzControl.AddToSource(tabViewModel);
+                if (layoutStructureTabSet.SelectedTabItemId.HasValue &&
+                    tabViewModel.Id == layoutStructureTabSet.SelectedTabItemId.Value)
+                    intoTabablzControl.SetValue(Selector.SelectedItemProperty, tabViewModel);
             }
         }
 
@@ -173,7 +221,7 @@ namespace Doobry
         }
 
         private void RunShutdown()
-        {
+        {                        
             var windowCollection = Application.Current.Windows.OfType<MainWindow>();
             if (windowCollection.Count() == 1)
                 RunApplicationShutdown();
@@ -181,10 +229,7 @@ namespace Doobry
 
         private void RunApplicationShutdown()
         {
-            var layoutStructure = LayoutAnalayzer.GetLayoutStructure();
-            var data = Serializer.Stringify(_connectionCache, GeneralSettings, layoutStructure);
-
-            new Persistance().TrySaveRaw(data);
+            new ManualSaver().Save(_connectionCache, _generalSettings);            
 
             Application.Current.Shutdown();
         }
