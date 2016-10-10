@@ -10,6 +10,7 @@ using Doobry.Settings;
 using Dragablz;
 using StructureMap;
 using StructureMap.Pipeline;
+using Squirrel;
 
 namespace Doobry
 {
@@ -18,6 +19,8 @@ namespace Doobry
     /// </summary>
     public partial class App : Application
     {
+        private static Task<UpdateManager> _updateManager = null;
+
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             System.Net.WebRequest.DefaultWebProxy.Credentials
@@ -77,6 +80,14 @@ namespace Doobry
         public static Func<object> NewItemFactory { get; private set; }
 
         public static IInterTabClient InterTabClient { get; private set; }
+
+        private static async void CheckForUpdates()
+        {
+            _updateManager = UpdateManager.GitHubUpdateManager("https://github.com/ButchersBoy/doobry", "doobry");
+
+            if (_updateManager.Result.IsInstalledApp)
+                await _updateManager.Result.UpdateApp();
+        }
     }
 
     public class DoobryRegistry : Registry
