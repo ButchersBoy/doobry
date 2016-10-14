@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Doobry.Infrastructure;
 using Doobry.Settings;
+using ICSharpCode.AvalonEdit.Document;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -19,24 +20,25 @@ namespace Doobry
     {
         private readonly Func<Connection> _connectionProvider;
         private const string SampleContent = "{ hello : \"world\" }";
-        private string _content = SampleContent;
+        private string _content = SampleContent;        
 
         public DocumentEditorViewModel(Func<Connection> connectionProvider)
         {
-            this._connectionProvider = connectionProvider;
+            if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
+
+            _connectionProvider = connectionProvider;
             SaveCommand = new Command(_ => Save());
-            NewCommand = new Command(_ => Content = SampleContent);
+            NewCommand = new Command(_ => Document.Text = SampleContent);
+
+            Document = new TextDocument();
         }
+
+        public TextDocument Document { get; }
 
         public ICommand SaveCommand { get; }
 
         public ICommand NewCommand { get; }
 
-        public string Content
-        {
-            get { return _content; }
-            set { this.MutateVerbose(ref _content, value, RaisePropertyChanged()); }
-        }
         private void Save()
         {
             SaveAsync();
@@ -47,16 +49,16 @@ namespace Doobry
             var connection = _connectionProvider();
 
             //TODO disable commands
-            if (string.IsNullOrWhiteSpace(Content) || connection == null) return;
+            if (string.IsNullOrWhiteSpace(Document.Text) || connection == null) return;
 
             await DialogHost.Show(new Infrastructure.ProgressRing(), async delegate(object sender, DialogOpenedEventArgs args)
             {
                 try
                 {
-                    var response = await Save(connection, Content);
+                    var response = await Save(connection, Document.Text);
 
                     var jToken = JToken.Parse(response.Resource.ToString());
-                    Content = jToken.ToString(Formatting.Indented);
+                    Document.Text = jToken.ToString(Formatting.Indented);
 
                     args.Session.Close();
                 }

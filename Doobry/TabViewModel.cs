@@ -8,6 +8,7 @@ using System.Windows.Input;
 using Doobry.Infrastructure;
 using Doobry.Settings;
 using DynamicData.Kernel;
+using ICSharpCode.AvalonEdit.Highlighting;
 using MaterialDesignThemes.Wpf;
 
 namespace Doobry
@@ -19,12 +20,12 @@ namespace Doobry
         private Connection _connection;
         private int _viewIndex;
         private string _documentId;
-        private string _name;
+        private string _name;        
 
-        public TabViewModel(Guid id, IConnectionCache connectionCache) : this(id, null, connectionCache)
+        public TabViewModel(Guid id, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition) : this(id, null, connectionCache, sqlHighlightingDefinition)
         { }
 
-        public TabViewModel(Guid id, Connection connection, IConnectionCache connectionCache)
+        public TabViewModel(Guid id, Connection connection, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
 
@@ -36,13 +37,15 @@ namespace Doobry
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject)sender));
             EditSettingsCommand = new Command(sender => EditSettingsAsync((DependencyObject)sender));
-            QueryRunnerViewModel = new QueryRunnerViewModel(() => _connection, () => _generalSettings, EditDocumentHandler);
-            DocumentEditorViewModel = new DocumentEditorViewModel(() => _connection);
+            QueryRunnerViewModel = new QueryRunnerViewModel(id, sqlHighlightingDefinition, () => _connection, () => _generalSettings, EditDocumentHandler);
+            DocumentEditorViewModel = new DocumentEditorViewModel(() => _connection);            
 
             SetName();
         }
 
         public Guid Id { get; }
+
+        public IObservable<DocumentChangedUnit> DocumentChangedObservable => QueryRunnerViewModel.DocumentChangedObservable;
 
         public string Name
         {
@@ -78,7 +81,7 @@ namespace Doobry
         {
             if (result == null) throw new ArgumentNullException(nameof(result));
 
-            DocumentEditorViewModel.Content = result.Data;
+            DocumentEditorViewModel.Document.Text = result.Data;
             ViewIndex = 1;
         }
 

@@ -6,11 +6,24 @@
              xmlns:local="clr-namespace:Doobry"
              xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:ResultSetExplorerViewModel, d:IsDesignTimeCreatable=False}">
     <UserControl.Resources>
         <infrastructure:BooleanToVisibilityConverter2 x:Key="InvertedBooleanToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <DataTemplate x:Key="ResultDataTenplate" DataType="local:Result">
+            <TextBlock>
+                <TextBlock.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" 
+                                  Command="{Binding ElementName=ResultsItems, Path=DataContext.EditDocumentCommand}"
+                                  CommandParameter="{Binding }"/>                    
+                </TextBlock.InputBindings>
+                <Run Text="{Binding Row, Mode=OneWay}" />                
+                <Run Text=" " />
+                <Run FontSize="10" Text="{Binding Id, Mode=OneWay}" FontStyle="Italic"  />
+            </TextBlock>
+        </DataTemplate>
     </UserControl.Resources>
     <Grid>
         <Grid Visibility="{Binding IsError, Converter={StaticResource InvertedBooleanToVisibilityConverter}}">
@@ -27,9 +40,33 @@
                         Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <materialDesign:PackIcon Kind="DotsHorizontal" />
                 </Button>
-                <ListBox ItemsSource="{Binding ResultSet.Results}" DisplayMemberPath="Row"
+                <ListBox ItemsSource="{Binding ResultSet.Results}"
                          SelectedIndex="{Binding SelectedRow}"
-                         x:Name="ResultsItems"/>
+                         ItemTemplate="{StaticResource ResultDataTenplate}"
+                         x:Name="ResultsItems">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                            <Setter Property="ToolTip">
+                                <Setter.Value>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock>Row:</TextBlock>
+                                        <TextBlock Grid.Row="1">ID:</TextBlock>
+                                        <TextBlock Grid.Column="1" Margin="8 0 0 0" Text="{Binding Row, Mode=OneWay}" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="8 0 0 0" Text="{Binding Id, Mode=OneWay}" />
+                                    </Grid>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
             </DockPanel>
             <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -38,13 +75,23 @@
                 <materialDesign:ColorZone DockPanel.Dock="Top" materialDesign:ShadowAssist.ShadowDepth="Depth1" Mode="Light" Padding="4 2 2 2" Margin="2 2 3 2" CornerRadius="2">
                     <StackPanel Orientation="Horizontal">
                         <Button ToolTip="Edit Document..." 
+                                Margin="8 0 0 0"
                                 Command="{Binding EditDocumentCommand, Mode=OneTime}"
                                 CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}"
                                 materialDesign:RippleAssist.IsCentered="True">
                             <materialDesign:PackIcon Kind="FileDocument" />
                         </Button>
+                        <Button ToolTip="Save Document..." 
+                                Margin="8 0 0 0"
+                                Command="{Binding SaveDocumentCommand, Mode=OneTime}"
+                                CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                materialDesign:RippleAssist.IsCentered="True">
+                            <materialDesign:PackIcon Kind="ContentSave" />
+                        </Button>
                         <Button ToolTip="Delete Document..." 
+                                Margin="8 0 0 0"
                                 Command="{Binding DeleteDocumentCommand, Mode=OneTime}"
                                 CommandParameter="{Binding ElementName=ResultsItems, Path=SelectedItem}"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}"

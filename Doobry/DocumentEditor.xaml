@@ -6,22 +6,21 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:doobry="clr-namespace:Doobry"
              xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
+             xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance doobry:DocumentEditorViewModel, IsDesignTimeCreatable=False}">
-    <TextBox Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
-             AcceptsReturn="True" AcceptsTab="True"
-             materialDesign:HintAssist.Hint="Enter JSON"
-             VerticalAlignment="Stretch"
-             VerticalContentAlignment="Top"
-             HorizontalScrollBarVisibility="Auto"
-             VerticalScrollBarVisibility="Auto"
-             FontFamily="Courier New"
-             infrastructure:FocusAssist.IsViableTarget="True">
-        <TextBox.InputBindings>
+    <avalonedit:TextEditor Document="{Binding Document}" 
+                           SyntaxHighlighting="JavaScript"
+                           doobry:QueryRunnerViewModel.Self="{Binding}"
+                           FontFamily="Consolas"
+                           FontSize="10pt"
+                           infrastructure:FocusAssist.IsViableTarget="True">
+        <avalonedit:TextEditor.InputBindings>
             <KeyBinding Key="Escape" Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}" />
             <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}" />
             <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewCommand}" />
-        </TextBox.InputBindings>
-    </TextBox>
+        </avalonedit:TextEditor.InputBindings>
+    </avalonedit:TextEditor>
 </UserControl>
+

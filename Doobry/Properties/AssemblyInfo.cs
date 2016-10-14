@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Mulholland Software Ltd")]
 [assembly: AssemblyProduct("Doobry")]
-[assembly: AssemblyCopyright("Copyright © Mulholland Software    2016")]
+[assembly: AssemblyCopyright("Copyright © Mulholland Software 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

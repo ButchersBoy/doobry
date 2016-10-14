@@ -9,17 +9,20 @@ namespace Doobry.Settings
 {
     public class Persistance
     {
-        private const string FileName = "doobry-settings-auto.doobry";
-        public static readonly string FilePath =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FileName);
+        private const string ConfigurationFileName = "doobry-settings-auto.doobry";
+        public static readonly string ConfigurationFilePath =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ConfigurationFileName);
+
+        public static readonly string QueryFileFolder =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "doobry-docs");
 
         public bool TryLoadRaw(out string rawData)
         {
-            if (File.Exists(FilePath))
+            if (File.Exists(ConfigurationFilePath))
             {
                 try
                 {
-                    rawData = File.ReadAllText(FilePath);
+                    rawData = File.ReadAllText(ConfigurationFilePath);
                     return true;
                 }
                 catch (Exception)
@@ -34,7 +37,7 @@ namespace Doobry.Settings
         {
             try
             {
-                File.WriteAllText(FilePath, rawData);
+                File.WriteAllText(ConfigurationFilePath, rawData);
                 return true;
             }
             catch (Exception)

@@ -5,9 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Doobry"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
+             xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
              d:DataContext="{d:DesignInstance local:QueryRunnerViewModel, d:IsDesignTimeCreatable=False}">
     <Grid>
         <Grid.RowDefinitions>
@@ -15,21 +16,17 @@
             <RowDefinition Height="3" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <TextBox Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}"
-                 local:QueryRunnerViewModel.Self="{Binding}"
-                 AcceptsReturn="True" AcceptsTab="True"
-                 materialDesign:HintAssist.Hint="Query"
-                 VerticalAlignment="Stretch"
-                 VerticalContentAlignment="Top"
-                 HorizontalScrollBarVisibility="Auto"
-                 VerticalScrollBarVisibility="Auto"
-                 FontFamily="Courier New"
-                 infrastructure:FocusAssist.IsViableTarget="True">
-            <TextBox.InputBindings>
+        <avalonEdit:TextEditor Document="{Binding Document}" 
+                               SyntaxHighlighting="{Binding HighlightingDefinition}"                               
+                               local:QueryRunnerViewModel.Self="{Binding}"
+                               FontFamily="Consolas"
+                               FontSize="10pt"
+                               infrastructure:FocusAssist.IsViableTarget="True">
+            <avalonEdit:TextEditor.InputBindings>
                 <KeyBinding Key="F9" Command="{Binding RunQueryCommand}" />
                 <KeyBinding Key="F2" Command="{x:Static materialDesign:Transitioner.MoveNextCommand}" />
-            </TextBox.InputBindings>
-        </TextBox>
+            </avalonEdit:TextEditor.InputBindings>
+        </avalonEdit:TextEditor>
         <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                       />

@@ -8,6 +8,7 @@ using System.Windows;
 using Doobry.Infrastructure;
 using Doobry.Settings;
 using Dragablz;
+using ICSharpCode.AvalonEdit.Highlighting;
 using StructureMap;
 using StructureMap.Pipeline;
 using Squirrel;
@@ -35,15 +36,16 @@ namespace Doobry
             {
                 try
                 {
-                    var settingsContainer = Serializer.Objectify(rawData);                    
+                    var settingsContainer = Serializer.Objectify(rawData);
                     generalSettings = settingsContainer.GeneralSettings;
                     connectionCache = settingsContainer.ConnectionCache;
-                    initialLayoutStructureProvider = new InitialLayoutStructureProvider(settingsContainer.LayoutStructure);
+                    initialLayoutStructureProvider =
+                        new InitialLayoutStructureProvider(settingsContainer.LayoutStructure);
                 }
                 catch (Exception exc)
                 {
                     //TODO summit
-                    System.Diagnostics.Debug.WriteLine(exc.Message);                                        
+                    System.Diagnostics.Debug.WriteLine(exc.Message);
                 }
             }
 
@@ -54,47 +56,49 @@ namespace Doobry
             var container = new Container(_ =>
             {
                 _.ForSingletonOf<IGeneralSettings>().Use(generalSettings);
-                _.ForSingletonOf<IConnectionCache>().Use(connectionCache);
+                _.ForSingletonOf<IConnectionCache>().Use(connectionCache);                
                 _.ForSingletonOf<IInitialLayoutStructureProvider>().Use(initialLayoutStructureProvider);
                 _.AddRegistry<DoobryRegistry>();
                 _.Scan(scanner =>
                 {
                     scanner.TheCallingAssembly();
                     scanner.WithDefaultConventions();
-                });
+                });                
+            });
 
-            });                      
-        
+            var tabViewModelInstanceManager = container.GetInstance<ITabInstanceManager>();
+            var windowInstanceManager = new WindowInstanceManager(tabViewModelInstanceManager, container.GetInstance<MainWindowViewModel>);
+
             //grease the Dragablz wheels    
-            NewItemFactory = () => new TabViewModel(Guid.NewGuid(), container.GetInstance<IConnectionCache>());
-            InterTabClient = new InterTabClient(container.GetInstance<MainWindowViewModel>);
+            NewItemFactory = () => tabViewModelInstanceManager.CreateManagedTabViewModel();
+            InterTabClient = new InterTabClient(windowInstanceManager);
+            ClosingItemCallback = tabViewModelInstanceManager.ClosingTabItemCallback;
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            var mainWindow = new MainWindow
-            {
-                DataContext = container.GetInstance<MainWindowViewModel>()
-            };
+            var mainWindow = windowInstanceManager.Create();
             mainWindow.Show();
+
+            Task.Factory.StartNew(CheckForUpdates);
         }
 
+        //easy access to stuff which dragablz needs 
         public static Func<object> NewItemFactory { get; private set; }
-
         public static IInterTabClient InterTabClient { get; private set; }
+        public static ItemActionCallback ClosingItemCallback { get; private set; }
 
         private static async void CheckForUpdates()
         {
-            _updateManager = UpdateManager.GitHubUpdateManager("https://github.com/ButchersBoy/doobry", "doobry");
+            try
+            {
+                _updateManager = UpdateManager.GitHubUpdateManager("https://github.com/ButchersBoy/doobry", "doobry");
 
-            if (_updateManager.Result.IsInstalledApp)
-                await _updateManager.Result.UpdateApp();
-        }
-    }
-
-    public class DoobryRegistry : Registry
-    {
-        public DoobryRegistry()
-        {
-            ForSingletonOf<IManualSaver>().Use<ManualSaver>();
+                if (_updateManager.Result.IsInstalledApp)
+                    await _updateManager.Result.UpdateApp();
+            }
+            catch (Exception exc)
+            {                
+                //TODO uhm something
+            }
         }
     }
 }

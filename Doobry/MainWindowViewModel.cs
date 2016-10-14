@@ -16,19 +16,23 @@ namespace Doobry
 {
     public class MainWindowViewModel
     {
+        private readonly ITabInstanceManager _tabInstanceManager;
         private readonly IConnectionCache _connectionCache;
         private readonly IGeneralSettings _generalSettings;
         private readonly IInitialLayoutStructureProvider _initialLayoutStructureProvider;
 
         private static bool _isStartupInitiated;
 
-        public MainWindowViewModel(IConnectionCache connectionCache, IGeneralSettings generalSettings, IInitialLayoutStructureProvider initialLayoutStructureProvider)
+        public MainWindowViewModel(ITabInstanceManager tabInstanceManager, IConnectionCache connectionCache, IGeneralSettings generalSettings, IInitialLayoutStructureProvider initialLayoutStructureProvider)
         {
+            if (tabInstanceManager == null)
+                throw new ArgumentNullException(nameof(tabInstanceManager));
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
             if (initialLayoutStructureProvider == null)
                 throw new ArgumentNullException(nameof(initialLayoutStructureProvider));
 
+            _tabInstanceManager = tabInstanceManager;
             _connectionCache = connectionCache;
             _generalSettings = generalSettings;
             _initialLayoutStructureProvider = initialLayoutStructureProvider;
@@ -62,7 +66,7 @@ namespace Doobry
 
             if (TabablzControl.GetLoadedInstances().SelectMany(tc => tc.Items.OfType<object>()).Any()) return;
 
-            var tabViewModel = new TabViewModel(Guid.NewGuid(), _connectionCache);
+            var tabViewModel = _tabInstanceManager.CreateManagedTabViewModel();
             rootTabControl.AddToSource(tabViewModel);
             Tabs.Add(tabViewModel);
             TabablzControl.SelectItem(tabViewModel);
@@ -102,7 +106,7 @@ namespace Doobry
                 {
                     connection = _connectionCache.Get(tabItem.ConnectionId.Value).ValueOrDefault();
                 }
-                var tabViewModel = new TabViewModel(tabItem.Id, connection, _connectionCache);
+                var tabViewModel = _tabInstanceManager.CreateManagedTabViewModel(tabItem.Id, connection);
                 tabablzControl.AddToSource(tabViewModel);
 
                 if (tabViewModel.Id == layoutStructureTabSet.SelectedTabItemId)
@@ -161,50 +165,10 @@ namespace Doobry
             }         
         }
 
-        private IEnumerable<Tuple<Guid, IList<TabViewModel>>> CreateTabItemSets(IEnumerable<LayoutStructureTabSet> tabSets)
-        {
-            return tabSets.Select(tabSet =>
-                        new Tuple<Guid, IList<TabViewModel>>(tabSet.Id, CreateTabItemSet(tabSet))
-            );
-        }
-
-        private IList<TabViewModel> CreateTabItemSet(LayoutStructureTabSet layoutStructureTabSet)
-        {
-            var result = new List<TabViewModel>();
-            foreach (var layoutStructureTabItem in layoutStructureTabSet.TabItems)
-            {
-                Connection connection = null;
-                if (layoutStructureTabItem.ConnectionId.HasValue)
-                {
-                    connection = _connectionCache.Get(layoutStructureTabItem.ConnectionId.Value).ValueOrDefault();
-                }
-                var tabViewModel = new TabViewModel(layoutStructureTabSet.Id, connection, _connectionCache);
-                result.Add(tabViewModel);
-            }            
-            return result;
-        }
-
         private static TabablzControl CreateTabablzControl()
         {
             return new TabablzControl();
         }        
-
-        private static void BuildTabSet(LayoutStructureTabSet layoutStructureTabSet, TabablzControl intoTabablzControl, IConnectionCache connectionCache)
-        {
-            foreach (var layoutStructureTabItem in layoutStructureTabSet.TabItems)
-            {                
-                Connection connection = null;
-                if (layoutStructureTabItem.ConnectionId.HasValue)
-                {
-                    connection = connectionCache.Get(layoutStructureTabItem.ConnectionId.Value).ValueOrDefault();
-                }                
-                var tabViewModel = new TabViewModel(layoutStructureTabSet.Id, connection, connectionCache);
-                intoTabablzControl.AddToSource(tabViewModel);
-                if (layoutStructureTabSet.SelectedTabItemId.HasValue &&
-                    tabViewModel.Id == layoutStructureTabSet.SelectedTabItemId.Value)
-                    intoTabablzControl.SetValue(Selector.SelectedItemProperty, tabViewModel);
-            }
-        }
 
         private static LayoutStructureBranch GetRoot(Dictionary<Guid, LayoutStructureBranch> branches)
         {
@@ -229,6 +193,7 @@ namespace Doobry
 
         private void RunApplicationShutdown()
         {
+            //TODO, inject manual saver instead of general settings
             new ManualSaver().Save(_connectionCache, _generalSettings);            
 
             Application.Current.Shutdown();

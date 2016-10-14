@@ -32,14 +32,24 @@
                                          IsTabStop="False"
                                          Focusable="False"
                                          SelectionChanged="Transitioner_OnSelectionChanged">
-                <DockPanel>
-                    <doobry:QueryRunnerToolbar DockPanel.Dock="Top" />
-                    <doobry:QueryRunner DataContext="{Binding QueryRunnerViewModel}" />
-                </DockPanel>
-                <DockPanel>
-                    <doobry:DocumentEditorToolbar DockPanel.Dock="Top" />
-                    <doobry:DocumentEditor DataContext="{Binding DocumentEditorViewModel}"  />
-                </DockPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <doobry:QueryRunnerToolbar Panel.ZIndex="99" />
+                    <doobry:QueryRunner DataContext="{Binding QueryRunnerViewModel}"
+                                        Grid.Row="1" Margin="0 2 0 0" />
+                </Grid>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <doobry:DocumentEditorToolbar Panel.ZIndex="99" />
+                    <doobry:DocumentEditor DataContext="{Binding DocumentEditorViewModel}"
+                                           Grid.Row="1" Margin="0 2 0 0" />
+                </Grid>
             </materialDesign:Transitioner>
         </DataTemplate>
         <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{x:Static doobry:App.InterTabClient}" />
@@ -51,6 +61,7 @@
             <Setter Property="HeaderMemberPath" Value="Name" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="NewItemFactory" Value="{x:Static doobry:App.NewItemFactory}" />
+            <Setter Property="ClosingItemCallback" Value="{x:Static doobry:App.ClosingItemCallback}" />
             <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
         </Style>
     </Window.Resources>

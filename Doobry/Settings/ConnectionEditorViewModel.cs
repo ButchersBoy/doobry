@@ -32,6 +32,7 @@ namespace Doobry.Settings
 
             SaveCommand = new Command(_ => saveHandler(this));
             CancelCommand = new Command(_ => cancelHandler());
+            ExploreToSettingsFileCommand = new Command(_ => ExploreToSettingsFile());
 
             if (connection == null) return;
 
@@ -41,15 +42,17 @@ namespace Doobry.Settings
             _authorisationKey = connection.AuthorisationKey;
             _databaseId = connection.DatabaseId;
             _collectionId = connection.CollectionId;
-        }        
+        }
 
         public ICommand SaveCommand { get; }
 
         public ICommand CancelCommand { get; }
 
+        public ICommand ExploreToSettingsFileCommand { get; }
+
         public Guid? Id { get; }
 
-        public string SettingsFilePath => Persistance.FilePath;
+        public string SettingsConfigurationFilePath => Persistance.ConfigurationFilePath;
 
         public string Label
         {
@@ -85,6 +88,11 @@ namespace Doobry.Settings
         {
             get { return _displayMode; }
             set { this.MutateVerbose(ref _displayMode, value, RaisePropertyChanged()); }
+        }
+
+        private void ExploreToSettingsFile()
+        {
+            System.Diagnostics.Process.Start("Explorer", $"/select,\"{SettingsConfigurationFilePath}\"");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

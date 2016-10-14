@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -10,6 +11,10 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Doobry.Infrastructure;
 using Doobry.Settings;
+using DynamicData.Binding;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Highlighting;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -18,24 +23,28 @@ using Microsoft.Azure.Documents.Linq;
 namespace Doobry
 {
     public class QueryRunnerViewModel : INotifyPropertyChanged
-    {
+    {        
         private readonly Func<Connection> _connectionProvider;
         private readonly Func<GeneralSettings> _generalSettingsProvider;
         private readonly Action<Result> _editHandler;
         private readonly Command _fetchMoreCommand;
         private string _query;
-        private TextBox _textBox;
+        private TextEditor _textEditor;
         private Tuple<DocumentClient, IDocumentQuery<dynamic>> _activeDocumentQuery;
 
         public QueryRunnerViewModel(
+            Guid tabId,
+            IHighlightingDefinition highlightingDefinition,
             Func<Connection> connectionProvider,
             Func<GeneralSettings> generalSettingsProvider,
             Action<Result> editHandler)
         {
+            if (highlightingDefinition == null) throw new ArgumentNullException(nameof(highlightingDefinition));
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
             if (generalSettingsProvider == null) throw new ArgumentNullException(nameof(generalSettingsProvider));
             if (editHandler == null) throw new ArgumentNullException(nameof(editHandler));
 
+            HighlightingDefinition = highlightingDefinition;
             _connectionProvider = connectionProvider;
             _generalSettingsProvider = generalSettingsProvider;
             _editHandler = editHandler;
@@ -45,15 +54,24 @@ namespace Doobry
             var editDocumentCommand = new Command(o => _editHandler((Result)o), o => o is Result);
             var deleteDocumentCommand = new Command(o => DeleteDocument((Result)o), o => o is Result);
 
+            Document = new TextDocument();
+
+            DocumentChangedObservable = Observable.Create<DocumentChangedUnit>(observer =>
+            {
+                return
+                    Document.OnPropertyChanged(td => td.Text)
+                        .Subscribe(text => observer.OnNext(new DocumentChangedUnit(tabId, Document.Text)));
+            });
+
             ResultSetExplorer = new ResultSetExplorerViewModel(_fetchMoreCommand, editDocumentCommand, deleteDocumentCommand);
         }
 
         public static readonly DependencyProperty SelfProperty = DependencyProperty.RegisterAttached(
-            "Self", typeof(QueryRunnerViewModel), typeof(QueryRunnerViewModel), new PropertyMetadata(default(QueryRunnerViewModel), SelfPropertyChangedCallback));
+            "Self", typeof(QueryRunnerViewModel), typeof(QueryRunnerViewModel), new PropertyMetadata(default(QueryRunnerViewModel), SelfPropertyChangedCallback));        
 
         private static void SelfPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
-            (dependencyPropertyChangedEventArgs.NewValue as QueryRunnerViewModel)?.Receive(dependencyObject as TextBox);
+            (dependencyPropertyChangedEventArgs.NewValue as QueryRunnerViewModel)?.Receive(dependencyObject as TextEditor);
         }
 
         public static void SetSelf(DependencyObject element, QueryRunnerViewModel value)
@@ -66,10 +84,16 @@ namespace Doobry
             return (QueryRunnerViewModel)element.GetValue(SelfProperty);
         }
 
-        internal void Receive(TextBox textBox)
+        internal void Receive(TextEditor textBox)
         {
-            _textBox = textBox;
+            _textEditor = textBox;            
         }
+
+        public TextDocument Document { get; }
+
+        public IObservable<DocumentChangedUnit> DocumentChangedObservable { get; }
+
+        public IHighlightingDefinition HighlightingDefinition { get; }
 
         public string Query
         {
@@ -89,9 +113,9 @@ namespace Doobry
         private void RunQuery()
         {
             var query =
-                _textBox != null && _textBox.SelectionLength > 0
-                    ? _textBox.SelectedText
-                    : Query;
+                _textEditor != null && _textEditor.SelectionLength > 0
+                    ? _textEditor.SelectedText
+                    : Document.Text;
 
             RunQueryAsync(query);
         }
@@ -247,8 +271,6 @@ namespace Doobry
                     }
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             });
-
-
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

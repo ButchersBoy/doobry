@@ -11,22 +11,19 @@ namespace Doobry.Infrastructure
 {
     public class InterTabClient : IInterTabClient
     {
-        private readonly Func<MainWindowViewModel> _mainWindowViewModelFactory;
+        private readonly IWindowInstanceManager _windowInstanceManager;
 
-        public InterTabClient(Func<MainWindowViewModel> mainWindowViewModelFactory)
+        public InterTabClient(IWindowInstanceManager windowInstanceManager)
         {
-            if (mainWindowViewModelFactory == null) throw new ArgumentNullException(nameof(mainWindowViewModelFactory));
-            _mainWindowViewModelFactory = mainWindowViewModelFactory;
+            if (windowInstanceManager == null) throw new ArgumentNullException(nameof(windowInstanceManager));
+            _windowInstanceManager = windowInstanceManager;
         }
 
         public INewTabHost<Window> GetNewHost(IInterTabClient interTabClient, object partition, TabablzControl source)
         {
-            var mainWindow = new MainWindow
-            {
-                DataContext = _mainWindowViewModelFactory()
-            };
+            var managedWindow = _windowInstanceManager.Create();
 
-            return new NewTabHost<Window>(mainWindow, mainWindow.InitialTabablzControl);
+            return new NewTabHost<Window>(managedWindow, managedWindow.InitialTabablzControl);
         }
 
         public TabEmptiedResponse TabEmptiedHandler(TabablzControl tabControl, Window window)

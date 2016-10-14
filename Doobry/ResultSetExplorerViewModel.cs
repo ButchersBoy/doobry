@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Doobry.Infrastructure;
 
 namespace Doobry
 {
@@ -15,13 +17,15 @@ namespace Doobry
         private bool _isError;
         private string _error;
 
-        public ResultSetExplorerViewModel(ICommand fetchMoreCommand, ICommand editDocumentCommand, ICommand deleteDocumentCommand)
+        public ResultSetExplorerViewModel(ICommand fetchMoreCommand, ICommand editDocumentCommand,
+            ICommand deleteDocumentCommand)
         {
             if (fetchMoreCommand == null) throw new ArgumentNullException(nameof(fetchMoreCommand));
-            
+
             FetchMoreCommand = fetchMoreCommand;
             EditDocumentCommand = editDocumentCommand;
             DeleteDocumentCommand = deleteDocumentCommand;
+            SaveDocumentCommand = new Command(o => SaveDocument((Result) o), o => o is Result);
         }
 
         public ResultSet ResultSet
@@ -60,6 +64,8 @@ namespace Doobry
 
         public ICommand EditDocumentCommand { get; }
 
+        public ICommand SaveDocumentCommand { get; }
+
         public bool IsError
         {
             get { return _isError; }
@@ -76,6 +82,28 @@ namespace Doobry
         {
             get { return _selectedRow; }
             set { this.MutateVerbose(ref _selectedRow, value, RaisePropertyChanged()); }
+        }
+
+        private void SaveDocument(Result result)
+        {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = "Document",
+                DefaultExt = ".json",
+                Filter = "JSON documents (.json)|*.json|Text documents (.txt)|*.txt"
+            };
+
+            var showDialogResult = saveFileDialog.ShowDialog();
+            if (!showDialogResult.HasValue || !showDialogResult.Value) return;
+            try
+            {
+                File.WriteAllText(saveFileDialog.FileName, result.Data);
+            }
+            catch (Exception)
+            {
+                //TODO show a dialog!
+                throw;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
