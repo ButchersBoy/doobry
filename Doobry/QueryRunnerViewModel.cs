@@ -32,17 +32,13 @@ namespace Doobry
         private TextEditor _textEditor;
         private Tuple<DocumentClient, IDocumentQuery<dynamic>> _activeDocumentQuery;
 
-        public QueryRunnerViewModel(
-            Guid tabId,
-            IHighlightingDefinition highlightingDefinition,
-            Func<Connection> connectionProvider,
-            Func<GeneralSettings> generalSettingsProvider,
-            Action<Result> editHandler)
+        public QueryRunnerViewModel(Guid tabId, IHighlightingDefinition highlightingDefinition, Func<Connection> connectionProvider, Func<GeneralSettings> generalSettingsProvider, Action<Result> editHandler, ISnackbarMessageQueue snackbarMessageQueue)
         {
             if (highlightingDefinition == null) throw new ArgumentNullException(nameof(highlightingDefinition));
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
             if (generalSettingsProvider == null) throw new ArgumentNullException(nameof(generalSettingsProvider));
             if (editHandler == null) throw new ArgumentNullException(nameof(editHandler));
+            if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
 
             HighlightingDefinition = highlightingDefinition;
             _connectionProvider = connectionProvider;
@@ -52,7 +48,7 @@ namespace Doobry
             _fetchMoreCommand = new Command(_ => FetchMore(), _ => _activeDocumentQuery != null && _activeDocumentQuery.Item2.HasMoreResults);
 
             var editDocumentCommand = new Command(o => _editHandler((Result)o), o => o is Result);
-            var deleteDocumentCommand = new Command(o => DeleteDocument((Result)o), o => o is Result);
+            var deleteDocumentCommand = new Command(o => DeleteDocument((Result)o, snackbarMessageQueue), o => o is Result);
 
             Document = new TextDocument();
 
@@ -235,7 +231,7 @@ namespace Doobry
             _fetchMoreCommand.Refresh();
         }
 
-        private async void DeleteDocument(Result result)
+        private async void DeleteDocument(Result result, ISnackbarMessageQueue snackbarMessageQueue)
         {
             var dialogContentControl = new DialogContentControl
             {
@@ -267,6 +263,7 @@ namespace Doobry
                     }
                     else
                     {
+                        snackbarMessageQueue.Enqueue($"Deleted document '{result.Id.ToString()}'.");
                         args.Session.Close();
                     }
                 }, TaskScheduler.FromCurrentSynchronizationContext());

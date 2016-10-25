@@ -10,6 +10,7 @@ using System.Windows;
 using Doobry.Settings;
 using Dragablz;
 using ICSharpCode.AvalonEdit.Highlighting;
+using MaterialDesignThemes.Wpf;
 using StructureMap;
 
 namespace Doobry.Infrastructure
@@ -19,6 +20,7 @@ namespace Doobry.Infrastructure
         private readonly IConnectionCache _connectionCache;
         private readonly IHighlightingDefinition _sqlHighlightingDefinition;
         private readonly IQueryFileService _queryFileService;
+        private readonly ISnackbarMessageQueue _snackbarMessageQueue;
         private readonly Func<MainWindowViewModel> _windowViewModelFactory;
 
         private readonly IDictionary<TabViewModel, IDisposable> _modelCleanUpIndex =
@@ -27,15 +29,17 @@ namespace Doobry.Infrastructure
         private readonly IDictionary<Window, IDisposable> _windowCleanUpIndex = new Dictionary<Window, IDisposable>();
 
         public TabInstanceManager(IConnectionCache connectionCache,
-            IHighlightingDefinition sqlHighlightingDefinition, IQueryFileService queryFileService)
+            IHighlightingDefinition sqlHighlightingDefinition, IQueryFileService queryFileService, ISnackbarMessageQueue snackbarMessageQueue)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
             if (sqlHighlightingDefinition == null) throw new ArgumentNullException(nameof(sqlHighlightingDefinition));
             if (queryFileService == null) throw new ArgumentNullException(nameof(queryFileService));
+            if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
 
             _connectionCache = connectionCache;
             _sqlHighlightingDefinition = sqlHighlightingDefinition;
             _queryFileService = queryFileService;
+            _snackbarMessageQueue = snackbarMessageQueue;
 
             ClosingTabItemCallback = OnItemClosingHandler;
         }
@@ -44,14 +48,14 @@ namespace Doobry.Infrastructure
 
         public TabViewModel CreateManagedTabViewModel()
         {            
-            var result = new TabViewModel(Guid.NewGuid(), _connectionCache, _sqlHighlightingDefinition);
+            var result = new TabViewModel(Guid.NewGuid(), _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
             Watch(result);
             return result;
         }
 
         public TabViewModel CreateManagedTabViewModel(Guid id, Connection connection)
         {
-            var result = new TabViewModel(id, connection, _connectionCache, _sqlHighlightingDefinition);
+            var result = new TabViewModel(id, connection, _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
             PopulateDocument(result);
             Watch(result);
             return result;

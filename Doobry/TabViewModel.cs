@@ -22,10 +22,11 @@ namespace Doobry
         private string _documentId;
         private string _name;        
 
-        public TabViewModel(Guid id, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition) : this(id, null, connectionCache, sqlHighlightingDefinition)
+        public TabViewModel(Guid id, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue) 
+            : this(id, null, connectionCache, sqlHighlightingDefinition, snackbarMessageQueue)
         { }
 
-        public TabViewModel(Guid id, Connection connection, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition)
+        public TabViewModel(Guid id, Connection connection, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
 
@@ -37,8 +38,8 @@ namespace Doobry
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject)sender));
             EditSettingsCommand = new Command(sender => EditSettingsAsync((DependencyObject)sender));
-            QueryRunnerViewModel = new QueryRunnerViewModel(id, sqlHighlightingDefinition, () => _connection, () => _generalSettings, EditDocumentHandler);
-            DocumentEditorViewModel = new DocumentEditorViewModel(() => _connection);            
+            QueryRunnerViewModel = new QueryRunnerViewModel(id, sqlHighlightingDefinition, () => _connection, () => _generalSettings, EditDocumentHandler, snackbarMessageQueue);
+            DocumentEditorViewModel = new DocumentEditorViewModel(() => _connection, snackbarMessageQueue);            
 
             SetName();
         }

@@ -20,14 +20,13 @@ namespace Doobry
     {
         private readonly Func<Connection> _connectionProvider;
         private const string SampleContent = "{ hello : \"world\" }";
-        private string _content = SampleContent;        
 
-        public DocumentEditorViewModel(Func<Connection> connectionProvider)
+        public DocumentEditorViewModel(Func<Connection> connectionProvider, ISnackbarMessageQueue snackbarMessageQueue)
         {
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
 
             _connectionProvider = connectionProvider;
-            SaveCommand = new Command(_ => Save());
+            SaveCommand = new Command(_ => Save(snackbarMessageQueue));
             NewCommand = new Command(_ => Document.Text = SampleContent);
 
             Document = new TextDocument();
@@ -39,19 +38,19 @@ namespace Doobry
 
         public ICommand NewCommand { get; }
 
-        private void Save()
+        private void Save(ISnackbarMessageQueue snackbarMessageQueue)
         {
-            SaveAsync();
+            SaveAsync(snackbarMessageQueue);
         }
 
-        private async void SaveAsync()
+        private async void SaveAsync(ISnackbarMessageQueue snackbarMessageQueue)
         {
             var connection = _connectionProvider();
 
             //TODO disable commands
             if (string.IsNullOrWhiteSpace(Document.Text) || connection == null) return;
 
-            await DialogHost.Show(new Infrastructure.ProgressRing(), async delegate(object sender, DialogOpenedEventArgs args)
+            await DialogHost.Show(new ProgressRing(), async delegate(object sender, DialogOpenedEventArgs args)
             {
                 try
                 {
@@ -61,6 +60,8 @@ namespace Doobry
                     Document.Text = jToken.ToString(Formatting.Indented);
 
                     args.Session.Close();
+
+                    snackbarMessageQueue.Enqueue($"Saved document '{response.Resource.Id}'.");
                 }
                 catch (Exception exc)
                 {
