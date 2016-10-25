@@ -16,14 +16,33 @@
             <TextBlock>
                 <TextBlock.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick" 
-                                  Command="{Binding ElementName=ResultsItems, Path=DataContext.EditDocumentCommand}"
-                                  CommandParameter="{Binding }"/>                    
+                                      Command="{Binding ElementName=ResultsItems, Path=DataContext.EditDocumentCommand}"
+                                      CommandParameter="{Binding }"/>
                 </TextBlock.InputBindings>
+                    <Run Text="{Binding Row, Mode=OneWay}" />                
+                    <Run Text=" " />
+                    <Run FontSize="10" Text="{Binding Id, Mode=OneWay}" FontStyle="Italic"  />
+            </TextBlock>
+        </DataTemplate>
+        <!--
+        <DataTemplate x:Key="ResultDataTenplate" DataType="local:Result">
+            <materialDesign:TransitioningContent OpeningEffectsOffset="{materialDesign:IndexedItemOffsetMultiplier 0:0:0.05}">
+                <materialDesign:TransitioningContent.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromRight" />
+                </materialDesign:TransitioningContent.OpeningEffects>
+                <TextBlock>
+                    <TextBlock.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick" 
+                                  Command="{Binding ElementName=ResultsItems, Path=DataContext.EditDocumentCommand}"
+                                  CommandParameter="{Binding }"/>
+                    </TextBlock.InputBindings>
                 <Run Text="{Binding Row, Mode=OneWay}" />                
                 <Run Text=" " />
                 <Run FontSize="10" Text="{Binding Id, Mode=OneWay}" FontStyle="Italic"  />
-            </TextBlock>
+                </TextBlock>
+            </materialDesign:TransitioningContent>            
         </DataTemplate>
+        -->
     </UserControl.Resources>
     <Grid>
         <Grid Visibility="{Binding IsError, Converter={StaticResource InvertedBooleanToVisibilityConverter}}">
