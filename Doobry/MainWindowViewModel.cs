@@ -11,6 +11,7 @@ using Doobry.Settings;
 using Dragablz;
 using Dragablz.Dockablz;
 using DynamicData.Kernel;
+using MaterialDesignThemes.Wpf;
 
 namespace Doobry
 {
@@ -23,7 +24,12 @@ namespace Doobry
 
         private static bool _isStartupInitiated;
 
-        public MainWindowViewModel(ITabInstanceManager tabInstanceManager, IConnectionCache connectionCache, IGeneralSettings generalSettings, IInitialLayoutStructureProvider initialLayoutStructureProvider)
+        public MainWindowViewModel(
+            ITabInstanceManager tabInstanceManager,
+            IConnectionCache connectionCache,
+            IGeneralSettings generalSettings,
+            IInitialLayoutStructureProvider initialLayoutStructureProvider,
+            ISnackbarMessageQueue snackbarSnackbarMessageQueue)
         {
             if (tabInstanceManager == null)
                 throw new ArgumentNullException(nameof(tabInstanceManager));
@@ -36,10 +42,11 @@ namespace Doobry
             _connectionCache = connectionCache;
             _generalSettings = generalSettings;
             _initialLayoutStructureProvider = initialLayoutStructureProvider;
+            SnackbarMessageQueue = snackbarSnackbarMessageQueue;
 
             StartupCommand = new Command(RunStartup);
             ShutDownCommand = new Command(o => RunShutdown());
-            Tabs = new ObservableCollection<TabViewModel>();            
+            Tabs = new ObservableCollection<TabViewModel>();
         }
 
         public ObservableCollection<TabViewModel> Tabs { get; }
@@ -47,6 +54,8 @@ namespace Doobry
         public ICommand StartupCommand { get; }
 
         public ICommand ShutDownCommand { get; }
+
+        public ISnackbarMessageQueue SnackbarMessageQueue { get; }
 
         private void RunStartup(object sender)
         {
@@ -73,28 +82,39 @@ namespace Doobry
             tabViewModel.EditConnectionCommand.Execute(rootTabControl);
         }
 
-        private void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure, IConnectionCache connectionCache)
+        private void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure,
+            IConnectionCache connectionCache)
         {
-            //we only currently support a single window, can build on in future
-            var layoutStructureWindow = layoutStructure.Windows.Single();
-            
-            var layoutStructureTabSets = layoutStructureWindow.TabSets.ToDictionary(tabSet => tabSet.Id);
-
-            if (layoutStructureWindow.Branches.Any())
+            try
             {
-                var branchIndex = layoutStructureWindow.Branches.ToDictionary(b => b.Id);
-                var rootBranch = GetRoot(branchIndex);
+                //we only currently support a single window, can build on in future
+                var layoutStructureWindow = layoutStructure.Windows.Single();
 
-                //do the nasty recursion to build the layout, populate the tabs after, keep it simple...
-                foreach (var tuple in BuildLayout(rootTabControl, rootBranch, branchIndex))
+                var layoutStructureTabSets = layoutStructureWindow.TabSets.ToDictionary(tabSet => tabSet.Id);
+
+                if (layoutStructureWindow.Branches.Any())
                 {
-                    PopulateTabControl(tuple.Item2, layoutStructureTabSets[tuple.Item1]);
+                    var branchIndex = layoutStructureWindow.Branches.ToDictionary(b => b.Id);
+                    var rootBranch = GetRoot(branchIndex);
+
+                    //do the nasty recursion to build the layout, populate the tabs after, keep it simple...
+                    foreach (var tuple in BuildLayout(rootTabControl, rootBranch, branchIndex))
+                    {
+                        PopulateTabControl(tuple.Item2, layoutStructureTabSets[tuple.Item1]);
+                    }
+                }
+                else
+                {
+                    var layoutStructureTabSet = layoutStructureTabSets.Values.FirstOrDefault();
+                    if (layoutStructureTabSet != null)
+                        PopulateTabControl(rootTabControl, layoutStructureTabSet);
                 }
             }
-            else
+            catch
             {
-                PopulateTabControl(rootTabControl, layoutStructureTabSets.Values.First());
+                SnackbarMessageQueue.Enqueue("Unable to restore your previous layout.");                
             }
+
         }
 
         private void PopulateTabControl(TabablzControl tabablzControl, LayoutStructureTabSet layoutStructureTabSet)

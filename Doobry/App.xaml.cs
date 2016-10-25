@@ -9,6 +9,7 @@ using Doobry.Infrastructure;
 using Doobry.Settings;
 using Dragablz;
 using ICSharpCode.AvalonEdit.Highlighting;
+using MaterialDesignThemes.Wpf;
 using StructureMap;
 using StructureMap.Pipeline;
 using Squirrel;
@@ -58,6 +59,7 @@ namespace Doobry
                 _.ForSingletonOf<IGeneralSettings>().Use(generalSettings);
                 _.ForSingletonOf<IConnectionCache>().Use(connectionCache);                
                 _.ForSingletonOf<IInitialLayoutStructureProvider>().Use(initialLayoutStructureProvider);
+                _.ForSingletonOf<ISnackbarMessageQueue>().Use(new SnackbarMessageQueue());
                 _.AddRegistry<DoobryRegistry>();
                 _.Scan(scanner =>
                 {
@@ -78,7 +80,7 @@ namespace Doobry
             var mainWindow = windowInstanceManager.Create();
             mainWindow.Show();
 
-            Task.Factory.StartNew(CheckForUpdates);
+            Task.Factory.StartNew(() => CheckForUpdates(container.GetInstance<ISnackbarMessageQueue>()));
         }
 
         //easy access to stuff which dragablz needs 
@@ -86,7 +88,7 @@ namespace Doobry
         public static IInterTabClient InterTabClient { get; private set; }
         public static ItemActionCallback ClosingItemCallback { get; private set; }
 
-        private static async void CheckForUpdates()
+        private static async void CheckForUpdates(ISnackbarMessageQueue snackbarMessageQueue)
         {
             try
             {
@@ -95,9 +97,9 @@ namespace Doobry
                 if (_updateManager.Result.IsInstalledApp)
                     await _updateManager.Result.UpdateApp();
             }
-            catch (Exception exc)
-            {                
-                //TODO uhm something
+            catch
+            {
+                snackbarMessageQueue.Enqueue("Unable to check for updates.");
             }
         }
     }

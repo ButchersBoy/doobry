@@ -65,10 +65,13 @@
             <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
         </Style>
     </Window.Resources>
-    <materialDesign:DialogHost IsTabStop="False" Focusable="False">
-        <dockablz:Layout IsTabStop="False" Focusable="False">
-            <dragablz:TabablzControl x:Name="InitialTabablzControl"                                      
-                                     doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}"/> 
-        </dockablz:Layout>
+    <materialDesign:DialogHost IsTabStop="False" Focusable="False" SnackbarMessageQueue="{Binding SnackbarMessageQueue}">
+        <Grid>
+            <dockablz:Layout IsTabStop="False" Focusable="False">
+                <dragablz:TabablzControl x:Name="InitialTabablzControl"                                      
+                                         doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}"/>
+            </dockablz:Layout>
+            <materialDesign:Snackbar MessageQueue="{Binding SnackbarMessageQueue}" />
+        </Grid>
     </materialDesign:DialogHost>
 </Window>

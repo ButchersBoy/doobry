@@ -6,7 +6,9 @@ using System.Windows.Input;
 using Doobry.Infrastructure;
 using DynamicData;
 using DynamicData.Controllers;
+using DynamicData.Kernel;
 using DynamicData.Operators;
+using MaterialDesignThemes.Wpf;
 
 namespace Doobry.Settings
 {    
@@ -14,7 +16,8 @@ namespace Doobry.Settings
     {
         private readonly IConnectionCache _connectionCache;
         private readonly ReadOnlyObservableCollection<Connection> _connections;
-        private readonly IDisposable _disposable;
+        private readonly IDisposable _connectionCacheSubscription;
+        private readonly SnackbarMessageQueue _snackbarMessageQueue = new SnackbarMessageQueue();
         private Connection _selectedConnection;
         private ConnectionEditorViewModel _connectionEditorEditorViewModel;
         private bool _shouldShowSelector;
@@ -45,15 +48,29 @@ namespace Doobry.Settings
                 };
                 Mode = ConnectionsManagerMode.ItemEditor;
             }, o => o is Connection);            
-            DeleteConnectionCommand = new Command(o =>
-            {
-                var connection = o as Connection;
-                if (connection == null) return;
-                _connectionCache.Delete(connection.Id);
-            }, o => o is Connection);
+            DeleteConnectionCommand = new Command(DeleteConnection, o => o is Connection);
 
-            _disposable = connectionCache.Connect().Sort(SortExpressionComparer<Connection>.Ascending(c => c.Label)).Bind(out _connections).Subscribe();
+            _connectionCacheSubscription =
+                connectionCache.Connect()
+                    .Sort(SortExpressionComparer<Connection>.Ascending(c => c.Label))
+                    .Bind(out _connections)
+                    .Subscribe();
+
             if (_connections.Count == 0) AddConnectionCommand.Execute(null);
+        }
+
+        private void DeleteConnection(object o)
+        {
+            var connection = o as Connection;
+            if (connection == null) return;
+
+            var optional = _connectionCache.Get(connection.Id);
+            if (!optional.HasValue)
+                return;
+
+            _connectionCache.Delete(connection.Id);
+            SnackbarMessageQueue.Enqueue($"Deleted {connection.Label}.", "UNDO", _connectionCache.AddOrUpdate,
+                optional.Value, true);
         }
 
         public ConnectionsManagerMode Mode
@@ -88,6 +105,8 @@ namespace Doobry.Settings
             private set { this.MutateVerbose(ref _shouldShowSelector, value, RaisePropertyChanged()); }
         }
 
+        public ISnackbarMessageQueue SnackbarMessageQueue => _snackbarMessageQueue;
+
         private void SaveConnection(ConnectionEditorViewModel viewModel)
         {
             var connection = new Connection(viewModel.Id.GetValueOrDefault(Guid.NewGuid()), viewModel.Label, viewModel.Host,
@@ -105,7 +124,8 @@ namespace Doobry.Settings
 
         public void Dispose()
         {
-            _disposable.Dispose();
+            _connectionCacheSubscription.Dispose();
+            _snackbarMessageQueue.Dispose();
         }
     }
 }
