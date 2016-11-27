@@ -8,6 +8,14 @@ doobry is a slick Windows based query development for Azure DocumentDb
 * Add, edit and delete documents
 * Work with multiple database
 
+# Install
+
+If you want to install the application please visit http://materialdesigninxaml.net/doobry
+
+# Code base
+
+This is a C# and WPF application, requiring VS2015+
+
 ![Alt text](docs/screen-query-runner.png "Develop Queries")
 
 ![Alt text](docs/screen-document-editor.png "Edit Documents")
