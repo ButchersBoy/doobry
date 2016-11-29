@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     /// <summary>
-    /// Interaction logic for ResultSetExplorer.xaml
+    /// Interaction logic for QueryRunnerToolbar.xaml
     /// </summary>
-    public partial class ResultSetExplorer : UserControl
+    public partial class QueryRunnerToolbar : UserControl
     {
-        public ResultSetExplorer()
+        public QueryRunnerToolbar()
         {
             InitializeComponent();
         }

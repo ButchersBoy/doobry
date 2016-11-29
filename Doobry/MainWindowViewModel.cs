@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Doobry.Features.QueryDeveloper;
 using Doobry.Infrastructure;
 using Doobry.Settings;
 using Dragablz;

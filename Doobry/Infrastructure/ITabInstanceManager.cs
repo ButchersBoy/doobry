@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using Doobry.Features.QueryDeveloper;
 using Doobry.Settings;
 using Dragablz;
 

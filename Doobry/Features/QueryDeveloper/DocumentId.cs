@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     public struct DocumentId : IEquatable<DocumentId>
     {

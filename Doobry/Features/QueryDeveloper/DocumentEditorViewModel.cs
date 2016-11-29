@@ -14,7 +14,7 @@ using Microsoft.Azure.Documents.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     public class DocumentEditorViewModel : INotifyPropertyChanged
     {

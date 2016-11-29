@@ -11,7 +11,7 @@ using DynamicData.Kernel;
 using ICSharpCode.AvalonEdit.Highlighting;
 using MaterialDesignThemes.Wpf;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     public class TabViewModel : INotifyPropertyChanged
     {

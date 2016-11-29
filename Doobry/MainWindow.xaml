@@ -6,6 +6,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"        
         xmlns:doobry="clr-namespace:Doobry"
+        xmlns:queryDeveloper="clr-namespace:Doobry.Features.QueryDeveloper"
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
         xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
         xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
@@ -21,57 +22,77 @@
         d:DataContext="{d:DesignInstance doobry:MainWindowViewModel, d:IsDesignTimeCreatable=False}"
         doobry:LifeTimeAssist.RunOnWindowUnloading="{Binding ShutDownCommand}">
     <Window.Resources>
-        <DataTemplate DataType="{x:Type doobry:TabViewModel}">
-            <DataTemplate.Resources>
-                <Style TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">
-                    <Setter Property="Background" Value="{DynamicResource MaterialDesignDivider}" />
-                </Style>
-            </DataTemplate.Resources>
-            <materialDesign:Transitioner SelectedIndex="{Binding ViewIndex}" x:Name="Transitioner"
-                                         Margin="0 1 0 0"
-                                         IsTabStop="False"
-                                         Focusable="False"
-                                         SelectionChanged="Transitioner_OnSelectionChanged">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <doobry:QueryRunnerToolbar Panel.ZIndex="99" />
-                    <doobry:QueryRunner DataContext="{Binding QueryRunnerViewModel}"
-                                        Grid.Row="1" Margin="0 2 0 0" />
-                </Grid>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <doobry:DocumentEditorToolbar Panel.ZIndex="99" />
-                    <doobry:DocumentEditor DataContext="{Binding DocumentEditorViewModel}"
-                                           Grid.Row="1" Margin="0 2 0 0" />
-                </Grid>
-            </materialDesign:Transitioner>
-        </DataTemplate>
-        <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{x:Static doobry:App.InterTabClient}" />
-        <Style TargetType="dragablz:TabablzControl" BasedOn="{StaticResource {x:Type dragablz:TabablzControl}}">
-            <Setter Property="IsTabStop" Value="False" />
-            <Setter Property="Focusable" Value="False" />
-            <Setter Property="ShowDefaultAddButton" Value="True" />
-            <Setter Property="ShowDefaultCloseButton" Value="True" />
-            <Setter Property="HeaderMemberPath" Value="Name" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="NewItemFactory" Value="{x:Static doobry:App.NewItemFactory}" />
-            <Setter Property="ClosingItemCallback" Value="{x:Static doobry:App.ClosingItemCallback}" />
-            <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate DataType="{x:Type queryDeveloper:TabViewModel}">
+                <DataTemplate.Resources>
+                    <Style TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">
+                        <Setter Property="Background" Value="{DynamicResource MaterialDesignDivider}" />
+                    </Style>
+                </DataTemplate.Resources>
+                <materialDesign:Transitioner SelectedIndex="{Binding ViewIndex}" x:Name="Transitioner"
+                                             Margin="0 1 0 0"
+                                             IsTabStop="False"
+                                             Focusable="False"
+                                             SelectionChanged="Transitioner_OnSelectionChanged">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <queryDeveloper:QueryRunnerToolbar Panel.ZIndex="99" />
+                        <queryDeveloper:QueryRunner DataContext="{Binding QueryRunnerViewModel}"
+                                                    Grid.Row="1" Margin="0 2 0 0" />
+                    </Grid>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <queryDeveloper:DocumentEditorToolbar Panel.ZIndex="99" />
+                        <queryDeveloper:DocumentEditor DataContext="{Binding DocumentEditorViewModel}"
+                                                       Grid.Row="1" Margin="0 2 0 0" />
+                    </Grid>
+                </materialDesign:Transitioner>
+            </DataTemplate>
+            <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{x:Static doobry:App.InterTabClient}" />
+            <Style TargetType="dragablz:TabablzControl" BasedOn="{StaticResource {x:Type dragablz:TabablzControl}}">
+                <Setter Property="IsTabStop" Value="False" />
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="ShowDefaultAddButton" Value="True" />
+                <Setter Property="ShowDefaultCloseButton" Value="True" />
+                <Setter Property="HeaderMemberPath" Value="Name" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="NewItemFactory" Value="{x:Static doobry:App.NewItemFactory}" />
+                <Setter Property="ClosingItemCallback" Value="{x:Static doobry:App.ClosingItemCallback}" />
+                <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
+            </Style>
+        </ResourceDictionary>
     </Window.Resources>
     <materialDesign:DialogHost IsTabStop="False" Focusable="False" SnackbarMessageQueue="{Binding SnackbarMessageQueue}">
-        <Grid>
-            <dockablz:Layout IsTabStop="False" Focusable="False">
-                <dragablz:TabablzControl x:Name="InitialTabablzControl"                                      
-                                         doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}"/>
-            </dockablz:Layout>
-            <materialDesign:Snackbar MessageQueue="{Binding SnackbarMessageQueue}" />
-        </Grid>
+        <materialDesign:DrawerHost x:Name="DrawerHost">
+            <materialDesign:DrawerHost.LeftDrawerContent>
+                <TextBlock>Hello</TextBlock>
+            </materialDesign:DrawerHost.LeftDrawerContent>
+            <Grid>
+                <dockablz:Layout IsTabStop="False" Focusable="False">
+                    <dragablz:TabablzControl x:Name="InitialTabablzControl"                                      
+                                             doobry:LifeTimeAssist.RunOnLoad="{Binding StartupCommand}">
+                        <dragablz:TabablzControl.HeaderPrefixContent>
+                            <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" IsChecked="{Binding ElementName=DrawerHost, Path=IsLeftDrawerOpen, Mode=TwoWay}"
+                                          Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"
+                                          RenderTransformOrigin=".5,.5">
+                                <ToggleButton.RenderTransform>
+                                    <ScaleTransform ScaleX=".6" ScaleY=".6" />
+                                </ToggleButton.RenderTransform>
+                            </ToggleButton>
+                        </dragablz:TabablzControl.HeaderPrefixContent>
+                    </dragablz:TabablzControl>
+                </dockablz:Layout>
+                <materialDesign:Snackbar MessageQueue="{Binding SnackbarMessageQueue}" />
+            </Grid>
+        </materialDesign:DrawerHost>
     </materialDesign:DialogHost>
 </Window>

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Doobry.Infrastructure;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     public class ResultSetExplorerViewModel : INotifyPropertyChanged
     {

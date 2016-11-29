@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     public class ResultSet
     {        

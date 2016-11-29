@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using Doobry.Features.QueryDeveloper;
 using Dragablz;
 using Dragablz.Dockablz;
 

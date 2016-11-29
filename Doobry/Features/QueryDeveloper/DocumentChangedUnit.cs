@@ -1,6 +1,6 @@
 using System;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     public class DocumentChangedUnit
     {

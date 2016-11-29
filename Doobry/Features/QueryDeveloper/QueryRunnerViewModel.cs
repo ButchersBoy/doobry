@@ -20,7 +20,7 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     public class QueryRunnerViewModel : INotifyPropertyChanged
     {        

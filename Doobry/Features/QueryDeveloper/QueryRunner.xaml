@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="Doobry.QueryRunner"
+﻿<UserControl x:Class="Doobry.Features.QueryDeveloper.QueryRunner"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Doobry"
+             xmlns:queryDeveloper="clr-namespace:Doobry.Features.QueryDeveloper"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
         <avalonEdit:TextEditor Document="{Binding Document}" 
                                SyntaxHighlighting="{Binding HighlightingDefinition}"                               
-                               local:QueryRunnerViewModel.Self="{Binding}"
+                               queryDeveloper:QueryRunnerViewModel.Self="{Binding}"
                                FontFamily="Consolas"
                                FontSize="10pt"
                                infrastructure:FocusAssist.IsViableTarget="True">
@@ -30,6 +30,6 @@
         <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                       />
-        <local:ResultSetExplorer Grid.Row="2" DataContext="{Binding ResultSetExplorer}" />
+        <queryDeveloper:ResultSetExplorer Grid.Row="2" DataContext="{Binding ResultSetExplorer}" />
     </Grid>
 </UserControl>

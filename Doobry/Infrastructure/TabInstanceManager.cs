@@ -7,11 +7,11 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Doobry.Features.QueryDeveloper;
 using Doobry.Settings;
 using Dragablz;
 using ICSharpCode.AvalonEdit.Highlighting;
 using MaterialDesignThemes.Wpf;
-using StructureMap;
 
 namespace Doobry.Infrastructure
 {

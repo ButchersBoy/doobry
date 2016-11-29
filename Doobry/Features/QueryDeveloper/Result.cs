@@ -1,4 +1,4 @@
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     public class Result
     {

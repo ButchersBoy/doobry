@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Doobry
+namespace Doobry.Features.QueryDeveloper
 {
     /// <summary>
     /// Interaction logic for QueryRunner.xaml
