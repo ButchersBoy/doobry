@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Doobry.Infrastructure;
 using Doobry.Settings;
 using Dragablz;
-using ICSharpCode.AvalonEdit.Highlighting;
 using MaterialDesignThemes.Wpf;
 using StructureMap;
-using StructureMap.Pipeline;
 using Squirrel;
 
 namespace Doobry
@@ -70,7 +64,7 @@ namespace Doobry
 
             var tabViewModelInstanceManager = container.GetInstance<ITabInstanceManager>();
             var windowInstanceManager = new WindowInstanceManager(tabViewModelInstanceManager, container.GetInstance<MainWindowViewModel>);
-
+            
             //grease the Dragablz wheels    
             NewItemFactory = () => tabViewModelInstanceManager.CreateManagedTabViewModel();
             InterTabClient = new InterTabClient(windowInstanceManager);

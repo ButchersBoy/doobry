@@ -58,6 +58,14 @@
                 </materialDesign:Transitioner>
             </DataTemplate>
             <dragablz:InterTabController x:Key="InterTabController" x:Shared="False" InterTabClient="{x:Static doobry:App.InterTabClient}" />
+            <ToggleButton x:Key="MenuToggleButton" x:Shared="False" 
+                          Style="{StaticResource MaterialDesignHamburgerToggleButton}" IsChecked="{Binding ElementName=DrawerHost, Path=IsLeftDrawerOpen, Mode=TwoWay}"
+                          Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"
+                          RenderTransformOrigin=".5,.5">
+                <ToggleButton.RenderTransform>
+                    <ScaleTransform ScaleX=".6" ScaleY=".6" />
+                </ToggleButton.RenderTransform>
+            </ToggleButton>
             <Style TargetType="dragablz:TabablzControl" BasedOn="{StaticResource {x:Type dragablz:TabablzControl}}">
                 <Setter Property="IsTabStop" Value="False" />
                 <Setter Property="Focusable" Value="False" />
@@ -68,6 +76,11 @@
                 <Setter Property="NewItemFactory" Value="{x:Static doobry:App.NewItemFactory}" />
                 <Setter Property="ClosingItemCallback" Value="{x:Static doobry:App.ClosingItemCallback}" />
                 <Setter Property="InterTabController" Value="{StaticResource InterTabController}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=(dockablz:Layout.IsTopLeftItem)}" Value="True">
+                        <Setter Property="HeaderPrefixContent" Value="{StaticResource MenuToggleButton}" />
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
         </ResourceDictionary>
     </Window.Resources>
