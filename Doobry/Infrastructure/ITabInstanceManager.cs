@@ -13,6 +13,7 @@ namespace Doobry.Infrastructure
         TabViewModel CreateManagedTabViewModel(Guid id, Connection connection);        
 
         ItemActionCallback ClosingTabItemCallback { get; }
+
         void Manage(Window window);
     }
 }

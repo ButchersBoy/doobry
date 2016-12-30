@@ -161,9 +161,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Features\FeatureRegistry.cs" />
+    <Compile Include="Features\IFeatureFactory.cs" />
     <Compile Include="Features\QueryDeveloper\DocumentChangedUnit.cs" />
     <Compile Include="Features\QueryDeveloper\DocumentId.cs" />
     <Compile Include="DoobryRegistry.cs" />
+    <Compile Include="Features\QueryDeveloper\QueryDeveloperFeatureFactory.cs" />
     <Compile Include="Infrastructure\Command.cs" />
     <Compile Include="Features\QueryDeveloper\DocumentEditor.xaml.cs">
       <DependentUpon>DocumentEditor.xaml</DependentUpon>

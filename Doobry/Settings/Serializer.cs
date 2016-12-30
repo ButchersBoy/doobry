@@ -89,9 +89,8 @@ namespace Doobry.Settings
         {
             if (tabItem == null) throw new ArgumentNullException(nameof(tabItem));
 
-            dynamic ti = new JObject();
-            ti.id = tabItem.Id;
-            ti.connectionId = tabItem.ConnectionId;
+            var ti = new JObject();
+            tabItem.BackingStoreWriter.WriteToBackingStore(tabItem.TabContentViewModel, ti);            
             return ti;
         }
 
@@ -155,7 +154,7 @@ namespace Doobry.Settings
         {
             return new LayoutStructureTabItem(
                 Guid.Parse(tabItemJToken["id"].ToString()), 
-                GetNullableGuid(tabItemJToken, "connectionId"));
+                tabItemJToken);
         }
 
         private static Guid? GetNullableGuid(JToken token, string path)

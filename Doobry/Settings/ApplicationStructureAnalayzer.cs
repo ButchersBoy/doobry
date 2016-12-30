@@ -86,13 +86,13 @@ namespace Doobry.Settings
 
         private static void DocumentTabSet(Guid id, TabablzControl tabablzControl, ICollection<LayoutStructureTabSet> layoutStructureTabSets)
         {
-            var selectedTabItemId = (tabablzControl.SelectedItem as TabViewModel)?.Id;
+            var selectedTabItemId = (tabablzControl.SelectedItem as TabItemContainer)?.TabId;
 
             var layoutStructureTabSet = new LayoutStructureTabSet(
                 id,
                 selectedTabItemId,
-                tabablzControl.Items.OfType<TabViewModel>()
-                    .Select(tvm => new LayoutStructureTabItem(tvm.Id, tvm.ConnectionId))
+                tabablzControl.Items.OfType<TabItemContainer>()
+                    .Select(tic => new LayoutStructureTabItem(tic.TabId, tic.ViewModel, tic.BackingStoreWriter))
                 );
 
             layoutStructureTabSets.Add(layoutStructureTabSet);

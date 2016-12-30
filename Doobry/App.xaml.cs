@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using Doobry.Features;
+using Doobry.Features.QueryDeveloper;
 using Doobry.Infrastructure;
 using Doobry.Settings;
 using Dragablz;
@@ -24,7 +26,7 @@ namespace Doobry
 
             IGeneralSettings generalSettings = null;
             IConnectionCache connectionCache = null;
-            IInitialLayoutStructureProvider initialLayoutStructureProvider = null;
+            IInitialLayoutStructureProvider initialLayoutStructureProvider = null;            
 
             string rawData;
             if (new Persistance().TryLoadRaw(out rawData))
@@ -54,19 +56,27 @@ namespace Doobry
                 _.ForSingletonOf<IConnectionCache>().Use(connectionCache);                
                 _.ForSingletonOf<IInitialLayoutStructureProvider>().Use(initialLayoutStructureProvider);
                 _.ForSingletonOf<ISnackbarMessageQueue>().Use(new SnackbarMessageQueue());
-                _.AddRegistry<DoobryRegistry>();
+                _.ForSingletonOf<FeatureRegistry>()
+                    .Use(ctx => FeatureRegistry.WithDefault(ctx.GetInstance<QueryDeveloperFeatureFactory>()));
+                _.AddRegistry<DoobryRegistry>();                
                 _.Scan(scanner =>
                 {
                     scanner.TheCallingAssembly();
                     scanner.WithDefaultConventions();
                 });                
-            });
+            });            
 
-            var tabViewModelInstanceManager = container.GetInstance<ITabInstanceManager>();
+            var tabViewModelInstanceManager = container.GetInstance<ITabInstanceManager>();                       
             var windowInstanceManager = new WindowInstanceManager(tabViewModelInstanceManager, container.GetInstance<MainWindowViewModel>);
-            
+
             //grease the Dragablz wheels    
-            NewItemFactory = () => tabViewModelInstanceManager.CreateManagedTabViewModel();
+            var featureRegistry = container.GetInstance<FeatureRegistry>();
+            NewItemFactory = () =>
+            {
+                var contentLifetimeHost = featureRegistry.Default.CreateTabContent();
+                var tabContentContainer = new TabItemContainer(Guid.NewGuid(), contentLifetimeHost, featureRegistry.Default);
+                return tabContentContainer;
+            };
             InterTabClient = new InterTabClient(windowInstanceManager);
             ClosingItemCallback = tabViewModelInstanceManager.ClosingTabItemCallback;
 

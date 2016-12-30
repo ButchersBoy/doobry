@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Doobry.Features;
 using Doobry.Features.QueryDeveloper;
 using Doobry.Infrastructure;
 using Doobry.Settings;
@@ -18,6 +19,7 @@ namespace Doobry
 {
     public class MainWindowViewModel
     {
+        private readonly FeatureRegistry _featureRegistry;
         private readonly ITabInstanceManager _tabInstanceManager;
         private readonly IConnectionCache _connectionCache;
         private readonly IGeneralSettings _generalSettings;
@@ -26,12 +28,14 @@ namespace Doobry
         private static bool _isStartupInitiated;
 
         public MainWindowViewModel(
+            FeatureRegistry featureRegistry,
             ITabInstanceManager tabInstanceManager,
             IConnectionCache connectionCache,
             IGeneralSettings generalSettings,
             IInitialLayoutStructureProvider initialLayoutStructureProvider,
             ISnackbarMessageQueue snackbarSnackbarMessageQueue)
         {
+            if (featureRegistry == null) throw new ArgumentNullException(nameof(featureRegistry));
             if (tabInstanceManager == null)
                 throw new ArgumentNullException(nameof(tabInstanceManager));
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
@@ -39,6 +43,7 @@ namespace Doobry
             if (initialLayoutStructureProvider == null)
                 throw new ArgumentNullException(nameof(initialLayoutStructureProvider));
 
+            _featureRegistry = featureRegistry;
             _tabInstanceManager = tabInstanceManager;
             _connectionCache = connectionCache;
             _generalSettings = generalSettings;
@@ -71,20 +76,21 @@ namespace Doobry
             LayoutStructure layoutStructure;
             if (_initialLayoutStructureProvider.TryTake(out layoutStructure))
             {
-                RestoreLayout(rootTabControl, layoutStructure, _connectionCache);
+                RestoreLayout(rootTabControl, layoutStructure);
             }
 
             if (TabablzControl.GetLoadedInstances().SelectMany(tc => tc.Items.OfType<object>()).Any()) return;
 
-            var tabViewModel = _tabInstanceManager.CreateManagedTabViewModel();
-            rootTabControl.AddToSource(tabViewModel);
-            Tabs.Add(tabViewModel);
-            TabablzControl.SelectItem(tabViewModel);
-            tabViewModel.EditConnectionCommand.Execute(rootTabControl);
+            var tabContentLifetimeHost = _featureRegistry.Default.CreateTabContent();
+            var tabContentContainer = new TabItemContainer(Guid.NewGuid(), tabContentLifetimeHost, _featureRegistry.Default);
+            rootTabControl.AddToSource(tabContentContainer);
+            TabablzControl.SelectItem(tabContentContainer);
+
+            //TODO sort out this nasty cast
+            ((TabViewModel)tabContentContainer.ViewModel).EditConnectionCommand.Execute(rootTabControl);
         }
 
-        private void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure,
-            IConnectionCache connectionCache)
+        private void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure)
         {
             try
             {
@@ -122,19 +128,17 @@ namespace Doobry
         {
             foreach (var tabItem in layoutStructureTabSet.TabItems)
             {
-                Connection connection = null;
-                if (tabItem.ConnectionId.HasValue)
-                {
-                    connection = _connectionCache.Get(tabItem.ConnectionId.Value).ValueOrDefault();
-                }
-                var tabViewModel = _tabInstanceManager.CreateManagedTabViewModel(tabItem.Id, connection);
-                tabablzControl.AddToSource(tabViewModel);
+                //TODO select correct feature
+                var featureFactory = _featureRegistry.Default;
+                var tabContentLifetimeHost = featureFactory.RestoreTabContent(tabItem);
+                var tabContentContainer = new TabItemContainer(tabItem.Id, tabContentLifetimeHost, featureFactory);
+                tabablzControl.AddToSource(tabContentContainer);
 
-                if (tabViewModel.Id == layoutStructureTabSet.SelectedTabItemId)
+                if (tabContentContainer.TabId == layoutStructureTabSet.SelectedTabItemId)
                 {
                     tabablzControl.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        tabablzControl.SetCurrentValue(Selector.SelectedItemProperty, tabViewModel);
+                        tabablzControl.SetCurrentValue(Selector.SelectedItemProperty, tabContentContainer);
                     }), DispatcherPriority.Loaded);                    
                 }
             }
@@ -219,5 +223,27 @@ namespace Doobry
 
             Application.Current.Shutdown();
         }
-    }    
+    }
+
+    public class TabItemContainer
+    {
+        public TabItemContainer(Guid tabId, ITabContentLifetimeHost tabContentLifetimeHost, IBackingStoreWriter backingStoreWriter)
+        {
+            TabId = tabId;
+            TabContentLifetimeHost = tabContentLifetimeHost;
+            BackingStoreWriter = backingStoreWriter;
+            ViewModel = tabContentLifetimeHost.ViewModel;
+            Name = "New World";
+        }
+
+        public string Name { get; }
+
+        public Guid TabId { get; }
+
+        public ITabContentLifetimeHost TabContentLifetimeHost { get; }
+
+        public IBackingStoreWriter BackingStoreWriter { get; }
+
+        public object ViewModel { get; }
+    }
 }
