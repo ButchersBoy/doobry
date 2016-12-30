@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Doobry.Settings;
 using DynamicData.Kernel;
 using ICSharpCode.AvalonEdit.Highlighting;
@@ -55,6 +56,7 @@ namespace Doobry.Features.QueryDeveloper
             }
 
             var tabViewModel = new TabViewModel(tabItem.Id, connection, _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
+            PopulateDocument(tabViewModel);
             var disposable = Watch(tabViewModel);
 
             return new TabContentLifetimeHost(tabViewModel, closeReason => Cleanup(closeReason, tabViewModel, disposable));
@@ -107,6 +109,29 @@ namespace Doobry.Features.QueryDeveloper
             {
                 //TODO...erm summit                
             }
-        }        
+        }
+
+        private void PopulateDocument(TabViewModel tabViewModel)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                var fileName = _queryFileService.GetFileName(tabViewModel.Id);
+                return File.Exists(fileName) ? File.ReadAllText(fileName) : string.Empty;
+            }).ContinueWith(t =>
+            {
+                if (t.Exception != null)
+                {
+                    //TODO uhm something
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(tabViewModel.QueryRunnerViewModel.Document.Text))
+                    {
+                        tabViewModel.QueryRunnerViewModel.Document.Text = t.Result;
+                    }
+                }
+
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
     }
 }
