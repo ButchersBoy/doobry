@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Doobry.Settings;
 using Newtonsoft.Json.Linq;
 
@@ -29,12 +32,12 @@ namespace Doobry.Features
     {
         object ViewModel { get; }
 
-        void Cleanup(TabCloseReason closeReason);
+        void Cleanup(TabCloseReason closeReason);        
     }
 
     public class TabContentLifetimeHost : ITabContentLifetimeHost
     {
-        private readonly Action<TabCloseReason> _cleanup;
+        private readonly Action<TabCloseReason> _cleanup;        
 
         public TabContentLifetimeHost(object viewModel, Action<TabCloseReason> cleanup)
         {
@@ -42,7 +45,7 @@ namespace Doobry.Features
             if (cleanup == null) throw new ArgumentNullException(nameof(cleanup));
 
             _cleanup = cleanup;
-            ViewModel = viewModel;
+            ViewModel = viewModel;            
         }
 
         public object ViewModel { get; }

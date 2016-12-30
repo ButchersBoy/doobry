@@ -74,7 +74,7 @@
                 <Setter Property="Focusable" Value="False" />
                 <Setter Property="ShowDefaultAddButton" Value="True" />
                 <Setter Property="ShowDefaultCloseButton" Value="True" />
-                <Setter Property="HeaderMemberPath" Value="Name" />
+                <Setter Property="HeaderMemberPath" Value="ViewModel.Name" />
                 <Setter Property="DisplayMemberPath" Value="ViewModel" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="NewItemFactory" Value="{x:Static doobry:App.NewItemFactory}" />
