@@ -11,8 +11,7 @@ namespace Doobry
         public DoobryRegistry()
         {            
             ForSingletonOf<IHighlightingDefinition>().Use(new Loader().GetDocumentDbSyntaxHighlighting());
-            ForSingletonOf<IManualSaver>().Use<ManualSaver>();
-            ForSingletonOf<ITabInstanceManager>().Use<TabInstanceManager>();
+            ForSingletonOf<IManualSaver>().Use<ManualSaver>();            
         }
     }
 }

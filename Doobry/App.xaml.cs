@@ -66,8 +66,7 @@ namespace Doobry
                 });                
             });            
 
-            var tabViewModelInstanceManager = container.GetInstance<ITabInstanceManager>();                       
-            var windowInstanceManager = new WindowInstanceManager(tabViewModelInstanceManager, container.GetInstance<MainWindowViewModel>);
+            var windowInstanceManager = new WindowInstanceManager(container.GetInstance<MainWindowViewModel>);
 
             //grease the Dragablz wheels    
             var featureRegistry = container.GetInstance<FeatureRegistry>();
@@ -78,7 +77,7 @@ namespace Doobry
                 return tabContentContainer;
             };
             InterTabClient = new InterTabClient(windowInstanceManager);
-            ClosingItemCallback = tabViewModelInstanceManager.ClosingTabItemCallback;
+            ClosingItemCallback = OnItemClosingHandler;
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var mainWindow = windowInstanceManager.Create();
@@ -105,6 +104,11 @@ namespace Doobry
             {
                 snackbarMessageQueue.Enqueue("Unable to check for updates.");
             }
+        }
+
+        private void OnItemClosingHandler(ItemActionCallbackArgs<TabablzControl> args)
+        {
+            (args.DragablzItem.DataContext as TabItemContainer)?.TabContentLifetimeHost.Cleanup(TabCloseReason.TabClosed);
         }
     }
 }

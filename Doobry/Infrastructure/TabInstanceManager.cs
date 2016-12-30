@@ -15,6 +15,7 @@ using MaterialDesignThemes.Wpf;
 
 namespace Doobry.Infrastructure
 {
+    /*
     public class TabInstanceManager : ITabInstanceManager
     {
         private readonly IConnectionCache _connectionCache;
@@ -45,21 +46,6 @@ namespace Doobry.Infrastructure
         }
 
         public ItemActionCallback ClosingTabItemCallback { get; }
-
-        public TabViewModel CreateManagedTabViewModel()
-        {            
-            var result = new TabViewModel(Guid.NewGuid(), _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
-            Watch(result);
-            return result;
-        }
-
-        public TabViewModel CreateManagedTabViewModel(Guid id, Connection connection)
-        {
-            var result = new TabViewModel(id, connection, _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
-            PopulateDocument(result);
-            Watch(result);
-            return result;
-        }
 
         public void Manage(Window window)
         {
@@ -122,7 +108,7 @@ namespace Doobry.Infrastructure
             {
                 File.Delete(fileName);
             }
-            catch { /* TODO uhm something */ }
+            catch { /* TODO uhm something  }
         }
 
         private void PopulateDocument(TabViewModel tabViewModel)
@@ -171,4 +157,5 @@ namespace Doobry.Infrastructure
             }            
         }
     }
+*/
 }

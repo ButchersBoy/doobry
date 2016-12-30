@@ -20,7 +20,6 @@ namespace Doobry
     public class MainWindowViewModel
     {
         private readonly FeatureRegistry _featureRegistry;
-        private readonly ITabInstanceManager _tabInstanceManager;
         private readonly IConnectionCache _connectionCache;
         private readonly IGeneralSettings _generalSettings;
         private readonly IInitialLayoutStructureProvider _initialLayoutStructureProvider;
@@ -29,22 +28,18 @@ namespace Doobry
 
         public MainWindowViewModel(
             FeatureRegistry featureRegistry,
-            ITabInstanceManager tabInstanceManager,
             IConnectionCache connectionCache,
             IGeneralSettings generalSettings,
             IInitialLayoutStructureProvider initialLayoutStructureProvider,
             ISnackbarMessageQueue snackbarSnackbarMessageQueue)
         {
             if (featureRegistry == null) throw new ArgumentNullException(nameof(featureRegistry));
-            if (tabInstanceManager == null)
-                throw new ArgumentNullException(nameof(tabInstanceManager));
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
             if (initialLayoutStructureProvider == null)
                 throw new ArgumentNullException(nameof(initialLayoutStructureProvider));
 
             _featureRegistry = featureRegistry;
-            _tabInstanceManager = tabInstanceManager;
             _connectionCache = connectionCache;
             _generalSettings = generalSettings;
             _initialLayoutStructureProvider = initialLayoutStructureProvider;

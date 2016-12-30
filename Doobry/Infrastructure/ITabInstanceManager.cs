@@ -6,6 +6,7 @@ using Dragablz;
 
 namespace Doobry.Infrastructure
 {
+    //TODO delete
     public interface ITabInstanceManager
     {
         TabViewModel CreateManagedTabViewModel();

@@ -36,9 +36,9 @@ namespace Doobry.Settings
 
         public IBackingStoreWriter BackingStoreWriter { get; }
 
-        public TResult ReadProperty<TResult>(string name)
+        public string ReadProperty(string name)
         {
-            return _tabItemJToken.Value<TResult>(name);
+            return _tabItemJToken.Value<string>(name);
         }
 
         //public Guid? ConnectionId { get; }

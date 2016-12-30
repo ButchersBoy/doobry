@@ -17,6 +17,8 @@ namespace Doobry.Features.QueryDeveloper
         private readonly IQueryFileService _queryFileService;
         private readonly ISnackbarMessageQueue _snackbarMessageQueue;        
 
+        private const string ConnectionIdBackingStorePropertyName = "connectionId";
+
         public QueryDeveloperFeatureFactory(IConnectionCache connectionCache,
             IHighlightingDefinition sqlHighlightingDefinition, IQueryFileService queryFileService, ISnackbarMessageQueue snackbarMessageQueue)
         {
@@ -44,12 +46,12 @@ namespace Doobry.Features.QueryDeveloper
 
         public ITabContentLifetimeHost RestoreTabContent(LayoutStructureTabItem tabItem)
         {
-            var connectionId = tabItem.ReadProperty<Guid?>("ConnectionId");
-
+            var connectionPropVal = tabItem.ReadProperty(ConnectionIdBackingStorePropertyName);
+            Guid connectionId;
             Connection connection = null;
-            if (connectionId.HasValue)
+            if (connectionPropVal != null && Guid.TryParse(connectionPropVal, out connectionId))
             {
-                connection = _connectionCache.Get(connectionId.Value).ValueOrDefault();
+                connection = _connectionCache.Get(connectionId).ValueOrDefault();
             }
 
             var tabViewModel = new TabViewModel(tabItem.Id, connection, _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
@@ -64,7 +66,7 @@ namespace Doobry.Features.QueryDeveloper
             if (tabViewModel == null)
                 throw new InvalidOperationException("Expected view model type of " + typeof(TabViewModel).FullName);
 
-            into["ConnectionId"] = tabViewModel.ConnectionId;
+            into[ConnectionIdBackingStorePropertyName] = tabViewModel.ConnectionId;
         }
 
         private void Cleanup(TabCloseReason tabCloseReason, TabViewModel tabViewModel, IDisposable watchSubscription)

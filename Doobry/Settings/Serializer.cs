@@ -89,7 +89,8 @@ namespace Doobry.Settings
         {
             if (tabItem == null) throw new ArgumentNullException(nameof(tabItem));
 
-            var ti = new JObject();
+            dynamic ti = new JObject();
+            ti.id = tabItem.Id;
             tabItem.BackingStoreWriter.WriteToBackingStore(tabItem.TabContentViewModel, ti);            
             return ti;
         }
