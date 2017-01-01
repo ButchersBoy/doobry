@@ -162,7 +162,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Features\FeatureRegistry.cs" />
+    <Compile Include="Features\IBackingStoreWriter.cs" />
     <Compile Include="Features\IFeatureFactory.cs" />
+    <Compile Include="Features\ITabContentLifetimeHost.cs" />
     <Compile Include="Features\Management\Management.xaml.cs">
       <DependentUpon>Management.xaml</DependentUpon>
     </Compile>
@@ -172,6 +174,8 @@
     <Compile Include="Features\QueryDeveloper\DocumentId.cs" />
     <Compile Include="DoobryRegistry.cs" />
     <Compile Include="Features\QueryDeveloper\QueryDeveloperFeatureFactory.cs" />
+    <Compile Include="Features\TabCloseReason.cs" />
+    <Compile Include="Features\TabContentLifetimeHost.cs" />
     <Compile Include="Infrastructure\Command.cs" />
     <Compile Include="Features\QueryDeveloper\DocumentEditor.xaml.cs">
       <DependentUpon>DocumentEditor.xaml</DependentUpon>
