@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows;
 using Doobry.Features;
+using Doobry.Features.Management;
 using Doobry.Features.QueryDeveloper;
 using Doobry.Infrastructure;
 using Doobry.Settings;
@@ -57,7 +58,10 @@ namespace Doobry
                 _.ForSingletonOf<IInitialLayoutStructureProvider>().Use(initialLayoutStructureProvider);
                 _.ForSingletonOf<ISnackbarMessageQueue>().Use(new SnackbarMessageQueue());
                 _.ForSingletonOf<FeatureRegistry>()
-                    .Use(ctx => FeatureRegistry.WithDefault(ctx.GetInstance<QueryDeveloperFeatureFactory>()));
+                    .Use(
+                        ctx =>
+                            FeatureRegistry.WithDefault(ctx.GetInstance<QueryDeveloperFeatureFactory>())
+                                .Add<ManagementFeatureFactory>());
                 _.AddRegistry<DoobryRegistry>();                
                 _.Scan(scanner =>
                 {

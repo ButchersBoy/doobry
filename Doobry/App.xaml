@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:Doobry"
              xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
              xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
+             xmlns:management="clr-namespace:Doobry.Features.Management"
              Startup="App_OnStartup">
     <Application.Resources>
         <ResourceDictionary>
@@ -23,6 +24,9 @@
             <Style TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">
                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
             </Style>
+            <DataTemplate DataType="{x:Type management:ManagementViewModel}">
+                <management:Management />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

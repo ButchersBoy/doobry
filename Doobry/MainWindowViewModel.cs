@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Doobry.Features;
+using Doobry.Features.Management;
 using Doobry.Features.QueryDeveloper;
 using Doobry.Infrastructure;
 using Doobry.Settings;
@@ -17,7 +20,7 @@ using MaterialDesignThemes.Wpf;
 
 namespace Doobry
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
         private readonly FeatureRegistry _featureRegistry;
         private readonly IConnectionCache _connectionCache;
@@ -25,6 +28,7 @@ namespace Doobry
         private readonly IInitialLayoutStructureProvider _initialLayoutStructureProvider;
 
         private static bool _isStartupInitiated;
+        private bool _isLeftDrawerOpen;
 
         public MainWindowViewModel(
             FeatureRegistry featureRegistry,
@@ -47,6 +51,7 @@ namespace Doobry
 
             StartupCommand = new Command(RunStartup);
             ShutDownCommand = new Command(o => RunShutdown());
+            OpenManagementCommand = new Command(o => Open<ManagementFeatureFactory>());
             Tabs = new ObservableCollection<TabViewModel>();
         }
 
@@ -55,6 +60,8 @@ namespace Doobry
         public ICommand StartupCommand { get; }
 
         public ICommand ShutDownCommand { get; }
+
+        public ICommand OpenManagementCommand { get; }
 
         public ISnackbarMessageQueue SnackbarMessageQueue { get; }
 
@@ -84,6 +91,16 @@ namespace Doobry
 
             //TODO sort out this nasty cast
             ((TabViewModel)tabContentContainer.ViewModel).EditConnectionCommand.Execute(rootTabControl);
+        }
+
+        private void Open<TFeatureFactory>() where TFeatureFactory : IFeatureFactory
+        {
+            var featureFactory = _featureRegistry.Get<TFeatureFactory>();
+            var tabContentLifetimeHost = featureFactory.CreateTabContent();
+            var tabItemContainer = new TabItemContainer(Guid.NewGuid(), featureFactory.FeatureId, tabContentLifetimeHost, featureFactory);
+            TabablzControl.GetLoadedInstances().First(Layout.GetIsTopLeftItem).AddToSource(tabItemContainer);
+            TabablzControl.SelectItem(tabItemContainer);
+            IsLeftDrawerOpen = false;
         }
 
         private void RestoreLayout(TabablzControl rootTabControl, LayoutStructure layoutStructure)
@@ -152,6 +169,12 @@ namespace Doobry
             return (Guid?) element.GetValue(TabSetIdProperty);
         }
 
+        public bool IsLeftDrawerOpen
+        {
+            get { return _isLeftDrawerOpen; }
+            set { this.MutateVerbose(ref _isLeftDrawerOpen, value, RaisePropertyChanged()); }
+        }
+
         private static IEnumerable<Tuple<Guid, TabablzControl>> BuildLayout(
             TabablzControl intoTabablzControl, 
             LayoutStructureBranch layoutStructureBranch,
@@ -217,6 +240,13 @@ namespace Doobry
             new ManualSaver().Save(_connectionCache, _generalSettings);            
 
             Application.Current.Shutdown();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private Action<PropertyChangedEventArgs> RaisePropertyChanged()
+        {
+            return args => PropertyChanged?.Invoke(this, args);
         }
     }
 }

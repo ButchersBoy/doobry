@@ -8,12 +8,14 @@ namespace Doobry.Features
 {
     public class FeatureRegistry
     {
-        private readonly IDictionary<Guid, IFeatureFactory> _featureFactories;
-        
-        private FeatureRegistry(IDictionary<Guid, IFeatureFactory> featureFactories, IFeatureFactory defaultFeatureFactory)
+        private readonly IDictionary<Guid, IFeatureFactory> _featureFactoriesById;
+        private readonly IDictionary<Type, IFeatureFactory> _featureFactoriesByType;
+
+        private FeatureRegistry(IDictionary<Guid, IFeatureFactory> featureFactoriesById, IDictionary<Type, IFeatureFactory> featureFactoriesByType, IFeatureFactory defaultFeatureFactory)
         {
-            _featureFactories = featureFactories;
-        
+            _featureFactoriesById = featureFactoriesById;
+            _featureFactoriesByType = featureFactoriesByType;
+
             Default = defaultFeatureFactory;
         }
 
@@ -21,41 +23,42 @@ namespace Doobry.Features
         {
             if (featureFactory == null) throw new ArgumentNullException(nameof(featureFactory));
 
-            var featureFactories = new Dictionary<Guid, IFeatureFactory>
+            var featureFactoriesById = new Dictionary<Guid, IFeatureFactory>
             {
                 {featureFactory.FeatureId, featureFactory}
             };
-
-            return new FeatureRegistry(featureFactories, featureFactory);
-        }
-
-        [Obsolete]
-        public static FeatureRegistry WithDefault<TFeatureFactory>() where TFeatureFactory : IFeatureFactory, new()
-        {
-            var featureFactory = Activator.CreateInstance<TFeatureFactory>();
-            var featureFactories = new Dictionary<Guid, IFeatureFactory>
+            var featureFactoriesByType = new Dictionary<Type, IFeatureFactory>
             {
-                {featureFactory.FeatureId, featureFactory}
+                {featureFactory.GetType(), featureFactory}
             };
 
-            return new FeatureRegistry(featureFactories, featureFactory);
+            return new FeatureRegistry(featureFactoriesById, featureFactoriesByType, featureFactory);
         }
 
         public FeatureRegistry Add<TFeatureFactory>() where TFeatureFactory : IFeatureFactory, new()
         {
             var featureFactory = Activator.CreateInstance<TFeatureFactory>();
-            if (_featureFactories.ContainsKey(featureFactory.FeatureId))
+            if (_featureFactoriesById.ContainsKey(featureFactory.FeatureId))
                 throw new InvalidOperationException("A factory for the given " + nameof(featureFactory.FeatureId) + " already exists.");
 
-            var featureFactories = new Dictionary<Guid, IFeatureFactory>(_featureFactories)
+            var featureFactories = new Dictionary<Guid, IFeatureFactory>(_featureFactoriesById)
             {
                 {featureFactory.FeatureId, featureFactory}
             };
+            var featureFactoriesByType = new Dictionary<Type, IFeatureFactory>(_featureFactoriesByType)
+            {
+                {featureFactory.GetType(), featureFactory}
+            };
 
-            return new FeatureRegistry(featureFactories, Default);
+            return new FeatureRegistry(featureFactories, featureFactoriesByType, Default);
         }
 
-        public IFeatureFactory this[Guid featureId] => _featureFactories[featureId];
+        public IFeatureFactory this[Guid featureId] => _featureFactoriesById[featureId];
+
+        public IFeatureFactory Get<TFeatureFactory>() where TFeatureFactory : IFeatureFactory
+        {
+            return _featureFactoriesByType[typeof(TFeatureFactory)];
+        }
 
         public IFeatureFactory Default { get; }
     }
