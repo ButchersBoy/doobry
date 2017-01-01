@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using Doobry.Features.QueryDeveloper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -91,6 +92,7 @@ namespace Doobry.Settings
 
             dynamic ti = new JObject();
             ti.id = tabItem.Id;
+            ti.featureId = tabItem.FeatureId;
             tabItem.BackingStoreWriter.WriteToBackingStore(tabItem.TabContentViewModel, ti);            
             return ti;
         }
@@ -154,7 +156,8 @@ namespace Doobry.Settings
         private static LayoutStructureTabItem ObjectifyTabItem(JToken tabItemJToken)
         {
             return new LayoutStructureTabItem(
-                Guid.Parse(tabItemJToken["id"].ToString()), 
+                Guid.Parse(tabItemJToken["id"].ToString()),
+                GetNullableGuid(tabItemJToken, "featureId") ?? QueryDeveloperFeatureFactory.MyFeatureId, //backwards compat with older layout files
                 tabItemJToken);
         }
 

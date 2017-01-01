@@ -73,7 +73,7 @@ namespace Doobry
             NewItemFactory = () =>
             {
                 var contentLifetimeHost = featureRegistry.Default.CreateTabContent();
-                var tabContentContainer = new TabItemContainer(Guid.NewGuid(), contentLifetimeHost, featureRegistry.Default);
+                var tabContentContainer = new TabItemContainer(Guid.NewGuid(), featureRegistry.Default.FeatureId, contentLifetimeHost, featureRegistry.Default);
                 return tabContentContainer;
             };
             InterTabClient = new InterTabClient(windowInstanceManager);

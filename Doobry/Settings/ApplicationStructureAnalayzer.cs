@@ -92,7 +92,7 @@ namespace Doobry.Settings
                 id,
                 selectedTabItemId,
                 tabablzControl.Items.OfType<TabItemContainer>()
-                    .Select(tic => new LayoutStructureTabItem(tic.TabId, tic.ViewModel, tic.BackingStoreWriter))
+                    .Select(tic => new LayoutStructureTabItem(tic.TabId, tic.FeatureId, tic.ViewModel, tic.BackingStoreWriter))
                 );
 
             layoutStructureTabSets.Add(layoutStructureTabSet);

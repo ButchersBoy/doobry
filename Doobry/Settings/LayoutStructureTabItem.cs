@@ -9,28 +9,24 @@ namespace Doobry.Settings
     {
         private readonly JToken _tabItemJToken;
 
-        /*
-        public LayoutStructureTabItem(Guid id, Guid? connectionId)
-        {
-            Id = id;
-            ConnectionId = connectionId;
-        }
-        */
-
-        public LayoutStructureTabItem(Guid id, object tabContentViewModel, IBackingStoreWriter backingStoreWriter)
+        public LayoutStructureTabItem(Guid id, Guid featureId, object tabContentViewModel, IBackingStoreWriter backingStoreWriter)
         {
             BackingStoreWriter = backingStoreWriter;            
             Id = id;
+            FeatureId = featureId;
             TabContentViewModel = tabContentViewModel;
         }
 
-        public LayoutStructureTabItem(Guid id, JToken tabItemJToken)
+        public LayoutStructureTabItem(Guid id, Guid featureId, JToken tabItemJToken)
         {
             _tabItemJToken = tabItemJToken;
             Id = id;
+            FeatureId = featureId;
         }
 
         public Guid Id { get; }
+
+        public Guid FeatureId { get; set; }
 
         public object TabContentViewModel { get; }
 

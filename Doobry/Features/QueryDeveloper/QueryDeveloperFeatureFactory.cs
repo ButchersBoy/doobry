@@ -20,6 +20,8 @@ namespace Doobry.Features.QueryDeveloper
 
         private const string ConnectionIdBackingStorePropertyName = "connectionId";
 
+        internal static readonly Guid MyFeatureId = new Guid("A874603C-BEFF-4442-AF02-BA106C61B181");
+
         public QueryDeveloperFeatureFactory(IConnectionCache connectionCache,
             IHighlightingDefinition sqlHighlightingDefinition, IQueryFileService queryFileService, ISnackbarMessageQueue snackbarMessageQueue)
         {
@@ -28,7 +30,7 @@ namespace Doobry.Features.QueryDeveloper
             if (queryFileService == null) throw new ArgumentNullException(nameof(queryFileService));
             if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
 
-            FeatureId = new Guid("A874603C-BEFF-4442-AF02-BA106C61B181");            
+            FeatureId = MyFeatureId;            
 
             _connectionCache = connectionCache;
             _sqlHighlightingDefinition = sqlHighlightingDefinition;

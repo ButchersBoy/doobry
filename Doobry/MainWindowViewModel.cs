@@ -77,7 +77,8 @@ namespace Doobry
             if (TabablzControl.GetLoadedInstances().SelectMany(tc => tc.Items.OfType<object>()).Any()) return;
 
             var tabContentLifetimeHost = _featureRegistry.Default.CreateTabContent();
-            var tabContentContainer = new TabItemContainer(Guid.NewGuid(), tabContentLifetimeHost, _featureRegistry.Default);
+            var tabContentContainer = new TabItemContainer(Guid.NewGuid(), _featureRegistry.Default.FeatureId,
+                tabContentLifetimeHost, _featureRegistry.Default);
             rootTabControl.AddToSource(tabContentContainer);
             TabablzControl.SelectItem(tabContentContainer);
 
@@ -123,10 +124,9 @@ namespace Doobry
         {
             foreach (var tabItem in layoutStructureTabSet.TabItems)
             {
-                //TODO select correct feature
-                var featureFactory = _featureRegistry.Default;
+                var featureFactory = _featureRegistry[tabItem.FeatureId];
                 var tabContentLifetimeHost = featureFactory.RestoreTabContent(tabItem);
-                var tabContentContainer = new TabItemContainer(tabItem.Id, tabContentLifetimeHost, featureFactory);
+                var tabContentContainer = new TabItemContainer(tabItem.Id, featureFactory.FeatureId, tabContentLifetimeHost, featureFactory);
                 tabablzControl.AddToSource(tabContentContainer);
 
                 if (tabContentContainer.TabId == layoutStructureTabSet.SelectedTabItemId)
@@ -218,27 +218,5 @@ namespace Doobry
 
             Application.Current.Shutdown();
         }
-    }
-
-    public class TabItemContainer
-    {
-        public TabItemContainer(Guid tabId, ITabContentLifetimeHost tabContentLifetimeHost, IBackingStoreWriter backingStoreWriter)
-        {
-            TabId = tabId;
-            TabContentLifetimeHost = tabContentLifetimeHost;
-            BackingStoreWriter = backingStoreWriter;
-            ViewModel = tabContentLifetimeHost.ViewModel;
-            Name = "New World";
-        }
-
-        public string Name { get; }
-
-        public Guid TabId { get; }
-
-        public ITabContentLifetimeHost TabContentLifetimeHost { get; }
-
-        public IBackingStoreWriter BackingStoreWriter { get; }
-
-        public object ViewModel { get; }
     }
 }

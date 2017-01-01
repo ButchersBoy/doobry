@@ -271,6 +271,7 @@
     </Compile>
     <Compile Include="Features\QueryDeveloper\TabViewModel.cs" />
     <Compile Include="Infrastructure\TabInstanceManager.cs" />
+    <Compile Include="TabItemContainer.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
