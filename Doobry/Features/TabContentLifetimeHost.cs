@@ -6,7 +6,7 @@ namespace Doobry.Features
     {
         private readonly Action<TabCloseReason> _cleanup;        
 
-        public TabContentLifetimeHost(object viewModel, Action<TabCloseReason> cleanup)
+        public TabContentLifetimeHost(INamed viewModel, Action<TabCloseReason> cleanup)
         {
             if (viewModel == null) throw new ArgumentNullException(nameof(viewModel));
             if (cleanup == null) throw new ArgumentNullException(nameof(cleanup));
@@ -15,7 +15,7 @@ namespace Doobry.Features
             ViewModel = viewModel;            
         }
 
-        public object ViewModel { get; }
+        public INamed ViewModel { get; }
 
         public void Cleanup(TabCloseReason closeReason)
         {

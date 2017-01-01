@@ -52,10 +52,10 @@ namespace Doobry
             StartupCommand = new Command(RunStartup);
             ShutDownCommand = new Command(o => RunShutdown());
             OpenManagementCommand = new Command(o => Open<ManagementFeatureFactory>());
-            Tabs = new ObservableCollection<TabViewModel>();
+            Tabs = new ObservableCollection<QueryDeveloperViewModel>();
         }
 
-        public ObservableCollection<TabViewModel> Tabs { get; }
+        public ObservableCollection<QueryDeveloperViewModel> Tabs { get; }
 
         public ICommand StartupCommand { get; }
 
@@ -90,7 +90,7 @@ namespace Doobry
             TabablzControl.SelectItem(tabContentContainer);
 
             //TODO sort out this nasty cast
-            ((TabViewModel)tabContentContainer.ViewModel).EditConnectionCommand.Execute(rootTabControl);
+            ((QueryDeveloperViewModel)tabContentContainer.ViewModel).EditConnectionCommand.Execute(rootTabControl);
         }
 
         private void Open<TFeatureFactory>() where TFeatureFactory : IFeatureFactory

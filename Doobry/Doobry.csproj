@@ -164,6 +164,7 @@
     <Compile Include="Features\FeatureRegistry.cs" />
     <Compile Include="Features\IBackingStoreWriter.cs" />
     <Compile Include="Features\IFeatureFactory.cs" />
+    <Compile Include="Features\INamed.cs" />
     <Compile Include="Features\ITabContentLifetimeHost.cs" />
     <Compile Include="Features\Management\Management.xaml.cs">
       <DependentUpon>Management.xaml</DependentUpon>
@@ -195,7 +196,6 @@
     <Compile Include="Infrastructure\DependencyObjectExtensions.cs" />
     <Compile Include="Infrastructure\FocusAssist.cs" />
     <Compile Include="Infrastructure\InterTabClient.cs" />
-    <Compile Include="Infrastructure\ITabInstanceManager.cs" />
     <Compile Include="Infrastructure\MessageDialog.cs" />
     <Compile Include="Infrastructure\SortDirection.cs" />
     <Compile Include="Infrastructure\SortExpression.cs" />
@@ -278,7 +278,7 @@
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Features\QueryDeveloper\TabViewModel.cs" />
+    <Compile Include="Features\QueryDeveloper\QueryDeveloperViewModel.cs" />
     <Compile Include="Infrastructure\TabInstanceManager.cs" />
     <Compile Include="TabItemContainer.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

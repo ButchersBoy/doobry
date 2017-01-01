@@ -2,7 +2,7 @@
 {
     public interface ITabContentLifetimeHost
     {
-        object ViewModel { get; }
+        INamed ViewModel { get; }
 
         void Cleanup(TabCloseReason closeReason);        
     }

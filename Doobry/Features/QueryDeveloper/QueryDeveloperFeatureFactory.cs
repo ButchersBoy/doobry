@@ -42,7 +42,7 @@ namespace Doobry.Features.QueryDeveloper
 
         public ITabContentLifetimeHost CreateTabContent()
         {
-            var tabViewModel = new TabViewModel(Guid.NewGuid(), _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
+            var tabViewModel = new QueryDeveloperViewModel(Guid.NewGuid(), _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
             var disposable = Watch(tabViewModel);
             return new TabContentLifetimeHost(tabViewModel, closeReason => Cleanup(closeReason, tabViewModel, disposable));
         }
@@ -57,7 +57,7 @@ namespace Doobry.Features.QueryDeveloper
                 connection = _connectionCache.Get(connectionId).ValueOrDefault();
             }
 
-            var tabViewModel = new TabViewModel(tabItem.Id, connection, _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
+            var tabViewModel = new QueryDeveloperViewModel(tabItem.Id, connection, _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
             PopulateDocument(tabViewModel);
             var disposable = Watch(tabViewModel);
 
@@ -66,30 +66,30 @@ namespace Doobry.Features.QueryDeveloper
 
         public void WriteToBackingStore(object tabContentViewModel, JToken into)
         {
-            var tabViewModel = tabContentViewModel as TabViewModel;
+            var tabViewModel = tabContentViewModel as QueryDeveloperViewModel;
             if (tabViewModel == null)
-                throw new InvalidOperationException("Expected view model type of " + typeof(TabViewModel).FullName);
+                throw new InvalidOperationException("Expected view model type of " + typeof(QueryDeveloperViewModel).FullName);
 
             into[ConnectionIdBackingStorePropertyName] = tabViewModel.ConnectionId;
         }
 
-        private void Cleanup(TabCloseReason tabCloseReason, TabViewModel tabViewModel, IDisposable watchSubscription)
+        private void Cleanup(TabCloseReason tabCloseReason, QueryDeveloperViewModel queryDeveloperViewModel, IDisposable watchSubscription)
         {
             watchSubscription.Dispose();
             if (tabCloseReason == TabCloseReason.TabClosed)
-                RemoveDocument(tabViewModel);
+                RemoveDocument(queryDeveloperViewModel);
         }
 
-        private IDisposable Watch(TabViewModel tabViewModel)
+        private IDisposable Watch(QueryDeveloperViewModel queryDeveloperViewModel)
         {
-            return tabViewModel.DocumentChangedObservable.Throttle(TimeSpan.FromSeconds(3))
+            return queryDeveloperViewModel.DocumentChangedObservable.Throttle(TimeSpan.FromSeconds(3))
                 .ObserveOn(new EventLoopScheduler())
                 .Subscribe(SaveDocument);         
         }
 
-        private void RemoveDocument(TabViewModel tabViewModel)
+        private void RemoveDocument(QueryDeveloperViewModel queryDeveloperViewModel)
         {
-            var fileName = _queryFileService.GetFileName(tabViewModel.Id);
+            var fileName = _queryFileService.GetFileName(queryDeveloperViewModel.Id);
             if (!File.Exists(fileName)) return;
 
             try
@@ -113,11 +113,11 @@ namespace Doobry.Features.QueryDeveloper
             }
         }
 
-        private void PopulateDocument(TabViewModel tabViewModel)
+        private void PopulateDocument(QueryDeveloperViewModel queryDeveloperViewModel)
         {
             Task.Factory.StartNew(() =>
             {
-                var fileName = _queryFileService.GetFileName(tabViewModel.Id);
+                var fileName = _queryFileService.GetFileName(queryDeveloperViewModel.Id);
                 return File.Exists(fileName) ? File.ReadAllText(fileName) : string.Empty;
             }).ContinueWith(t =>
             {
@@ -127,9 +127,9 @@ namespace Doobry.Features.QueryDeveloper
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(tabViewModel.QueryRunnerViewModel.Document.Text))
+                    if (string.IsNullOrEmpty(queryDeveloperViewModel.QueryRunnerViewModel.Document.Text))
                     {
-                        tabViewModel.QueryRunnerViewModel.Document.Text = t.Result;
+                        queryDeveloperViewModel.QueryRunnerViewModel.Document.Text = t.Result;
                     }
                 }
 

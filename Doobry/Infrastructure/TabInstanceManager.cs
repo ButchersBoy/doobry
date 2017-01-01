@@ -24,8 +24,8 @@ namespace Doobry.Infrastructure
         private readonly ISnackbarMessageQueue _snackbarMessageQueue;
         private readonly Func<MainWindowViewModel> _windowViewModelFactory;
 
-        private readonly IDictionary<TabViewModel, IDisposable> _modelCleanUpIndex =
-            new Dictionary<TabViewModel, IDisposable>();
+        private readonly IDictionary<QueryDeveloperViewModel, IDisposable> _modelCleanUpIndex =
+            new Dictionary<QueryDeveloperViewModel, IDisposable>();
 
         private readonly IDictionary<Window, IDisposable> _windowCleanUpIndex = new Dictionary<Window, IDisposable>();
 
@@ -56,13 +56,13 @@ namespace Doobry.Infrastructure
 
         private void OnItemClosingHandler(ItemActionCallbackArgs<TabablzControl> args)
         {
-            var tabViewModel = args.DragablzItem.DataContext as TabViewModel;
+            var tabViewModel = args.DragablzItem.DataContext as QueryDeveloperViewModel;
             if (tabViewModel == null) return;
             Release(tabViewModel);
             RemoveDocument(tabViewModel);
         }
 
-        private void Release(TabViewModel tabViewModel)
+        private void Release(QueryDeveloperViewModel tabViewModel)
         {
             if (tabViewModel == null) throw new ArgumentNullException(nameof(tabViewModel));
 
@@ -86,7 +86,7 @@ namespace Doobry.Infrastructure
             var redundantTabs = TabablzControl.GetLoadedInstances()
                 .SelectMany(
                     tabControl =>
-                        tabControl.Items.OfType<TabViewModel>()
+                        tabControl.Items.OfType<QueryDeveloperViewModel>()
                             .Select(tabViewModel => new {tabControl, tabViewModel}))
                 .Where(a => window.Equals(Window.GetWindow(a.tabControl)))
                 .ToList();
@@ -99,7 +99,7 @@ namespace Doobry.Infrastructure
             }
         }
 
-        private void RemoveDocument(TabViewModel tabViewModel)
+        private void RemoveDocument(QueryDeveloperViewModel tabViewModel)
         {
             var fileName = _queryFileService.GetFileName(tabViewModel.Id);
             if (!File.Exists(fileName)) return;
@@ -111,7 +111,7 @@ namespace Doobry.Infrastructure
             catch { /* TODO uhm something  }
         }
 
-        private void PopulateDocument(TabViewModel tabViewModel)
+        private void PopulateDocument(QueryDeveloperViewModel tabViewModel)
         {
             Task.Factory.StartNew(() =>
             {
@@ -134,7 +134,7 @@ namespace Doobry.Infrastructure
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
-        private void Watch(TabViewModel tabViewModel)
+        private void Watch(QueryDeveloperViewModel tabViewModel)
         {
             var disposable = tabViewModel.DocumentChangedObservable.Throttle(TimeSpan.FromSeconds(3))
                 .ObserveOn(new EventLoopScheduler())

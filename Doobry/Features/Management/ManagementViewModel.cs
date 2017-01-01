@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace Doobry.Features.Management
 {
-    class ManagementViewModel
+    public class ManagementViewModel : INamed
     {
+        public ManagementViewModel()
+        {
+            Name = "DB Manager";
+        }
+
+        public string Name { get; }
     }
 }

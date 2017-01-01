@@ -13,7 +13,7 @@ using MaterialDesignThemes.Wpf;
 
 namespace Doobry.Features.QueryDeveloper
 {
-    public class TabViewModel : INotifyPropertyChanged
+    public class QueryDeveloperViewModel : INamed, INotifyPropertyChanged
     {
         private readonly IConnectionCache _connectionCache;
         private readonly GeneralSettings _generalSettings;
@@ -22,11 +22,11 @@ namespace Doobry.Features.QueryDeveloper
         private string _documentId;
         private string _name;        
 
-        public TabViewModel(Guid id, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue) 
+        public QueryDeveloperViewModel(Guid id, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue) 
             : this(id, null, connectionCache, sqlHighlightingDefinition, snackbarMessageQueue)
         { }
 
-        public TabViewModel(Guid id, Connection connection, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue)
+        public QueryDeveloperViewModel(Guid id, Connection connection, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue)
         {
             if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
 

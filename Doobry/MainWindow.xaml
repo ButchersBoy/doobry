@@ -26,7 +26,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <DataTemplate DataType="{x:Type queryDeveloper:TabViewModel}">
+            <DataTemplate DataType="{x:Type queryDeveloper:QueryDeveloperViewModel}">
                 <DataTemplate.Resources>
                     <Style TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">
                         <Setter Property="Background" Value="{DynamicResource MaterialDesignDivider}" />
