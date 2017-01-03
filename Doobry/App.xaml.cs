@@ -60,8 +60,9 @@ namespace Doobry
                 _.ForSingletonOf<FeatureRegistry>()
                     .Use(
                         ctx =>
-                            FeatureRegistry.WithDefault(ctx.GetInstance<QueryDeveloperFeatureFactory>())
-                                .Add<ManagementFeatureFactory>());
+                            FeatureRegistry
+                                .WithDefault(ctx.GetInstance<QueryDeveloperFeatureFactory>())
+                                .Add(ctx.GetInstance<ManagementFeatureFactory>()));
                 _.AddRegistry<DoobryRegistry>();                
                 _.Scan(scanner =>
                 {

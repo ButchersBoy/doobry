@@ -35,11 +35,16 @@ namespace Doobry.Features
             return new FeatureRegistry(featureFactoriesById, featureFactoriesByType, featureFactory);
         }
 
-        public FeatureRegistry Add<TFeatureFactory>() where TFeatureFactory : IFeatureFactory, new()
+        public FeatureRegistry Add(IFeatureFactory featureFactory)
         {
-            var featureFactory = Activator.CreateInstance<TFeatureFactory>();
+            if (featureFactory == null) throw new ArgumentNullException(nameof(featureFactory));
             if (_featureFactoriesById.ContainsKey(featureFactory.FeatureId))
                 throw new InvalidOperationException("A factory for the given " + nameof(featureFactory.FeatureId) + " already exists.");
+
+            var featureFactoryType = featureFactory.GetType();
+
+            if (_featureFactoriesByType.ContainsKey(featureFactoryType))
+                throw new InvalidOperationException("A factory for the given type " + featureFactoryType.FullName + " already exists.");
 
             var featureFactories = new Dictionary<Guid, IFeatureFactory>(_featureFactoriesById)
             {
@@ -47,7 +52,7 @@ namespace Doobry.Features
             };
             var featureFactoriesByType = new Dictionary<Type, IFeatureFactory>(_featureFactoriesByType)
             {
-                {featureFactory.GetType(), featureFactory}
+                {featureFactoryType, featureFactory}
             };
 
             return new FeatureRegistry(featureFactories, featureFactoriesByType, Default);

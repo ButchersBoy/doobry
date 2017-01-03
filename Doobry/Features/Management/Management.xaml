@@ -6,8 +6,21 @@
              xmlns:local="clr-namespace:Doobry.Features.Management"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <DataTemplate DataType="{x:Type local:CollectionNode}">
+            <TextBlock Text="{Binding CollectionId}" />
+        </DataTemplate>
+        <HierarchicalDataTemplate DataType="{x:Type local:DatabaseNode}" ItemsSource="{Binding Collections}">
+            <TextBlock Text="{Binding DatabaseId}" />
+        </HierarchicalDataTemplate>
+        <HierarchicalDataTemplate DataType="{x:Type local:HostNode}" ItemsSource="{Binding Databases}">
+            <StackPanel>
+                <TextBlock Text="{Binding Host}" />
+                <TextBlock Text="{Binding AuthorisationKeyHint}" />
+            </StackPanel>
+        </HierarchicalDataTemplate>
+    </UserControl.Resources>
     <Grid>
-        <TextBlock>Database manager</TextBlock>
-            
+        <TreeView ItemsSource="{Binding Hosts}" />
     </Grid>
 </UserControl>

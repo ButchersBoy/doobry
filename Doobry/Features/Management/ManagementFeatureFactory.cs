@@ -10,8 +10,11 @@ namespace Doobry.Features.Management
 {
     public class ManagementFeatureFactory : IFeatureFactory
     {
-        public ManagementFeatureFactory()
+        private readonly IConnectionCache _connectionCache;
+
+        public ManagementFeatureFactory(IConnectionCache connectionCache)
         {
+            _connectionCache = connectionCache;
             FeatureId = new Guid("65079BF1-EEAE-45BA-A7E1-9A66D3EEA892");
         }
 
@@ -23,12 +26,14 @@ namespace Doobry.Features.Management
 
         public ITabContentLifetimeHost CreateTabContent()
         {
-            return new TabContentLifetimeHost(new ManagementViewModel(), reason => { });
+            var managementViewModel = new ManagementViewModel(_connectionCache);
+            return new TabContentLifetimeHost(managementViewModel, reason => managementViewModel.Dispose());
         }
 
         public ITabContentLifetimeHost RestoreTabContent(LayoutStructureTabItem tabItem)
         {
-            return new TabContentLifetimeHost(new ManagementViewModel(), reason => { });
+            var managementViewModel = new ManagementViewModel(_connectionCache);
+            return new TabContentLifetimeHost(managementViewModel, reason => managementViewModel.Dispose());
         }
     }
 }
