@@ -2,6 +2,6 @@
 {
     public interface IManualSaver
     {
-        void Save(IConnectionCache connectionCache, IGeneralSettings generalSettings);
+        void Save(IExplicitConnectionCache explicitConnectionCache, IGeneralSettings generalSettings);
     }
 }

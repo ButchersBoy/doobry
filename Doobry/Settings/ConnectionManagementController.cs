@@ -9,52 +9,52 @@ namespace Doobry.Settings
 {
     public class ConnectionManagementController
     {
-        private readonly IConnectionCache _connectionCache;
+        private readonly IExplicitConnectionCache _explicitConnectionCache;
 
-        public ConnectionManagementController(IConnectionCache connectionCache)
+        public ConnectionManagementController(IExplicitConnectionCache explicitConnectionCache)
         {
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
 
-            _connectionCache = connectionCache;
+            _explicitConnectionCache = explicitConnectionCache;
         }
 
-        public async Task<Optional<Connection>> Select(DependencyObject nearTo)
+        public async Task<Optional<ExplicitConnection>> Select(DependencyObject nearTo)
         {
             if (nearTo == null) throw new ArgumentNullException(nameof(nearTo));
 
-            Connection connection;
+            ExplicitConnection explicitConnection;
 
-            if (!_connectionCache.Any())
+            if (!_explicitConnectionCache.Any())
             {
                 var connectionEditor = new ConnectionEditor();
-                connection = await nearTo.ShowDialog(connectionEditor, delegate(object sender, DialogOpenedEventArgs args)                
+                explicitConnection = await nearTo.ShowDialog(connectionEditor, delegate(object sender, DialogOpenedEventArgs args)                
                 {
                     var connectionEditorViewModel = new ConnectionEditorViewModel(vm => SaveHandler(vm, args.Session), args.Session.Close);
                     connectionEditor.DataContext = connectionEditorViewModel;
-                }) as Connection;
+                }) as ExplicitConnection;
 
-                return Optional<Connection>.Create(connection);
+                return Optional<ExplicitConnection>.Create(explicitConnection);
             }
 
             var connectionsManager = new ConnectionsManager();
-            connection = await nearTo.ShowDialog(connectionsManager, delegate(object sender, DialogOpenedEventArgs args)
+            explicitConnection = await nearTo.ShowDialog(connectionsManager, delegate(object sender, DialogOpenedEventArgs args)
             {
-                var connectionsManagerViewModel = new ConnectionsManagerViewModel(_connectionCache);
+                var connectionsManagerViewModel = new ConnectionsManagerViewModel(_explicitConnectionCache);
                 connectionsManager.DataContext = connectionsManagerViewModel;
-            }) as Connection;
+            }) as ExplicitConnection;
 
-            return Optional<Connection>.Create(connection);
+            return Optional<ExplicitConnection>.Create(explicitConnection);
         }
 
         
 
         private void SaveHandler(ConnectionEditorViewModel connectionEditorViewModel, DialogSession dialogSession)
         {
-            var connection = new Connection(connectionEditorViewModel.Id.GetValueOrDefault(Guid.NewGuid()),
+            var connection = new ExplicitConnection(connectionEditorViewModel.Id.GetValueOrDefault(Guid.NewGuid()),
                 connectionEditorViewModel.Label, connectionEditorViewModel.Host,
                 connectionEditorViewModel.AuthorisationKey, connectionEditorViewModel.DatabaseId,
                 connectionEditorViewModel.CollectionId);
-            _connectionCache.AddOrUpdate(connection);            
+            _explicitConnectionCache.AddOrUpdate(connection);            
             dialogSession.Close(connection);            
         }
     }

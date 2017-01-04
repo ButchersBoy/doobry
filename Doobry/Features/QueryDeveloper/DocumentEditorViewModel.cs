@@ -18,10 +18,10 @@ namespace Doobry.Features.QueryDeveloper
 {
     public class DocumentEditorViewModel : INotifyPropertyChanged
     {
-        private readonly Func<Connection> _connectionProvider;
+        private readonly Func<ExplicitConnection> _connectionProvider;
         private const string SampleContent = "{ hello : \"world\" }";
 
-        public DocumentEditorViewModel(Func<Connection> connectionProvider, ISnackbarMessageQueue snackbarMessageQueue)
+        public DocumentEditorViewModel(Func<ExplicitConnection> connectionProvider, ISnackbarMessageQueue snackbarMessageQueue)
         {
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
 
@@ -74,15 +74,15 @@ namespace Doobry.Features.QueryDeveloper
             });
         }
 
-        private static async Task<ResourceResponse<Document>> Save(Connection connection, string content)
+        private static async Task<ResourceResponse<Document>> Save(ExplicitConnection explicitConnection, string content)
         {
             var jObject = JObject.Parse(content);
 
             var idToken = jObject["id"];
 
-            using (var documentClient = new DocumentClient(new Uri(connection.Host), connection.AuthorisationKey))
+            using (var documentClient = new DocumentClient(new Uri(explicitConnection.Host), explicitConnection.AuthorisationKey))
             {
-                var documentCollectionUri = UriFactory.CreateDocumentCollectionUri(connection.DatabaseId, connection.CollectionId);
+                var documentCollectionUri = UriFactory.CreateDocumentCollectionUri(explicitConnection.DatabaseId, explicitConnection.CollectionId);
 
                 if (idToken == null)
                 {

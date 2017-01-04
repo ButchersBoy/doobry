@@ -25,7 +25,7 @@ namespace Doobry.Settings
             
         { }
 
-        public ConnectionEditorViewModel(Connection connection, Action<ConnectionEditorViewModel> saveHandler, Action cancelHandler)
+        public ConnectionEditorViewModel(ExplicitConnection explicitConnection, Action<ConnectionEditorViewModel> saveHandler, Action cancelHandler)
         {
             if (saveHandler == null) throw new ArgumentNullException(nameof(saveHandler));
             if (cancelHandler == null) throw new ArgumentNullException(nameof(cancelHandler));
@@ -34,14 +34,14 @@ namespace Doobry.Settings
             CancelCommand = new Command(_ => cancelHandler());
             ExploreToSettingsFileCommand = new Command(_ => ExploreToSettingsFile());
 
-            if (connection == null) return;
+            if (explicitConnection == null) return;
 
-            Id = connection.Id;
-            _label = connection.Label;
-            _host = connection.Host;
-            _authorisationKey = connection.AuthorisationKey;
-            _databaseId = connection.DatabaseId;
-            _collectionId = connection.CollectionId;
+            Id = explicitConnection.Id;
+            _label = explicitConnection.Label;
+            _host = explicitConnection.Host;
+            _authorisationKey = explicitConnection.AuthorisationKey;
+            _databaseId = explicitConnection.DatabaseId;
+            _collectionId = explicitConnection.CollectionId;
         }
 
         public ICommand SaveCommand { get; }

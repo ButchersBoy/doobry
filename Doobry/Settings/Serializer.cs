@@ -11,28 +11,28 @@ namespace Doobry.Settings
 {
     public static class Serializer
     {
-        public static string Stringify(IConnectionCache connectionCache, IGeneralSettings generalSettings, LayoutStructure layoutStructure)
+        public static string Stringify(IExplicitConnectionCache explicitConnectionCache, IGeneralSettings generalSettings, LayoutStructure layoutStructure)
         {
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
             if (layoutStructure == null) throw new ArgumentNullException(nameof(layoutStructure));
 
             dynamic settings = new JObject();
-            settings.connections = new JArray(connectionCache.Select(ToJson));
+            settings.connections = new JArray(explicitConnectionCache.Select(ToJson));
             settings.general = ToJson(generalSettings);
             settings.layout = ToJson(layoutStructure);
             return settings.ToString();
         }
 
-        private static JObject ToJson(Connection connection)
+        private static JObject ToJson(ExplicitConnection explicitConnection)
         {
             dynamic cn = new JObject();
-            cn.id = connection.Id;
-            cn.label = connection.Label;
-            cn.host = connection.Host;
-            cn.authorisationKey = connection.AuthorisationKey;
-            cn.databaseId = connection.DatabaseId;
-            cn.collectionId = connection.CollectionId;
+            cn.id = explicitConnection.Id;
+            cn.label = explicitConnection.Label;
+            cn.host = explicitConnection.Host;
+            cn.authorisationKey = explicitConnection.AuthorisationKey;
+            cn.databaseId = explicitConnection.DatabaseId;
+            cn.collectionId = explicitConnection.CollectionId;
             return cn;
         }
 
@@ -102,14 +102,14 @@ namespace Doobry.Settings
             dynamic jObj = JObject.Parse(data);            
             JArray connectionsJArray = jObj.connections;
             var connections = connectionsJArray.Select(jt =>
-                new Connection(
+                new ExplicitConnection(
                     Guid.Parse(jt["id"].ToString()),
                     jt["label"].ToString(),
                     jt["host"].ToString(),
                     jt["authorisationKey"].ToString(),
                     jt["databaseId"].ToString(),
                     jt["collectionId"].ToString()));
-            var connectionCache = new ConnectionCache(connections);            
+            var connectionCache = new ExplicitConnectionCache(connections);            
 
             var generalSettings = new GeneralSettings((int?)jObj.general.maxItemCount.Value);
 

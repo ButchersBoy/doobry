@@ -14,18 +14,18 @@ namespace Doobry.Settings
     {        
         private readonly IDisposable _disposable;
 
-        public AutoSaver(IConnectionCache connectionCache, IGeneralSettings generalSettings, IManualSaver manualSaver)
+        public AutoSaver(IExplicitConnectionCache explicitConnectionCache, IGeneralSettings generalSettings, IManualSaver manualSaver)
         {
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
             if (manualSaver == null) throw new ArgumentNullException(nameof(manualSaver));            
 
-            _disposable = connectionCache.Connect()
+            _disposable = explicitConnectionCache.Connect()
                 .Select(_ => Unit.Default)
                 .Merge(generalSettings.OnAnyPropertyChanged().Select(_ => Unit.Default))                
                 .Throttle(TimeSpan.FromSeconds(2))
                 .ObserveOn(new EventLoopScheduler())                
-                .Subscribe(_ => manualSaver.Save(connectionCache, generalSettings));
+                .Subscribe(_ => manualSaver.Save(explicitConnectionCache, generalSettings));
         }
 
         public void Dispose()

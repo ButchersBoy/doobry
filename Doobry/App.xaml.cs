@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using Doobry.DocumentDb;
 using Doobry.Features;
 using Doobry.Features.Management;
 using Doobry.Features.QueryDeveloper;
@@ -26,7 +27,7 @@ namespace Doobry
                 = System.Net.CredentialCache.DefaultNetworkCredentials;
 
             IGeneralSettings generalSettings = null;
-            IConnectionCache connectionCache = null;
+            IExplicitConnectionCache explicitConnectionCache = null;
             IInitialLayoutStructureProvider initialLayoutStructureProvider = null;            
 
             string rawData;
@@ -36,7 +37,7 @@ namespace Doobry
                 {
                     var settingsContainer = Serializer.Objectify(rawData);
                     generalSettings = settingsContainer.GeneralSettings;
-                    connectionCache = settingsContainer.ConnectionCache;
+                    explicitConnectionCache = settingsContainer.ExplicitConnectionCache;
                     initialLayoutStructureProvider =
                         new InitialLayoutStructureProvider(settingsContainer.LayoutStructure);
                 }
@@ -48,13 +49,15 @@ namespace Doobry
             }
 
             generalSettings = generalSettings ?? new GeneralSettings(10);
-            connectionCache = connectionCache ?? new ConnectionCache();
+            explicitConnectionCache = explicitConnectionCache ?? new ExplicitConnectionCache();
             initialLayoutStructureProvider = initialLayoutStructureProvider ?? new InitialLayoutStructureProvider();
 
             var container = new Container(_ =>
             {
                 _.ForSingletonOf<IGeneralSettings>().Use(generalSettings);
-                _.ForSingletonOf<IConnectionCache>().Use(connectionCache);                
+                _.ForSingletonOf<IExplicitConnectionCache>().Use(explicitConnectionCache);
+                _.ForSingletonOf<IImplicitConnectionCache>();
+                _.ForSingletonOf<LocalEmulatorDetector>();
                 _.ForSingletonOf<IInitialLayoutStructureProvider>().Use(initialLayoutStructureProvider);
                 _.ForSingletonOf<ISnackbarMessageQueue>().Use(new SnackbarMessageQueue());
                 _.ForSingletonOf<FeatureRegistry>()
@@ -88,6 +91,7 @@ namespace Doobry
             var mainWindow = windowInstanceManager.Create();
             mainWindow.Show();
 
+            container.GetInstance<LocalEmulatorDetector>();
             Task.Factory.StartNew(() => CheckForUpdates(container.GetInstance<ISnackbarMessageQueue>()));
         }
 

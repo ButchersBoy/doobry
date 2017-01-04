@@ -17,7 +17,7 @@
             </ResourceDictionary.MergedDictionaries>
             <CubicEase EasingMode="EaseOut" x:Key="DisableEase" />
             <BounceEase EasingMode="EaseOut" x:Key="EnableEase" />
-            <DataTemplate DataType="{x:Type settings:Connection}">
+            <DataTemplate DataType="{x:Type settings:ExplicitConnection}">
                 <materialDesign:Card materialDesign:ShadowAssist.ShadowDepth="Depth1" Margin="4">
                     <Grid>
                         <Grid.RowDefinitions>

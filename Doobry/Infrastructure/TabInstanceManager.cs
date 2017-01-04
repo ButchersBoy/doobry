@@ -18,7 +18,7 @@ namespace Doobry.Infrastructure
     /*
     public class TabInstanceManager : ITabInstanceManager
     {
-        private readonly IConnectionCache _connectionCache;
+        private readonly IExplicitConnectionCache _explicitConnectionCache;
         private readonly IHighlightingDefinition _sqlHighlightingDefinition;
         private readonly IQueryFileService _queryFileService;
         private readonly ISnackbarMessageQueue _snackbarMessageQueue;
@@ -29,15 +29,15 @@ namespace Doobry.Infrastructure
 
         private readonly IDictionary<Window, IDisposable> _windowCleanUpIndex = new Dictionary<Window, IDisposable>();
 
-        public TabInstanceManager(IConnectionCache connectionCache,
+        public TabInstanceManager(IExplicitConnectionCache explicitConnectionCache,
             IHighlightingDefinition sqlHighlightingDefinition, IQueryFileService queryFileService, ISnackbarMessageQueue snackbarMessageQueue)
         {
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
             if (sqlHighlightingDefinition == null) throw new ArgumentNullException(nameof(sqlHighlightingDefinition));
             if (queryFileService == null) throw new ArgumentNullException(nameof(queryFileService));
             if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
 
-            _connectionCache = connectionCache;
+            _explicitConnectionCache = explicitConnectionCache;
             _sqlHighlightingDefinition = sqlHighlightingDefinition;
             _queryFileService = queryFileService;
             _snackbarMessageQueue = snackbarMessageQueue;

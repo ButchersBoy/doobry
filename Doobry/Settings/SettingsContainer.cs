@@ -4,17 +4,17 @@ namespace Doobry.Settings
 {
     public class SettingsContainer
     {
-        public SettingsContainer(IConnectionCache connectionCache, GeneralSettings generalSettings, LayoutStructure layoutStructure)
+        public SettingsContainer(IExplicitConnectionCache explicitConnectionCache, GeneralSettings generalSettings, LayoutStructure layoutStructure)
         {
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
 
-            ConnectionCache = connectionCache;
+            ExplicitConnectionCache = explicitConnectionCache;
             GeneralSettings = generalSettings;
             LayoutStructure = layoutStructure;
         }
 
-        public IConnectionCache ConnectionCache { get; }
+        public IExplicitConnectionCache ExplicitConnectionCache { get; }
 
         public GeneralSettings GeneralSettings { get; }
 

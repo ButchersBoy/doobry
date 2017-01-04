@@ -14,20 +14,20 @@ namespace Doobry.Settings
 {    
     public class ConnectionsManagerViewModel : INotifyPropertyChanged, IDisposable
     {
-        private readonly IConnectionCache _connectionCache;
-        private readonly ReadOnlyObservableCollection<Connection> _connections;
+        private readonly IExplicitConnectionCache _explicitConnectionCache;
+        private readonly ReadOnlyObservableCollection<ExplicitConnection> _connections;
         private readonly IDisposable _connectionCacheSubscription;
         private readonly SnackbarMessageQueue _snackbarMessageQueue = new SnackbarMessageQueue();
-        private Connection _selectedConnection;
+        private ExplicitConnection _selectedExplicitConnection;
         private ConnectionEditorViewModel _connectionEditorEditorViewModel;
         private bool _shouldShowSelector;
         private ConnectionsManagerMode _mode;
 
-        public ConnectionsManagerViewModel(IConnectionCache connectionCache)
+        public ConnectionsManagerViewModel(IExplicitConnectionCache explicitConnectionCache)
         {
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
 
-            _connectionCache = connectionCache;
+            _explicitConnectionCache = explicitConnectionCache;
 
             AddConnectionCommand = new Command(_ =>
             {
@@ -40,19 +40,19 @@ namespace Doobry.Settings
             });
             EditConnectionCommand = new Command(o =>
             {
-                var connection = o as Connection;
+                var connection = o as ExplicitConnection;
                 if (connection == null) return;
                 ConnectionEditor = new ConnectionEditorViewModel(connection, SaveConnection, () => Mode = ConnectionsManagerMode.Selector)
                 {
                     DisplayMode = ConnectionEditorDisplayMode.MultiEdit
                 };
                 Mode = ConnectionsManagerMode.ItemEditor;
-            }, o => o is Connection);            
-            DeleteConnectionCommand = new Command(DeleteConnection, o => o is Connection);
+            }, o => o is ExplicitConnection);            
+            DeleteConnectionCommand = new Command(DeleteConnection, o => o is ExplicitConnection);
 
             _connectionCacheSubscription =
-                connectionCache.Connect()
-                    .Sort(SortExpressionComparer<Connection>.Ascending(c => c.Label))
+                explicitConnectionCache.Connect()
+                    .Sort(SortExpressionComparer<ExplicitConnection>.Ascending(c => c.Label))
                     .Bind(out _connections)
                     .Subscribe();
 
@@ -61,15 +61,15 @@ namespace Doobry.Settings
 
         private void DeleteConnection(object o)
         {
-            var connection = o as Connection;
+            var connection = o as ExplicitConnection;
             if (connection == null) return;
 
-            var optional = _connectionCache.Get(connection.Id);
+            var optional = _explicitConnectionCache.Get(connection.Id);
             if (!optional.HasValue)
                 return;
 
-            _connectionCache.Delete(connection.Id);
-            SnackbarMessageQueue.Enqueue($"Deleted {connection.Label}.", "UNDO", _connectionCache.AddOrUpdate,
+            _explicitConnectionCache.Delete(connection.Id);
+            SnackbarMessageQueue.Enqueue($"Deleted {connection.Label}.", "UNDO", _explicitConnectionCache.AddOrUpdate,
                 optional.Value, true);
         }
 
@@ -85,10 +85,10 @@ namespace Doobry.Settings
 
         public ICommand DeleteConnectionCommand { get; }
 
-        public Connection SelectedConnection
+        public ExplicitConnection SelectedExplicitConnection
         {
-            get { return _selectedConnection; }
-            set { this.MutateVerbose(ref _selectedConnection, value, RaisePropertyChanged()); }
+            get { return _selectedExplicitConnection; }
+            set { this.MutateVerbose(ref _selectedExplicitConnection, value, RaisePropertyChanged()); }
         }
 
         public ConnectionEditorViewModel ConnectionEditor
@@ -97,7 +97,7 @@ namespace Doobry.Settings
             private set { this.MutateVerbose(ref _connectionEditorEditorViewModel, value, RaisePropertyChanged()); }
         }
 
-        public ReadOnlyObservableCollection<Connection> Connections => _connections;
+        public ReadOnlyObservableCollection<ExplicitConnection> Connections => _connections;
 
         public bool ShouldShowSelector
         {
@@ -109,9 +109,9 @@ namespace Doobry.Settings
 
         private void SaveConnection(ConnectionEditorViewModel viewModel)
         {
-            var connection = new Connection(viewModel.Id.GetValueOrDefault(Guid.NewGuid()), viewModel.Label, viewModel.Host,
+            var connection = new ExplicitConnection(viewModel.Id.GetValueOrDefault(Guid.NewGuid()), viewModel.Label, viewModel.Host,
                 viewModel.AuthorisationKey, viewModel.DatabaseId, viewModel.CollectionId);
-            _connectionCache.AddOrUpdate(connection);            
+            _explicitConnectionCache.AddOrUpdate(connection);            
             Mode = ConnectionsManagerMode.Selector;
         }
 

@@ -161,6 +161,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DocumentDb\LocalEmulator.cs" />
+    <Compile Include="DocumentDb\LocalEmulatorDetector.cs" />
     <Compile Include="Features\FeatureRegistry.cs" />
     <Compile Include="Features\IBackingStoreWriter.cs" />
     <Compile Include="Features\IFeatureFactory.cs" />
@@ -216,7 +218,8 @@
     <Compile Include="Settings\ApplicationStructureAnalayzer.cs" />
     <Compile Include="Settings\AutoSaver.cs" />
     <Compile Include="Settings\Connection.cs" />
-    <Compile Include="Settings\ConnectionCache.cs" />
+    <Compile Include="Settings\ExplicitConnection.cs" />
+    <Compile Include="Settings\ExplicitConnectionCache.cs" />
     <Compile Include="Settings\ConnectionEditor.xaml.cs">
       <DependentUpon>ConnectionEditor.xaml</DependentUpon>
     </Compile>
@@ -260,9 +263,13 @@
       <DependentUpon>GeneralSettingsEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\GeneralSettingsEditorViewModel.cs" />
+    <Compile Include="Settings\IConnection.cs" />
+    <Compile Include="Settings\IExplicitConnectionCache.cs" />
     <Compile Include="Settings\IGeneralSettings.cs" />
     <Compile Include="Settings\IInitialLayoutStructureProvider.cs" />
     <Compile Include="Settings\IManualSaver.cs" />
+    <Compile Include="Settings\ImplicitConnection.cs" />
+    <Compile Include="Settings\ImplicitConnectionCache.cs" />
     <Compile Include="Settings\InitialLayoutStructureProvider.cs" />
     <Compile Include="Settings\IQueryFileNameProvider.cs" />
     <Compile Include="Settings\LayoutStructure.cs" />

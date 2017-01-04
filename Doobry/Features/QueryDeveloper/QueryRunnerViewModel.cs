@@ -24,7 +24,7 @@ namespace Doobry.Features.QueryDeveloper
 {
     public class QueryRunnerViewModel : INotifyPropertyChanged
     {        
-        private readonly Func<Connection> _connectionProvider;
+        private readonly Func<ExplicitConnection> _connectionProvider;
         private readonly Func<GeneralSettings> _generalSettingsProvider;
         private readonly Action<Result> _editHandler;
         private readonly Command _fetchMoreCommand;
@@ -32,7 +32,7 @@ namespace Doobry.Features.QueryDeveloper
         private TextEditor _textEditor;
         private Tuple<DocumentClient, IDocumentQuery<dynamic>> _activeDocumentQuery;
 
-        public QueryRunnerViewModel(Guid tabId, IHighlightingDefinition highlightingDefinition, Func<Connection> connectionProvider, Func<GeneralSettings> generalSettingsProvider, Action<Result> editHandler, ISnackbarMessageQueue snackbarMessageQueue)
+        public QueryRunnerViewModel(Guid tabId, IHighlightingDefinition highlightingDefinition, Func<ExplicitConnection> connectionProvider, Func<GeneralSettings> generalSettingsProvider, Action<Result> editHandler, ISnackbarMessageQueue snackbarMessageQueue)
         {
             if (highlightingDefinition == null) throw new ArgumentNullException(nameof(highlightingDefinition));
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
@@ -141,7 +141,7 @@ namespace Doobry.Features.QueryDeveloper
             });
         }
 
-        private async void RunQuery(Connection connection, int? maxItemCount, string query, EventWaitHandle waitHandle, CancellationTokenSource source,
+        private async void RunQuery(ExplicitConnection explicitConnection, int? maxItemCount, string query, EventWaitHandle waitHandle, CancellationTokenSource source,
             DialogOpenedEventArgs args)
         {
             ResultSetExplorer.SelectedRow = -1;
@@ -154,7 +154,7 @@ namespace Doobry.Features.QueryDeveloper
 
                     Task.Factory.StartNew(async () =>
                     {
-                        resultSet = await RunQuery(connection, maxItemCount, query);
+                        resultSet = await RunQuery(explicitConnection, maxItemCount, query);
                         waitHandle.Set();
                     }, source.Token);
 
@@ -171,16 +171,16 @@ namespace Doobry.Features.QueryDeveloper
         }
 
 
-        private async Task<ResultSet> RunQuery(Connection connection, int? maxItemCount, string query)
+        private async Task<ResultSet> RunQuery(ExplicitConnection explicitConnection, int? maxItemCount, string query)
         {
             try
             {
                 _activeDocumentQuery?.Item1.Dispose();
 
-                var documentClient = CreateDocumentClient(connection);
+                var documentClient = CreateDocumentClient(explicitConnection);
                 var feedOptions = new FeedOptions { MaxItemCount = maxItemCount };
                 var documentQuery = documentClient.CreateDocumentQuery(
-                    UriFactory.CreateDocumentCollectionUri(connection.DatabaseId, connection.CollectionId), query,
+                    UriFactory.CreateDocumentCollectionUri(explicitConnection.DatabaseId, explicitConnection.CollectionId), query,
                     feedOptions).AsDocumentQuery();
 
                 _activeDocumentQuery = new Tuple<DocumentClient, IDocumentQuery<dynamic>>(documentClient, documentQuery);
@@ -211,9 +211,9 @@ namespace Doobry.Features.QueryDeveloper
             }
         }
 
-        private static DocumentClient CreateDocumentClient(Connection connection)
+        private static DocumentClient CreateDocumentClient(ExplicitConnection explicitConnection)
         {
-            return new DocumentClient(new Uri(connection.Host), connection.AuthorisationKey);
+            return new DocumentClient(new Uri(explicitConnection.Host), explicitConnection.AuthorisationKey);
         }
 
         private async void FetchMore()

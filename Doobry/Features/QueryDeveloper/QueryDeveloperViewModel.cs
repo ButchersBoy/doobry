@@ -15,31 +15,31 @@ namespace Doobry.Features.QueryDeveloper
 {
     public class QueryDeveloperViewModel : INamed, INotifyPropertyChanged
     {
-        private readonly IConnectionCache _connectionCache;
+        private readonly IExplicitConnectionCache _explicitConnectionCache;
         private readonly GeneralSettings _generalSettings;
-        private Connection _connection;
+        private ExplicitConnection _explicitConnection;
         private int _viewIndex;
         private string _documentId;
         private string _name;        
 
-        public QueryDeveloperViewModel(Guid id, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue) 
-            : this(id, null, connectionCache, sqlHighlightingDefinition, snackbarMessageQueue)
+        public QueryDeveloperViewModel(Guid id, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue) 
+            : this(id, null, explicitConnectionCache, sqlHighlightingDefinition, snackbarMessageQueue)
         { }
 
-        public QueryDeveloperViewModel(Guid id, Connection connection, IConnectionCache connectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue)
+        public QueryDeveloperViewModel(Guid id, ExplicitConnection explicitConnection, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue)
         {
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
 
             Id = id;
             _generalSettings = new GeneralSettings(10);
-            _connection = connection;
-            _connectionCache = connectionCache;
+            _explicitConnection = explicitConnection;
+            _explicitConnectionCache = explicitConnectionCache;
 
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject)sender));
             EditSettingsCommand = new Command(sender => EditSettingsAsync((DependencyObject)sender));
-            QueryRunnerViewModel = new QueryRunnerViewModel(id, sqlHighlightingDefinition, () => _connection, () => _generalSettings, EditDocumentHandler, snackbarMessageQueue);
-            DocumentEditorViewModel = new DocumentEditorViewModel(() => _connection, snackbarMessageQueue);            
+            QueryRunnerViewModel = new QueryRunnerViewModel(id, sqlHighlightingDefinition, () => _explicitConnection, () => _generalSettings, EditDocumentHandler, snackbarMessageQueue);
+            DocumentEditorViewModel = new DocumentEditorViewModel(() => _explicitConnection, snackbarMessageQueue);            
 
             SetName();
         }
@@ -76,7 +76,7 @@ namespace Doobry.Features.QueryDeveloper
 
         public DocumentEditorViewModel DocumentEditorViewModel { get; }
 
-        public Guid? ConnectionId => _connection?.Id;
+        public Guid? ConnectionId => _explicitConnection?.Id;
 
         private void EditDocumentHandler(Result result)
         {
@@ -90,9 +90,9 @@ namespace Doobry.Features.QueryDeveloper
         {
             Debug.Assert(sender != null);
 
-            var connectionOption = await new ConnectionManagementController(_connectionCache).Select(sender);
+            var connectionOption = await new ConnectionManagementController(_explicitConnectionCache).Select(sender);
 
-            SetConnection(connectionOption.ValueOr(() => _connection));
+            SetConnection(connectionOption.ValueOr(() => _explicitConnection));
         }
 
         private async void EditSettingsAsync(DependencyObject sender)
@@ -111,15 +111,15 @@ namespace Doobry.Features.QueryDeveloper
             _generalSettings.MaxItemCount = viewModel.MaxItemCount;            
         }
 
-        private void SetConnection(Connection connection)
+        private void SetConnection(ExplicitConnection explicitConnection)
         {
-            _connection = connection;
+            _explicitConnection = explicitConnection;
             SetName();
         }
 
         private void SetName()
         {
-            Name = _connection?.Label ?? "(no connection)";
+            Name = _explicitConnection?.Label ?? "(no connection)";
         }
 
         private static async Task<bool> ShowDialogAsync(object content, string title, PackIconKind icon, DependencyObject sender)

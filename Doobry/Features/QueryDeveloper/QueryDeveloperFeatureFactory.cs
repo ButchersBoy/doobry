@@ -13,7 +13,7 @@ namespace Doobry.Features.QueryDeveloper
 {
     public class QueryDeveloperFeatureFactory : IFeatureFactory
     {
-        private readonly IConnectionCache _connectionCache;
+        private readonly IExplicitConnectionCache _explicitConnectionCache;
         private readonly IHighlightingDefinition _sqlHighlightingDefinition;
         private readonly IQueryFileService _queryFileService;
         private readonly ISnackbarMessageQueue _snackbarMessageQueue;        
@@ -22,17 +22,17 @@ namespace Doobry.Features.QueryDeveloper
 
         internal static readonly Guid MyFeatureId = new Guid("A874603C-BEFF-4442-AF02-BA106C61B181");
 
-        public QueryDeveloperFeatureFactory(IConnectionCache connectionCache,
+        public QueryDeveloperFeatureFactory(IExplicitConnectionCache explicitConnectionCache,
             IHighlightingDefinition sqlHighlightingDefinition, IQueryFileService queryFileService, ISnackbarMessageQueue snackbarMessageQueue)
         {
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
             if (sqlHighlightingDefinition == null) throw new ArgumentNullException(nameof(sqlHighlightingDefinition));
             if (queryFileService == null) throw new ArgumentNullException(nameof(queryFileService));
             if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
 
             FeatureId = MyFeatureId;            
 
-            _connectionCache = connectionCache;
+            _explicitConnectionCache = explicitConnectionCache;
             _sqlHighlightingDefinition = sqlHighlightingDefinition;
             _queryFileService = queryFileService;
             _snackbarMessageQueue = snackbarMessageQueue;
@@ -42,7 +42,7 @@ namespace Doobry.Features.QueryDeveloper
 
         public ITabContentLifetimeHost CreateTabContent()
         {
-            var tabViewModel = new QueryDeveloperViewModel(Guid.NewGuid(), _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
+            var tabViewModel = new QueryDeveloperViewModel(Guid.NewGuid(), _explicitConnectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
             var disposable = Watch(tabViewModel);
             return new TabContentLifetimeHost(tabViewModel, closeReason => Cleanup(closeReason, tabViewModel, disposable));
         }
@@ -51,13 +51,13 @@ namespace Doobry.Features.QueryDeveloper
         {
             var connectionPropVal = tabItem.ReadProperty(ConnectionIdBackingStorePropertyName);
             Guid connectionId;
-            Connection connection = null;
+            ExplicitConnection explicitConnection = null;
             if (connectionPropVal != null && Guid.TryParse(connectionPropVal, out connectionId))
             {
-                connection = _connectionCache.Get(connectionId).ValueOrDefault();
+                explicitConnection = _explicitConnectionCache.Get(connectionId).ValueOrDefault();
             }
 
-            var tabViewModel = new QueryDeveloperViewModel(tabItem.Id, connection, _connectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
+            var tabViewModel = new QueryDeveloperViewModel(tabItem.Id, explicitConnection, _explicitConnectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
             PopulateDocument(tabViewModel);
             var disposable = Watch(tabViewModel);
 

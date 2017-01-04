@@ -4,12 +4,12 @@
     {
         private readonly object _gate = new object();
 
-        public void Save(IConnectionCache connectionCache, IGeneralSettings generalSettings)
+        public void Save(IExplicitConnectionCache explicitConnectionCache, IGeneralSettings generalSettings)
         {
             lock (_gate)
             {
                 var layoutStructure = LayoutAnalayzer.GetLayoutStructure();
-                var data = Serializer.Stringify(connectionCache, generalSettings, layoutStructure);
+                var data = Serializer.Stringify(explicitConnectionCache, generalSettings, layoutStructure);
 
                 new Persistance().TrySaveRaw(data);
             }

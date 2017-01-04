@@ -23,7 +23,7 @@ namespace Doobry
     public class MainWindowViewModel : INotifyPropertyChanged
     {
         private readonly FeatureRegistry _featureRegistry;
-        private readonly IConnectionCache _connectionCache;
+        private readonly IExplicitConnectionCache _explicitConnectionCache;
         private readonly IGeneralSettings _generalSettings;
         private readonly IInitialLayoutStructureProvider _initialLayoutStructureProvider;
 
@@ -32,19 +32,19 @@ namespace Doobry
 
         public MainWindowViewModel(
             FeatureRegistry featureRegistry,
-            IConnectionCache connectionCache,
+            IExplicitConnectionCache explicitConnectionCache,
             IGeneralSettings generalSettings,
             IInitialLayoutStructureProvider initialLayoutStructureProvider,
             ISnackbarMessageQueue snackbarSnackbarMessageQueue)
         {
             if (featureRegistry == null) throw new ArgumentNullException(nameof(featureRegistry));
-            if (connectionCache == null) throw new ArgumentNullException(nameof(connectionCache));
+            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
             if (generalSettings == null) throw new ArgumentNullException(nameof(generalSettings));
             if (initialLayoutStructureProvider == null)
                 throw new ArgumentNullException(nameof(initialLayoutStructureProvider));
 
             _featureRegistry = featureRegistry;
-            _connectionCache = connectionCache;
+            _explicitConnectionCache = explicitConnectionCache;
             _generalSettings = generalSettings;
             _initialLayoutStructureProvider = initialLayoutStructureProvider;
             SnackbarMessageQueue = snackbarSnackbarMessageQueue;
@@ -237,7 +237,7 @@ namespace Doobry
         private void RunApplicationShutdown()
         {
             //TODO, inject manual saver instead of general settings
-            new ManualSaver().Save(_connectionCache, _generalSettings);            
+            new ManualSaver().Save(_explicitConnectionCache, _generalSettings);            
 
             Application.Current.Shutdown();
         }
