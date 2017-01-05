@@ -168,13 +168,18 @@
     <Compile Include="Features\IFeatureFactory.cs" />
     <Compile Include="Features\INamed.cs" />
     <Compile Include="Features\ITabContentLifetimeHost.cs" />
+    <Compile Include="Features\Management\CreateDatabaseProperties.cs" />
     <Compile Include="Features\Management\GroupedConnection.cs" />
+    <Compile Include="Features\Management\IManagementActionsController.cs" />
     <Compile Include="Features\Management\Management.xaml.cs">
       <DependentUpon>Management.xaml</DependentUpon>
     </Compile>
     <Compile Include="Features\Management\ManagementAction.xaml.cs">
       <DependentUpon>ManagementAction.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Features\Management\ManagementActionsController.cs" />
+    <Compile Include="Features\Management\ManagementActionStep.cs" />
+    <Compile Include="Features\Management\ManagementActionViewModel.cs" />
     <Compile Include="Features\Management\ManagementFeatureFactory.cs" />
     <Compile Include="Features\Management\ManagementViewModel.cs" />
     <Compile Include="Features\QueryDeveloper\DocumentChangedUnit.cs" />

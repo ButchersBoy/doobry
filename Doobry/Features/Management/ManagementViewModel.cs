@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -17,203 +14,10 @@ using Doobry.DocumentDb;
 using Doobry.Infrastructure;
 using Doobry.Settings;
 using DynamicData;
-using DynamicData.Binding;
 using DynamicData.Kernel;
-using MaterialDesignThemes.Wpf;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 
 namespace Doobry.Features.Management
 {
-    public enum ManagementActionStep
-    {
-        CollectInput,
-        Run,
-        ReportFailure
-    }
-
-    public class ManagementActionViewModel<TProperties> : INotifyPropertyChanged, IDisposable
-        where TProperties : INotifyDataErrorInfo, INotifyPropertyChanged
-    {
-        private readonly Action<TProperties> _actionRunner;
-        private readonly Action _onEnd;
-        private readonly IDisposable _disposable;
-        private ManagementActionStep _step;
-        private string _error;
-
-        public ManagementActionViewModel(TProperties propertiesViewModel, Action<TProperties> actionRunner, Action onEnd)
-        {
-            _actionRunner = actionRunner;
-            _onEnd = onEnd;
-            PropertiesViewModel = propertiesViewModel;
-            
-            var okCommand = new Command(_ => MangeRun(), _ => !propertiesViewModel.HasErrors);
-            _disposable = propertiesViewModel.WhenPropertyChanged(p => p.HasErrors).Subscribe(v => okCommand.Refresh());
-
-            OkCommand = okCommand;
-            CancelCommand = new Command(_ => onEnd());
-            DismissErrorCommand = new Command(_ => Step = ManagementActionStep.CollectInput);
-        }
-
-        public ManagementActionStep Step
-        {
-            get { return _step; }
-            private set { this.MutateVerbose(ref _step, value, RaisePropertyChanged()); }
-        }
-
-        public ICommand OkCommand { get; }
-
-        public ICommand CancelCommand { get; }
-
-        public ICommand DismissErrorCommand { get; }
-
-        public TProperties PropertiesViewModel { get; }
-
-        private void MangeRun()
-        {
-            Step = ManagementActionStep.Run;            
-            Task.Factory.StartNew(() => _actionRunner(PropertiesViewModel))
-                .ContinueWith(t =>
-                {
-                    if (t.Exception != null)
-                    {
-                        Step = ManagementActionStep.ReportFailure;
-                        Error = t.Exception.ToString();
-                    }
-                    else
-                        _onEnd();
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-        }
-
-        public string Error
-        {
-            get { return _error; }
-            private set { this.MutateVerbose(ref _error, value, RaisePropertyChanged()); }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private Action<PropertyChangedEventArgs> RaisePropertyChanged()
-        {
-            return args => PropertyChanged?.Invoke(this, args);
-        }
-
-        public void Dispose()
-        {
-            _disposable.Dispose();
-        }
-    }
-
-    public class CreateDatabaseProperties : INotifyPropertyChanged, INotifyDataErrorInfo
-    {
-        private string _databaseId;
-        private bool _hasErrors;
-        private string _error;
-
-        public CreateDatabaseProperties()
-        {
-            DatabaseId = string.Empty;
-        }
-
-        public string DatabaseId
-        {
-            get { return _databaseId; }
-            set
-            {
-                this.MutateVerbose(ref _databaseId, value, RaisePropertyChanged());
-                Error = string.IsNullOrWhiteSpace(DatabaseId) ? "Required" : null;
-                HasErrors = Error != null;
-            }
-        }
-
-        public bool HasErrors
-        {
-            get { return _hasErrors; }
-            private set { this.MutateVerbose(ref _hasErrors, value, RaisePropertyChanged()); }
-        }
-
-        public string Error
-        {
-            get { return _error; }
-            private set { this.MutateVerbose(ref _error, value, RaisePropertyChanged()); }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private Action<PropertyChangedEventArgs> RaisePropertyChanged()
-        {
-            return args => PropertyChanged?.Invoke(this, args);
-        }        
-
-        public IEnumerable GetErrors(string propertyName)
-        {
-            switch (propertyName)
-            {
-                case nameof(DatabaseId):
-                    if (string.IsNullOrWhiteSpace(DatabaseId))
-                        yield return "Required";
-                    break;
-            }
-        }
-
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-
-        protected virtual void OnErrorsChanged(DataErrorsChangedEventArgs e)
-        {
-            ErrorsChanged?.Invoke(this, e);
-        }
-    }
-
-    public interface IManagementActionsController
-    {
-        void AddDatabase(HostNode host);
-    }
-
-    public class ManagementActionsController : IManagementActionsController
-    {
-        private readonly IDialogTargetFinder _dialogTargetFinder;
-        private readonly ISnackbarMessageQueue _snackbarMessageQueue;
-
-        public ManagementActionsController(IDialogTargetFinder dialogTargetFinder, ISnackbarMessageQueue snackbarMessageQueue)
-        {
-            if (dialogTargetFinder == null) throw new ArgumentNullException(nameof(dialogTargetFinder));
-            if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
-
-            _dialogTargetFinder = dialogTargetFinder;
-            _snackbarMessageQueue = snackbarMessageQueue;
-        }
-
-        public async void AddDatabase(HostNode host)
-        {
-            var view = new ManagementAction();            
-            var createDatabaseProperties = new CreateDatabaseProperties();
-
-            ManagementActionViewModel<CreateDatabaseProperties> model = null;
-            await DialogHost.Show(view, _dialogTargetFinder.SuggestDialogHostIdentifier(),
-                delegate(object sender, DialogOpenedEventArgs args)
-                {
-                    model = new ManagementActionViewModel<CreateDatabaseProperties>(createDatabaseProperties, p =>
-                        DoAddDatabase(p, host), () => args.Session.Close());
-                    view.DataContext = model;
-                });
-            model?.Dispose();
-        }
-
-        private static async void DoAddDatabase(CreateDatabaseProperties properties, HostNode hostNode)
-        {
-            var database = new Database
-            {
-                Id = properties.DatabaseId
-            };
-            await CreateDocumentClient(hostNode).CreateDatabaseAsync(database);
-        }
-
-        private static DocumentClient CreateDocumentClient(HostNode hostNode)
-        {
-            return new DocumentClient(new Uri(hostNode.Host), hostNode.AuthorisationKey);
-        }
-    }
-
     public class ManagementViewModel : INamed, IDisposable
     {
         private readonly IDisposable _disposable;
