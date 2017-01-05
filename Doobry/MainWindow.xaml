@@ -88,7 +88,9 @@
             </Style>
         </ResourceDictionary>
     </Window.Resources>
-    <materialDesign:DialogHost IsTabStop="False" Focusable="False" SnackbarMessageQueue="{Binding SnackbarMessageQueue}">
+    <materialDesign:DialogHost IsTabStop="False" Focusable="False" SnackbarMessageQueue="{Binding SnackbarMessageQueue}"
+                               x:Name="DialogHost"
+                               Identifier="{Binding DialogHostIdentifier}">
         <materialDesign:DrawerHost x:Name="DrawerHost" IsLeftDrawerOpen="{Binding IsLeftDrawerOpen}">
             <materialDesign:DrawerHost.LeftDrawerContent>
                 <Button Command="{Binding OpenManagementCommand}">Database Manager</Button>

@@ -25,7 +25,9 @@
                 <materialDesign:PackIcon Kind="Server" VerticalAlignment="Center" />
                 <StackPanel Margin="8 0 0 0" VerticalAlignment="Center" >
                     <TextBlock Text="{Binding Host}" />
+                    <!--
                     <TextBlock Text="{Binding AuthorisationKeyHint}" />
+                    -->
                 </StackPanel>
             </StackPanel>
         </HierarchicalDataTemplate>

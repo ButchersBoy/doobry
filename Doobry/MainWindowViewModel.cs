@@ -30,6 +30,8 @@ namespace Doobry
         private static bool _isStartupInitiated;
         private bool _isLeftDrawerOpen;
 
+        
+
         public MainWindowViewModel(
             FeatureRegistry featureRegistry,
             IExplicitConnectionCache explicitConnectionCache,
@@ -49,6 +51,7 @@ namespace Doobry
             _initialLayoutStructureProvider = initialLayoutStructureProvider;
             SnackbarMessageQueue = snackbarSnackbarMessageQueue;
 
+            DialogHostIdentifier = Guid.NewGuid();
             StartupCommand = new Command(RunStartup);
             ShutDownCommand = new Command(o => RunShutdown());
             OpenManagementCommand = new Command(o => Open<ManagementFeatureFactory>());
@@ -56,6 +59,8 @@ namespace Doobry
         }
 
         public ObservableCollection<QueryDeveloperViewModel> Tabs { get; }
+
+        public Guid DialogHostIdentifier { get; }
 
         public ICommand StartupCommand { get; }
 

@@ -34,5 +34,15 @@ namespace Doobry
             var transitionerSlides = LogicalTreeHelper.GetChildren(transitioner).OfType<DependencyObject>().ToList();
             FocusAssist.FocusViableTarget(transitionerSlides[transitioner.SelectedIndex]);
         }
+
+        public static object SuggestDialogHostIdentifier()
+        {
+            return (Application.Current.Windows
+                 .OfType<MainWindow>()
+                 .FirstOrDefault(w => w.IsActive)
+             ?? Application.Current.Windows
+                 .OfType<MainWindow>()
+                 .FirstOrDefault()).DialogHost.Identifier;
+        }
     }
 }

@@ -168,6 +168,7 @@
     <Compile Include="Features\IFeatureFactory.cs" />
     <Compile Include="Features\INamed.cs" />
     <Compile Include="Features\ITabContentLifetimeHost.cs" />
+    <Compile Include="Features\Management\GroupedConnection.cs" />
     <Compile Include="Features\Management\Management.xaml.cs">
       <DependentUpon>Management.xaml</DependentUpon>
     </Compile>
@@ -193,6 +194,7 @@
     </Compile>
     <Compile Include="Infrastructure\CancellableDialogViewModel.cs" />
     <Compile Include="Infrastructure\DialogHeader.cs" />
+    <Compile Include="Infrastructure\DialogTargetFinder.cs" />
     <Compile Include="Infrastructure\EnumToIntConverter.cs" />
     <Compile Include="Infrastructure\EqualityToVisibilityConverter.cs" />
     <Compile Include="Infrastructure\DependencyObjectExtensions.cs" />
