@@ -7,7 +7,9 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using System.Windows.Input;
 using Doobry.DocumentDb;
+using Doobry.Infrastructure;
 using Doobry.Settings;
 using DynamicData;
 using DynamicData.Kernel;
@@ -114,6 +116,8 @@ namespace Doobry.Features.Management
                 (authKeyHint.Length > 0 ? authKeyHint.Substring(0, Math.Min(authKeyHint.Length, 5)) : "")
                 + "...";
 
+            CreateDatabaseCommand = new Command(_ => CreateDatabase());
+
             ReadOnlyObservableCollection<DatabaseNode> nodes;
             _disposable = _sourceList.Connect().Bind(out nodes).Subscribe();
             Databases = nodes;
@@ -125,6 +129,8 @@ namespace Doobry.Features.Management
                 : new DatabaseNode(this, groupedConnection.DatabaseId, groupedConnection.CollectionId));
         }
 
+        public ICommand CreateDatabaseCommand { get; }
+
         public string Host { get; }
 
         public string AuthorisationKeyHint { get; }
@@ -132,6 +138,11 @@ namespace Doobry.Features.Management
         public string AuthorisationKey { get; }
 
         public IEnumerable<DatabaseNode> Databases { get; }
+
+        private void CreateDatabase()
+        {
+
+        }
 
         public void Dispose()
         {
@@ -146,13 +157,30 @@ namespace Doobry.Features.Management
             Owner = owner;
             DatabaseId = databaseId;
             Collections = collectionIds.Select(c => new CollectionNode(this, c));
+
+            CreateCollectionCommand = new Command(_ => CreateCollection());
+            DeleteDatabaseCommand = new Command(_ => DeleteDatabase());
         }
+
+        public ICommand DeleteDatabaseCommand { get; }
+
+        public ICommand CreateCollectionCommand { get; }
 
         public HostNode Owner { get; }
 
         public string DatabaseId { get; }
 
         public IEnumerable<CollectionNode> Collections { get; }
+
+        private void DeleteDatabase()
+        {
+
+        }
+
+        private void CreateCollection()
+        {
+
+        }
     }
 
     public class CollectionNode
@@ -161,10 +189,19 @@ namespace Doobry.Features.Management
         {
             Owner = owner;
             CollectionId = collectionId;
+
+            DeleteCollectionCommand = new Command(_ => DeleteCollection());
         }
+
+        public ICommand DeleteCollectionCommand { get; }
 
         public DatabaseNode Owner { get; }
 
         public string CollectionId { get; }
+
+        private void DeleteCollection()
+        {
+
+        }
     }
 }

@@ -38,7 +38,7 @@ namespace Doobry.DocumentDb
 
         private static IEnumerable<Connection> GetConnections()
         {
-            if (!PingHost(LocalEmulator.Host)) return Enumerable.Empty<Connection>();
+            if (!SniffEmulator()) return Enumerable.Empty<Connection>();
 
             var documentClient = CreateDocumentClient();                        
 
@@ -57,25 +57,11 @@ namespace Doobry.DocumentDb
             return new DocumentClient(new Uri(LocalEmulator.Host), LocalEmulator.AuthorisationKey);
         }
 
-        public static bool PingHost(string host)
+        private static bool SniffEmulator()
         {
-            var result = false;
-            var manualResetEvent = new ManualResetEvent(false);            
-            using (var client = new HttpClient())
-            {
-                var mRe = manualResetEvent;
-                client.GetStringAsync(host).ContinueWith(t =>
-                {                                     
-                    if (t.Status == TaskStatus.Canceled)
-                        result = true;
-                    mRe.Set();
-                });
-            }
-
-            manualResetEvent.WaitOne();
-            manualResetEvent.Dispose();
-
-            return result;
+            return
+                System.Diagnostics.Process.GetProcesses()
+                    .Any(p => string.Compare(p.ProcessName, "DocumentDB.Emulator.exe", StringComparison.InvariantCultureIgnoreCase) == 0);
         }
 
         public void Dispose()

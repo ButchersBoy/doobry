@@ -9,53 +9,62 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <DataTemplate DataType="{x:Type local:CollectionNode}">
-            <StackPanel>
-                <StackPanel.ContextMenu>
+            <StackPanel Orientation="Horizontal">
+                <materialDesign:PackIcon Kind="ViewList" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding CollectionId}"  Margin="8 0 0 0" VerticalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+        <HierarchicalDataTemplate DataType="{x:Type local:DatabaseNode}" ItemsSource="{Binding Collections}">
+            <StackPanel Orientation="Horizontal">
+                <materialDesign:PackIcon Kind="Database" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding DatabaseId}" Margin="8 0 0 0" VerticalAlignment="Center" />
+            </StackPanel>
+        </HierarchicalDataTemplate>
+        <HierarchicalDataTemplate DataType="{x:Type local:HostNode}" ItemsSource="{Binding Databases}">
+            <StackPanel Orientation="Horizontal">
+                <materialDesign:PackIcon Kind="Server" VerticalAlignment="Center" />
+                <StackPanel Margin="8 0 0 0" VerticalAlignment="Center" >
+                    <TextBlock Text="{Binding Host}" />
+                    <TextBlock Text="{Binding AuthorisationKeyHint}" />
+                </StackPanel>
+            </StackPanel>
+        </HierarchicalDataTemplate>
+        <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+            <Setter Property="ContextMenu">
+                <Setter.Value>
                     <ContextMenu>
-                        <MenuItem Header="Delete Collection...">
+                        <MenuItem Header="Create Database..."
+                                  Command="{Binding CreateDatabaseCommand}"
+                                  Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="DatabasePlus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Delete Database..."
+                                  Command="{Binding DeleteDatabaseCommand}"
+                                  Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="DatabaseMinus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Create Collection..."
+                                  Command="{Binding CreateCollectionCommand}"
+                                  Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="PlaylistPlus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Delete Collection..."
+                                  Command="{Binding DeleteCollectionCommand}"
+                                  Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="PlaylistMinus" />
                             </MenuItem.Icon>
                         </MenuItem>
                     </ContextMenu>
-                </StackPanel.ContextMenu>
-                <TextBlock Text="{Binding CollectionId}" />
-            </StackPanel>
-        </DataTemplate>
-        <HierarchicalDataTemplate DataType="{x:Type local:DatabaseNode}" ItemsSource="{Binding Collections}">
-            <StackPanel>
-                <StackPanel.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Create Collection...">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="PlaylistPlus" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Delete Database...">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="DatabaseMinus" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                    </ContextMenu>
-                </StackPanel.ContextMenu>
-                <TextBlock Text="{Binding DatabaseId}" />
-            </StackPanel>
-        </HierarchicalDataTemplate>
-        <HierarchicalDataTemplate DataType="{x:Type local:HostNode}" ItemsSource="{Binding Databases}">
-            <StackPanel>
-                <StackPanel.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Create Database...">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="DatabasePlus" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                    </ContextMenu>
-                </StackPanel.ContextMenu>
-                <TextBlock Text="{Binding Host}" />
-                <TextBlock Text="{Binding AuthorisationKeyHint}" />
-            </StackPanel>
-        </HierarchicalDataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <TreeView ItemsSource="{Binding Hosts}" />

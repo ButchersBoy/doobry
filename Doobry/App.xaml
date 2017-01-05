@@ -21,6 +21,7 @@
             <Style TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource MaterialDesignTabablzControlStyle}" />
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <infrastructure:EnumToIntConverter x:Key="EnumToIntConverter" />
+            <infrastructure:NullableToVisibilityConverter x:Key="NullableToVisibilityConverter" />
             <Style TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">
                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
             </Style>

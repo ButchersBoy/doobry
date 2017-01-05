@@ -199,6 +199,7 @@
     <Compile Include="Infrastructure\FocusAssist.cs" />
     <Compile Include="Infrastructure\InterTabClient.cs" />
     <Compile Include="Infrastructure\MessageDialog.cs" />
+    <Compile Include="Infrastructure\NullableToVisibilityConverter.cs" />
     <Compile Include="Infrastructure\SortDirection.cs" />
     <Compile Include="Infrastructure\SortExpression.cs" />
     <Compile Include="Infrastructure\SortExpressionComparer.cs" />
