@@ -13,20 +13,41 @@ using Doobry.Infrastructure;
 using Doobry.Settings;
 using DynamicData;
 using DynamicData.Kernel;
+using MaterialDesignThemes.Wpf;
 using Microsoft.Azure.Documents.Client;
 
 namespace Doobry.Features.Management
 {
-    public abstract class ManagementActionViewModel
+    public class ManagementActionViewModel<TProperties>
     {
-        
-    }
-
-    public class ManagementActionsController
-    {
-        public void AddDatabase(HostNode host)
+        public ManagementActionViewModel(TProperties propertiesViewModel, Action<TProperties> onOk, Action onCancel)
         {
             
+        }
+    }
+
+    public interface IManagementActionsController
+    {
+        void AddDatabase(HostNode host);
+    }
+
+    public class ManagementActionsController : IManagementActionsController
+    {
+        private readonly IDialogTargetFinder _dialogTargetFinder;
+        private readonly ISnackbarMessageQueue _snackbarMessageQueue;
+
+        public ManagementActionsController(IDialogTargetFinder dialogTargetFinder, ISnackbarMessageQueue snackbarMessageQueue)
+        {
+            if (dialogTargetFinder == null) throw new ArgumentNullException(nameof(dialogTargetFinder));
+            if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
+
+            _dialogTargetFinder = dialogTargetFinder;
+            _snackbarMessageQueue = snackbarMessageQueue;
+        }
+
+        public void AddDatabase(HostNode host)
+        {
+            DialogHost.Show("bollocks", _dialogTargetFinder.SuggestDialogHostIdentifier());
         }
     }
 
@@ -34,10 +55,17 @@ namespace Doobry.Features.Management
     {
         private readonly IDisposable _disposable;
 
-        public ManagementViewModel(IExplicitConnectionCache explicitConnectionCache, IImplicitConnectionCache implicitConnectionCache, DispatcherScheduler dispatcherScheduler)
+        public ManagementViewModel(
+            IExplicitConnectionCache explicitConnectionCache, 
+            IImplicitConnectionCache implicitConnectionCache,
+            IManagementActionsController managementActionsController,
+            DispatcherScheduler dispatcherScheduler)
         {
             if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
             if (implicitConnectionCache == null) throw new ArgumentNullException(nameof(implicitConnectionCache));
+            if (managementActionsController == null)
+                throw new ArgumentNullException(nameof(managementActionsController));
+            if (dispatcherScheduler == null) throw new ArgumentNullException(nameof(dispatcherScheduler));
 
             Name = "DB Manager";
 
@@ -49,7 +77,7 @@ namespace Doobry.Features.Management
                     implicitGroup => implicitGroup.Key,
                     (cn, left, right) =>
                         new GroupedConnection(GetOptionalConnections(left), GetOptionalConnections(right)))
-                .Transform(groupedConnection => new HostNode(groupedConnection))
+                .Transform(groupedConnection => new HostNode(groupedConnection, managementActionsController))
                 .DisposeMany()
                 .ObserveOn(dispatcherScheduler)
                 .Bind(out nodes)
@@ -79,9 +107,11 @@ namespace Doobry.Features.Management
         private readonly SourceList<DatabaseNode> _sourceList = new SourceList<DatabaseNode>();
         private readonly IDisposable _disposable;
 
-        public HostNode(GroupedConnection groupedConnection)
+        public HostNode(GroupedConnection groupedConnection, IManagementActionsController managementActionsController)
         {
             if (groupedConnection == null) throw new ArgumentNullException(nameof(groupedConnection));
+            if (managementActionsController == null)
+                throw new ArgumentNullException(nameof(managementActionsController));
 
             Host = groupedConnection.Host;
             AuthorisationKey = groupedConnection.AuthorisationKey;
@@ -90,7 +120,7 @@ namespace Doobry.Features.Management
                 (authKeyHint.Length > 0 ? authKeyHint.Substring(0, Math.Min(authKeyHint.Length, 5)) : "")
                 + "...";
 
-            CreateDatabaseCommand = new Command(_ => CreateDatabase());
+            CreateDatabaseCommand = new Command(_ => managementActionsController.AddDatabase(this));
 
             ReadOnlyObservableCollection<DatabaseNode> nodes;
             _disposable = _sourceList.Connect().Bind(out nodes).Subscribe();

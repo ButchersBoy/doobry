@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Doobry.Infrastructure
 {
-    public static class DialogTargetFinder
+    public class DialogTargetFinder : IDialogTargetFinder
     {
-        public static object SuggestDialogHostIdentifier()
+        public object SuggestDialogHostIdentifier()
         {
             return MainWindow.SuggestDialogHostIdentifier();
         }

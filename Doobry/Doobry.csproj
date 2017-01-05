@@ -199,6 +199,7 @@
     <Compile Include="Infrastructure\EqualityToVisibilityConverter.cs" />
     <Compile Include="Infrastructure\DependencyObjectExtensions.cs" />
     <Compile Include="Infrastructure\FocusAssist.cs" />
+    <Compile Include="Infrastructure\IDialogTargetFinder.cs" />
     <Compile Include="Infrastructure\InterTabClient.cs" />
     <Compile Include="Infrastructure\MessageDialog.cs" />
     <Compile Include="Infrastructure\NullableToVisibilityConverter.cs" />
