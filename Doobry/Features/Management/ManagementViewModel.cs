@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,7 +58,7 @@ namespace Doobry.Features.Management
     {
         private readonly IDisposable _disposable;
 
-        public ManagementViewModel(IExplicitConnectionCache explicitConnectionCache, IImplicitConnectionCache implicitConnectionCache)
+        public ManagementViewModel(IExplicitConnectionCache explicitConnectionCache, IImplicitConnectionCache implicitConnectionCache, DispatcherScheduler dispatcherScheduler)
         {
             if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
             if (implicitConnectionCache == null) throw new ArgumentNullException(nameof(implicitConnectionCache));
@@ -67,11 +68,15 @@ namespace Doobry.Features.Management
             ReadOnlyObservableCollection<HostNode> nodes;
             _disposable = explicitConnectionCache.Connect()
                 //user could dupe the connection
-                .Group(explicitCn => (Connection)explicitCn)
-                .FullJoin(implicitConnectionCache.Connect().Group(implicitCn => (Connection)implicitCn),
+                .Group(explicitCn => (Connection) explicitCn)
+                .FullJoin(implicitConnectionCache.Connect().Group(implicitCn => (Connection) implicitCn),
                     implicitGroup => implicitGroup.Key,
-                    (cn, left, right) => new GroupedConnection(GetOptionalConnections(left), GetOptionalConnections(right)))
-                    .Transform(groupedConnection => new HostNode(groupedConnection)).DisposeMany().Bind(out nodes)
+                    (cn, left, right) =>
+                        new GroupedConnection(GetOptionalConnections(left), GetOptionalConnections(right)))
+                .Transform(groupedConnection => new HostNode(groupedConnection))
+                .DisposeMany()
+                .ObserveOn(dispatcherScheduler)
+                .Bind(out nodes)
                 .Subscribe();
             Hosts = nodes;
         }

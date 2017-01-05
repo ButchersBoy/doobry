@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Doobry.Settings;
 using Microsoft.Azure.Documents.Client;
 
@@ -34,7 +38,9 @@ namespace Doobry.DocumentDb
 
         private static IEnumerable<Connection> GetConnections()
         {
-            var documentClient = CreateDocumentClient();
+            if (!PingHost(LocalEmulator.Host)) return Enumerable.Empty<Connection>();
+
+            var documentClient = CreateDocumentClient();                        
 
             return documentClient.CreateDatabaseQuery().AsEnumerable()
                 .SelectMany(database =>
@@ -49,6 +55,27 @@ namespace Doobry.DocumentDb
         private static DocumentClient CreateDocumentClient()
         {
             return new DocumentClient(new Uri(LocalEmulator.Host), LocalEmulator.AuthorisationKey);
+        }
+
+        public static bool PingHost(string host)
+        {
+            var result = false;
+            var manualResetEvent = new ManualResetEvent(false);            
+            using (var client = new HttpClient())
+            {
+                var mRe = manualResetEvent;
+                client.GetStringAsync(host).ContinueWith(t =>
+                {                                     
+                    if (t.Status == TaskStatus.Canceled)
+                        result = true;
+                    mRe.Set();
+                });
+            }
+
+            manualResetEvent.WaitOne();
+            manualResetEvent.Dispose();
+
+            return result;
         }
 
         public void Dispose()

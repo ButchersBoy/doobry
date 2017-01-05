@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.Windows;
 using Doobry.DocumentDb;
@@ -54,6 +55,7 @@ namespace Doobry
 
             var container = new Container(_ =>
             {
+                _.ForSingletonOf<DispatcherScheduler>().Use(DispatcherScheduler.Current);
                 _.ForSingletonOf<IGeneralSettings>().Use(generalSettings);
                 _.ForSingletonOf<IExplicitConnectionCache>().Use(explicitConnectionCache);
                 _.ForSingletonOf<IImplicitConnectionCache>();

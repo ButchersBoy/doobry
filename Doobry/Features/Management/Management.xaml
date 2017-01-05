@@ -4,17 +4,54 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Doobry.Features.Management"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <DataTemplate DataType="{x:Type local:CollectionNode}">
-            <TextBlock Text="{Binding CollectionId}" />
+            <StackPanel>
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Delete Collection...">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="PlaylistMinus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+                <TextBlock Text="{Binding CollectionId}" />
+            </StackPanel>
         </DataTemplate>
         <HierarchicalDataTemplate DataType="{x:Type local:DatabaseNode}" ItemsSource="{Binding Collections}">
-            <TextBlock Text="{Binding DatabaseId}" />
+            <StackPanel>
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Create Collection...">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="PlaylistPlus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Delete Database...">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="DatabaseMinus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+                <TextBlock Text="{Binding DatabaseId}" />
+            </StackPanel>
         </HierarchicalDataTemplate>
         <HierarchicalDataTemplate DataType="{x:Type local:HostNode}" ItemsSource="{Binding Databases}">
             <StackPanel>
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Create Database...">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="DatabasePlus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
                 <TextBlock Text="{Binding Host}" />
                 <TextBlock Text="{Binding AuthorisationKeyHint}" />
             </StackPanel>
