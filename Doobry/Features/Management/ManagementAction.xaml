@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="Doobry.Features.Management.ManagementAction"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Doobry.Features.Management"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/themes/materialdesigntheme.button.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate DataType="{x:Type local:CreateDatabaseProperties}">
+                <TextBox Width="200" 
+                         materialDesign:HintAssist.Hint="Database Name"
+                         materialDesign:HintAssist.IsFloating="True"
+                         Text="{Binding DatabaseId, UpdateSourceTrigger=PropertyChanged}"
+                         />
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid Margin="16 20 16 16" Visibility="{Binding Step, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={x:Static local:ManagementActionStep.CollectInput}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ContentControl Content="{Binding PropertiesViewModel}" />
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal"
+                        Margin="0 24 0 0"
+                        Grid.Row="1">
+                <Button IsCancel="True" 
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Width="88"
+                        Command="{Binding CancelCommand}">_CANCEL</Button>
+                <Button IsDefault="True"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Width="88"
+                        Command="{Binding OkCommand}">_OK</Button>
+            </StackPanel>
+        </Grid>
+        <infrastructure:ProgressRing Visibility="{Binding Step, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={x:Static local:ManagementActionStep.Run}}" />
+        <Grid Visibility="{Binding Step, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={x:Static local:ManagementActionStep.ReportFailure}}" >
+            <Border Background="{StaticResource ErrorBackgroundBrush}" TextElement.Foreground="{StaticResource ErrorForegroundBrush}" Padding="8 4 8 4">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <materialDesign:PackIcon Kind="Exclamation" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="8 0 0 0"
+                               Style="{DynamicResource MaterialDesignTitleTextBlock}"
+                               Text="An error occured..." />
+                    <Button Grid.Column="1" HorizontalAlignment="Right" Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                        materialDesign:RippleAssist.IsCentered="True"
+                                        Command="{Binding DismissErrorCommand}">
+                        <materialDesign:PackIcon Kind="ArrowLeft" />
+                    </Button>
+                </Grid>
+            </Border>
+            <TextBlock MaxWidth="300" TextWrapping="Wrap" MaxHeight="600"
+                       Margin="24"
+                       Text="{Binding Error}" 
+                       ToolTip="{Binding Error}"
+                       />
+        </Grid>
+    </Grid>
+</UserControl>

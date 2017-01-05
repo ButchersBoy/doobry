@@ -40,15 +40,23 @@ namespace Doobry.DocumentDb
         {
             if (!SniffEmulator()) return Enumerable.Empty<Connection>();
 
-            var documentClient = CreateDocumentClient();                        
+            var documentClient = CreateDocumentClient();
 
             return documentClient.CreateDatabaseQuery().AsEnumerable()
                 .SelectMany(database =>
-                    documentClient.CreateDocumentCollectionQuery(database.SelfLink)
+                {
+                    var connections = documentClient.CreateDocumentCollectionQuery(database.SelfLink)
                         .AsEnumerable()
                         .Select(documentCollection =>
                             new Connection(LocalEmulator.Host, LocalEmulator.AuthorisationKey, database.Id,
-                                documentCollection.Id))
+                                documentCollection.Id)).ToList();
+
+                    if (connections.Count == 0)
+                        connections.Add(new Connection(LocalEmulator.Host, LocalEmulator.AuthorisationKey, database.Id,
+                            null));
+
+                    return connections;
+                }
                 ).ToList();
         }
 
@@ -61,7 +69,7 @@ namespace Doobry.DocumentDb
         {
             return
                 System.Diagnostics.Process.GetProcesses()
-                    .Any(p => string.Compare(p.ProcessName, "DocumentDB.Emulator.exe", StringComparison.InvariantCultureIgnoreCase) == 0);
+                    .Any(p => p.ProcessName.StartsWith("DocumentDB.Emulator", StringComparison.InvariantCultureIgnoreCase));
         }
 
         public void Dispose()
