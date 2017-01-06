@@ -50,7 +50,7 @@ namespace Doobry.Features.Management
 
         public async void DeleteCollection(CollectionNode collection)
         {
-            var createItemProperties = new CreateItemProperties("Collection");
+            var createItemProperties = new DeleteItemProperties("Collection", collection.CollectionId);
             await DoAction(
                 createItemProperties,
                 properties => DoDeleteCollection(collection));

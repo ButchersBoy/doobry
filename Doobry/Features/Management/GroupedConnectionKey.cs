@@ -19,6 +19,9 @@ namespace Doobry.Features.Management
             if (level == GroupedConnectionKeyLevel.DatabaseId)
                 hashCode = (hashCode * 397) ^
                            Concat(GroupedConnectionKeyLevel.DatabaseId, connection.DatabaseId).GetHashCode();
+            if (level == GroupedConnectionKeyLevel.CollectionId)
+                hashCode = (hashCode * 397) ^
+                           Concat(GroupedConnectionKeyLevel.CollectionId, connection.CollectionId).GetHashCode();
 
             _hashCode = hashCode;
         }
