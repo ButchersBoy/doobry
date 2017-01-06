@@ -39,11 +39,11 @@ namespace Doobry.Features.Management
             ReadOnlyObservableCollection<HostNode> nodes;
             _disposable = explicitConnectionCache.Connect()
                 //user could dupe the connection
-                .Group(explicitCn => (Connection) explicitCn)
-                .FullJoin(implicitConnectionCache.Connect().Group(implicitCn => (Connection) implicitCn),
+                .Group(explicitCn => new GroupedConnectionKey(explicitCn, GroupedConnectionKeyLevel.Host))
+                .FullJoin(implicitConnectionCache.Connect().Group(implicitCn => new GroupedConnectionKey(implicitCn, GroupedConnectionKeyLevel.Host)),
                     implicitGroup => implicitGroup.Key,
-                    (cn, left, right) =>
-                        new GroupedConnection(GetOptionalConnections(left), GetOptionalConnections(right)))
+                    (key, left, right) =>
+                        new GroupedConnection(GetOptionalConnections(left), GetOptionalConnections(right), key))
                 .Transform(groupedConnection => new HostNode(groupedConnection, managementActionsController))
                 .DisposeMany()
                 .ObserveOn(dispatcherScheduler)
@@ -52,7 +52,7 @@ namespace Doobry.Features.Management
             Hosts = nodes;
         }
 
-        private static IEnumerable<TConnection> GetOptionalConnections<TConnection, TKey>(Optional<IGroup<TConnection, TKey, Connection>> left) where TConnection : Connection
+        private static IEnumerable<TConnection> GetOptionalConnections<TConnection, TKey>(Optional<IGroup<TConnection, TKey, GroupedConnectionKey>> left) where TConnection : Connection
         {
             return left.HasValue
                 ? left.Value.Cache.Items

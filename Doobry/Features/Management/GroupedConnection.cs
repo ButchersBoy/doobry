@@ -9,9 +9,10 @@ namespace Doobry.Features.Management
     /// Groups all connections, which effectively amount to the same thing.
     /// </summary>
     public class GroupedConnection : IConnection
-    {
-        public GroupedConnection(IEnumerable<ExplicitConnection> explicitConnections, IEnumerable<ImplicitConnection> implicitConnections)
+    {       
+        public GroupedConnection(IEnumerable<ExplicitConnection> explicitConnections, IEnumerable<ImplicitConnection> implicitConnections, GroupedConnectionKey key)
         {
+            Key = key;
             if (explicitConnections == null) throw new ArgumentNullException(nameof(explicitConnections));
             if (implicitConnections == null) throw new ArgumentNullException(nameof(implicitConnections));
 
@@ -42,5 +43,7 @@ namespace Doobry.Features.Management
         public string DatabaseId { get; }
 
         public string CollectionId { get; }
+
+        public GroupedConnectionKey Key { get; }
     }
 }

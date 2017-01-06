@@ -170,6 +170,8 @@
     <Compile Include="Features\ITabContentLifetimeHost.cs" />
     <Compile Include="Features\Management\CreateDatabaseProperties.cs" />
     <Compile Include="Features\Management\GroupedConnection.cs" />
+    <Compile Include="Features\Management\GroupedConnectionKey.cs" />
+    <Compile Include="Features\Management\GroupedConnectionKeyLevel.cs" />
     <Compile Include="Features\Management\IManagementActionsController.cs" />
     <Compile Include="Features\Management\Management.xaml.cs">
       <DependentUpon>Management.xaml</DependentUpon>
