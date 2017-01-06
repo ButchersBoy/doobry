@@ -5,13 +5,6 @@ using DynamicData.Kernel;
 
 namespace Doobry.Settings
 {
-    public interface IImplicitConnectionCache
-    {
-        IObservable<IChangeSet<ImplicitConnection, int>> Connect();
-
-        void Merge(string source, IEnumerable<Connection> sourceConnections);
-    }
-
     public interface IExplicitConnectionCache : IEnumerable<ExplicitConnection>
     {
         Optional<ExplicitConnection> Get(Guid id);

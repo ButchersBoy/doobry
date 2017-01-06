@@ -173,6 +173,7 @@
     <Compile Include="Features\Management\GroupedConnectionKey.cs" />
     <Compile Include="Features\Management\GroupedConnectionKeyLevel.cs" />
     <Compile Include="Features\Management\IManagementActionsController.cs" />
+    <Compile Include="Features\Management\LocalExtensions.cs" />
     <Compile Include="Features\Management\Management.xaml.cs">
       <DependentUpon>Management.xaml</DependentUpon>
     </Compile>
@@ -280,6 +281,7 @@
     <Compile Include="Settings\IConnection.cs" />
     <Compile Include="Settings\IExplicitConnectionCache.cs" />
     <Compile Include="Settings\IGeneralSettings.cs" />
+    <Compile Include="Settings\IImplicitConnectionCache.cs" />
     <Compile Include="Settings\IInitialLayoutStructureProvider.cs" />
     <Compile Include="Settings\IManualSaver.cs" />
     <Compile Include="Settings\ImplicitConnection.cs" />

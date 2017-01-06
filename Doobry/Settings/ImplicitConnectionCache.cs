@@ -31,8 +31,8 @@ namespace Doobry.Settings
                 .ToList();
 
             var connections = sourceConnections.ToList();
-            var removeConnections = existingConnections.Except(connections).Select(cn => (ImplicitConnection)cn);
-            var addConnections = connections.Except(existingConnections);
+            var removeConnections = existingConnections.Except(connections).Select(cn => (ImplicitConnection)cn).ToList();
+            var addConnections = connections.Except(existingConnections).ToList();
 
             _connectionSoureCache.Remove(removeConnections);
             _connectionSoureCache.AddOrUpdate(

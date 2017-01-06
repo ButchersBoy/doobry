@@ -5,19 +5,19 @@ using Doobry.Settings;
 
 namespace Doobry.Features.Management
 {
-    /// <summary>
-    /// Groups all connections, which effectively amount to the same thing.
-    /// </summary>
-    public class GroupedConnection : IConnection
-    {       
-        public GroupedConnection(IEnumerable<ExplicitConnection> explicitConnections, IEnumerable<ImplicitConnection> implicitConnections, GroupedConnectionKey key)
-        {
-            Key = key;
+    public class GroupedConnection
+    {
+        private readonly Dictionary<GroupedConnectionKeyLevel, string> _valueIndex;
+
+        public GroupedConnection(GroupedConnectionKey key, IEnumerable<ExplicitConnection> explicitConnections, IEnumerable<ImplicitConnection> implicitConnections)
+        {            
             if (explicitConnections == null) throw new ArgumentNullException(nameof(explicitConnections));
             if (implicitConnections == null) throw new ArgumentNullException(nameof(implicitConnections));
+            if (key == null) throw new ArgumentNullException(nameof(key));
 
             ExplicitConnections = explicitConnections;
             ImplicitConnections = implicitConnections;
+            Key = key;
 
             var exemplar = ExplicitConnections.Select(explicitCn => (Connection) explicitCn)
                 .Concat(ImplicitConnections.Select(implicitCn => (Connection) implicitCn))
@@ -26,23 +26,23 @@ namespace Doobry.Features.Management
             if (exemplar == null)
                 throw new ArgumentException("No connection was provided.");
 
-            Host = exemplar.Host;
-            AuthorisationKey = exemplar.AuthorisationKey;
-            DatabaseId = exemplar.DatabaseId;
-            CollectionId = exemplar.CollectionId;
+            _valueIndex = new Dictionary<GroupedConnectionKeyLevel, string>();
+            if (key.Level >= (int)GroupedConnectionKeyLevel.Host)
+                _valueIndex.Add(GroupedConnectionKeyLevel.Host, exemplar.Host);
+            if ((int)key.Level >= (int)GroupedConnectionKeyLevel.AuthorisationKey)
+                _valueIndex.Add(GroupedConnectionKeyLevel.AuthorisationKey, exemplar.AuthorisationKey);
+            if ((int)key.Level >= (int)GroupedConnectionKeyLevel.DatabaseId)
+                _valueIndex.Add(GroupedConnectionKeyLevel.DatabaseId, exemplar.DatabaseId);
+            if ((int)key.Level >= (int)GroupedConnectionKeyLevel.CollectionId)
+                _valueIndex.Add(GroupedConnectionKeyLevel.CollectionId, exemplar.CollectionId);
+
         }
 
         public IEnumerable<ExplicitConnection> ExplicitConnections;
 
         public IEnumerable<ImplicitConnection> ImplicitConnections;
 
-        public string Host { get; }
-
-        public string AuthorisationKey { get; }
-
-        public string DatabaseId { get; }
-
-        public string CollectionId { get; }
+        public string this[GroupedConnectionKeyLevel keyLevel] => _valueIndex[keyLevel];
 
         public GroupedConnectionKey Key { get; }
     }

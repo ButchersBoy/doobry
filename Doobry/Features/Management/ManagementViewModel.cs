@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
@@ -14,7 +15,6 @@ using Doobry.DocumentDb;
 using Doobry.Infrastructure;
 using Doobry.Settings;
 using DynamicData;
-using DynamicData.Kernel;
 
 namespace Doobry.Features.Management
 {
@@ -37,26 +37,17 @@ namespace Doobry.Features.Management
             Name = "DB Manager";
 
             ReadOnlyObservableCollection<HostNode> nodes;
-            _disposable = explicitConnectionCache.Connect()
-                //user could dupe the connection
-                .Group(explicitCn => new GroupedConnectionKey(explicitCn, GroupedConnectionKeyLevel.Host))
-                .FullJoin(implicitConnectionCache.Connect().Group(implicitCn => new GroupedConnectionKey(implicitCn, GroupedConnectionKeyLevel.Host)),
-                    implicitGroup => implicitGroup.Key,
-                    (key, left, right) =>
-                        new GroupedConnection(GetOptionalConnections(left), GetOptionalConnections(right), key))
-                .Transform(groupedConnection => new HostNode(groupedConnection, managementActionsController))
-                .DisposeMany()
-                .ObserveOn(dispatcherScheduler)
-                .Bind(out nodes)
-                .Subscribe();
-            Hosts = nodes;
-        }
 
-        private static IEnumerable<TConnection> GetOptionalConnections<TConnection, TKey>(Optional<IGroup<TConnection, TKey, GroupedConnectionKey>> left) where TConnection : Connection
-        {
-            return left.HasValue
-                ? left.Value.Cache.Items
-                : Enumerable.Empty<TConnection>();
+            _disposable = explicitConnectionCache.BuildChildNodes(
+                implicitConnectionCache,
+                null,
+                GroupedConnectionKeyLevel.AuthorisationKey, 
+                dispatcherScheduler,
+                groupedConnection =>
+                    new HostNode(groupedConnection, managementActionsController, explicitConnectionCache,
+                        implicitConnectionCache, dispatcherScheduler), out nodes);
+
+            Hosts = nodes;
         }
 
         public string Name { get; }
@@ -71,18 +62,25 @@ namespace Doobry.Features.Management
 
     public class HostNode : IDisposable
     {
-        private readonly SourceList<DatabaseNode> _sourceList = new SourceList<DatabaseNode>();
         private readonly IDisposable _disposable;
 
-        public HostNode(GroupedConnection groupedConnection, IManagementActionsController managementActionsController)
+        public HostNode(
+            GroupedConnection groupedConnection, 
+            IManagementActionsController managementActionsController,
+            IExplicitConnectionCache explicitConnectionCache,
+            IImplicitConnectionCache implicitConnectionCache,
+            DispatcherScheduler dispatcherScheduler
+            )
         {
             if (groupedConnection == null) throw new ArgumentNullException(nameof(groupedConnection));
             if (managementActionsController == null)
                 throw new ArgumentNullException(nameof(managementActionsController));
+            if (groupedConnection.Key.Level != GroupedConnectionKeyLevel.AuthorisationKey)
+                throw new ArgumentException($"Expected key level of {GroupedConnectionKeyLevel.AuthorisationKey}.", nameof(groupedConnection));
 
-            Host = groupedConnection.Host;
-            AuthorisationKey = groupedConnection.AuthorisationKey;
-            var authKeyHint = groupedConnection.AuthorisationKey ?? "";
+            Host = groupedConnection[GroupedConnectionKeyLevel.Host];
+            AuthorisationKey = groupedConnection[GroupedConnectionKeyLevel.AuthorisationKey];
+            var authKeyHint = AuthorisationKey ?? "";
             AuthorisationKeyHint =
                 (authKeyHint.Length > 0 ? authKeyHint.Substring(0, Math.Min(authKeyHint.Length, 5)) : "")
                 + "...";
@@ -90,14 +88,15 @@ namespace Doobry.Features.Management
             CreateDatabaseCommand = new Command(_ => managementActionsController.AddDatabase(this));
 
             ReadOnlyObservableCollection<DatabaseNode> nodes;
-            _disposable = _sourceList.Connect().Bind(out nodes).Subscribe();
+            _disposable = explicitConnectionCache.BuildChildNodes(
+                implicitConnectionCache,
+                groupedConnection.Key,
+                GroupedConnectionKeyLevel.DatabaseId,
+                dispatcherScheduler,
+                groupedCn =>
+                    new DatabaseNode(groupedCn, managementActionsController, explicitConnectionCache,
+                        implicitConnectionCache, dispatcherScheduler), out nodes);
             Databases = nodes;
-
-            if (string.IsNullOrEmpty(groupedConnection.DatabaseId)) return;
-
-            _sourceList.Add(string.IsNullOrEmpty(groupedConnection.CollectionId)
-                ? new DatabaseNode(this, groupedConnection.DatabaseId)
-                : new DatabaseNode(this, groupedConnection.DatabaseId, groupedConnection.CollectionId));
         }
 
         public ICommand CreateDatabaseCommand { get; }
@@ -108,12 +107,7 @@ namespace Doobry.Features.Management
 
         public string AuthorisationKey { get; }
 
-        public IEnumerable<DatabaseNode> Databases { get; }
-
-        private void CreateDatabase()
-        {
-
-        }
+        public IEnumerable<DatabaseNode> Databases { get; }        
 
         public void Dispose()
         {
@@ -121,13 +115,23 @@ namespace Doobry.Features.Management
         }
     }
 
-    public class DatabaseNode
+    public class DatabaseNode : IDisposable
     {
-        public DatabaseNode(HostNode owner, string databaseId, params string[] collectionIds)
+        private readonly IDisposable _disposable;
+
+        public DatabaseNode(GroupedConnection groupedConnection, IManagementActionsController managementActionsController, IExplicitConnectionCache explicitConnectionCache, IImplicitConnectionCache implicitConnectionCache, DispatcherScheduler dispatcherScheduler)
         {
-            Owner = owner;
-            DatabaseId = databaseId;
-            Collections = collectionIds.Select(c => new CollectionNode(this, c));
+            ReadOnlyObservableCollection<CollectionNode> nodes;
+            _disposable = explicitConnectionCache.BuildChildNodes(
+                implicitConnectionCache,
+                groupedConnection.Key,
+                GroupedConnectionKeyLevel.CollectionId,
+                dispatcherScheduler,
+                groupedCn =>
+                    new CollectionNode(this, groupedCn[GroupedConnectionKeyLevel.CollectionId]), out nodes);
+            Collections = nodes;
+
+            DatabaseId = groupedConnection[GroupedConnectionKeyLevel.DatabaseId];
 
             CreateCollectionCommand = new Command(_ => CreateCollection());
             DeleteDatabaseCommand = new Command(_ => DeleteDatabase());
@@ -136,8 +140,7 @@ namespace Doobry.Features.Management
         public ICommand DeleteDatabaseCommand { get; }
 
         public ICommand CreateCollectionCommand { get; }
-
-        public HostNode Owner { get; }
+        
 
         public string DatabaseId { get; }
 
@@ -151,6 +154,11 @@ namespace Doobry.Features.Management
         private void CreateCollection()
         {
 
+        }
+
+        public void Dispose()
+        {
+            _disposable.Dispose();
         }
     }
 

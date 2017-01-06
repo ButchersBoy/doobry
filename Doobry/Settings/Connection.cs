@@ -1,4 +1,6 @@
-﻿namespace Doobry.Settings
+﻿using System;
+
+namespace Doobry.Settings
 {
     public class Connection : IConnection
     {
@@ -38,8 +40,7 @@
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(this, obj)) return true;            
             return Equals((Connection) obj);
         }
 

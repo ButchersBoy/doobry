@@ -2,8 +2,9 @@
 {
     public enum GroupedConnectionKeyLevel
     {
-        Host,
-        AuthorisationKey,
-        DatabaseId
+        Host = 0,
+        AuthorisationKey = 1,
+        DatabaseId = 2,
+        CollectionId
     }
 }
