@@ -168,11 +168,14 @@
     <Compile Include="Features\IFeatureFactory.cs" />
     <Compile Include="Features\INamed.cs" />
     <Compile Include="Features\ITabContentLifetimeHost.cs" />
+    <Compile Include="Features\Management\CollectionNode.cs" />
     <Compile Include="Features\Management\CreateItemProperties.cs" />
+    <Compile Include="Features\Management\DatabaseNode.cs" />
     <Compile Include="Features\Management\DeleteItemProperties.cs" />
     <Compile Include="Features\Management\GroupedConnection.cs" />
     <Compile Include="Features\Management\GroupedConnectionKey.cs" />
     <Compile Include="Features\Management\GroupedConnectionKeyLevel.cs" />
+    <Compile Include="Features\Management\HostNode.cs" />
     <Compile Include="Features\Management\IManagementActionsController.cs" />
     <Compile Include="Features\Management\LocalExtensions.cs" />
     <Compile Include="Features\Management\Management.xaml.cs">
