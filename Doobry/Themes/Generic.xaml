@@ -5,8 +5,6 @@
     xmlns:system="clr-namespace:System;assembly=mscorlib"
     xmlns:infrastructure="clr-namespace:Doobry.Infrastructure">
 
-    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-
     <Style TargetType="{x:Type infrastructure:DialogHeader}">
         <Setter Property="Template">
             <Setter.Value>
@@ -125,6 +123,73 @@
                                 Width="88"
                                 HorizontalAlignment="Right" Margin="8"
                                 Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">OK</Button>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type infrastructure:ConfirmationDialog}">
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="MaxWidth" Value="600" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type infrastructure:ConfirmationDialog}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <materialDesign:ColorZone Mode="PrimaryMid" DockPanel.Dock="Top" VerticalContentAlignment="Center" Padding="8 4 8 4">
+                            <Grid VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="8 0 0 0"
+                                           Style="{DynamicResource MaterialDesignTitleTextBlock}"
+                                           Text="{TemplateBinding Title}" />
+                                <Button Grid.Column="1" HorizontalAlignment="Right" Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                        materialDesign:RippleAssist.IsCentered="True"
+                                        Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                        CommandParameter="{StaticResource BooleanFalse}">
+                                    <materialDesign:PackIcon Kind="Close" />
+                                </Button>
+                            </Grid>
+                        </materialDesign:ColorZone>
+                        <ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          RecognizesAccessKey="True"
+                                          Cursor="{TemplateBinding Cursor}"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          >
+                            <ContentPresenter.Resources>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="TextWrapping" Value="Wrap" />
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Grid.Row="2">
+                            <Button IsDefault="True"
+                                    Style="{DynamicResource MaterialDesignFlatButton}"                                
+                                    Width="88"
+                                    HorizontalAlignment="Right" Margin="8"
+                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                    CommandParameter="{StaticResource BooleanFalse}"
+                                    >_CANCEL</Button>
+                            <Button IsDefault="True"
+                                    Style="{DynamicResource MaterialDesignFlatButton}"                                
+                                    Width="88"
+                                    HorizontalAlignment="Right" Margin="8"
+                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                    CommandParameter="{StaticResource BooleanTrue}"
+                                    >_OK</Button>
+                        </StackPanel>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

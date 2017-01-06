@@ -1,20 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net.NetworkInformation;
 using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
-using Doobry.DocumentDb;
 using Doobry.Infrastructure;
 using Doobry.Settings;
-using DynamicData;
 
 namespace Doobry.Features.Management
 {
@@ -94,7 +84,7 @@ namespace Doobry.Features.Management
                 GroupedConnectionKeyLevel.DatabaseId,
                 dispatcherScheduler,
                 groupedCn =>
-                    new DatabaseNode(groupedCn, managementActionsController, explicitConnectionCache,
+                    new DatabaseNode(this, groupedCn, managementActionsController, explicitConnectionCache,
                         implicitConnectionCache, dispatcherScheduler), out nodes);
             Databases = nodes;
         }
@@ -116,11 +106,12 @@ namespace Doobry.Features.Management
     }
 
     public class DatabaseNode : IDisposable
-    {
+    {        
         private readonly IDisposable _disposable;
 
-        public DatabaseNode(GroupedConnection groupedConnection, IManagementActionsController managementActionsController, IExplicitConnectionCache explicitConnectionCache, IImplicitConnectionCache implicitConnectionCache, DispatcherScheduler dispatcherScheduler)
+        public DatabaseNode(HostNode owner, GroupedConnection groupedConnection, IManagementActionsController managementActionsController, IExplicitConnectionCache explicitConnectionCache, IImplicitConnectionCache implicitConnectionCache, DispatcherScheduler dispatcherScheduler)
         {
+            Owner = owner;
             ReadOnlyObservableCollection<CollectionNode> nodes;
             _disposable = explicitConnectionCache.BuildChildNodes(
                 implicitConnectionCache,
@@ -128,33 +119,25 @@ namespace Doobry.Features.Management
                 GroupedConnectionKeyLevel.CollectionId,
                 dispatcherScheduler,
                 groupedCn =>
-                    new CollectionNode(this, groupedCn[GroupedConnectionKeyLevel.CollectionId]), out nodes);
+                    new CollectionNode(this, groupedCn[GroupedConnectionKeyLevel.CollectionId], managementActionsController), 
+                out nodes);
             Collections = nodes;
 
             DatabaseId = groupedConnection[GroupedConnectionKeyLevel.DatabaseId];
 
-            CreateCollectionCommand = new Command(_ => CreateCollection());
-            DeleteDatabaseCommand = new Command(_ => DeleteDatabase());
+            CreateCollectionCommand = new Command(_ => managementActionsController.AddCollection(this));
+            DeleteDatabaseCommand = new Command(_ => managementActionsController.DeleteDatabase(this));
         }
+
+        public HostNode Owner { get; }
 
         public ICommand DeleteDatabaseCommand { get; }
 
-        public ICommand CreateCollectionCommand { get; }
-        
+        public ICommand CreateCollectionCommand { get; }        
 
         public string DatabaseId { get; }
 
         public IEnumerable<CollectionNode> Collections { get; }
-
-        private void DeleteDatabase()
-        {
-
-        }
-
-        private void CreateCollection()
-        {
-
-        }
 
         public void Dispose()
         {
@@ -164,12 +147,12 @@ namespace Doobry.Features.Management
 
     public class CollectionNode
     {
-        public CollectionNode(DatabaseNode owner, string collectionId)
+        public CollectionNode(DatabaseNode owner, string collectionId, IManagementActionsController managementActionsController)
         {
             Owner = owner;
             CollectionId = collectionId;
 
-            DeleteCollectionCommand = new Command(_ => DeleteCollection());
+            DeleteCollectionCommand = new Command(_ => managementActionsController.DeleteCollection(this));
         }
 
         public ICommand DeleteCollectionCommand { get; }
@@ -177,10 +160,5 @@ namespace Doobry.Features.Management
         public DatabaseNode Owner { get; }
 
         public string CollectionId { get; }
-
-        private void DeleteCollection()
-        {
-
-        }
     }
 }

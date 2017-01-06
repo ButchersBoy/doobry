@@ -42,7 +42,7 @@ namespace Doobry.Features.Management
                     implicitGroup => implicitGroup.Key,
                     (key, left, right) =>
                         new GroupedConnection(key, left.GetOptionalConnections(), right.GetOptionalConnections()))
-                .Filter(gc => string.IsNullOrEmpty(gc[childKeyLevel]))
+                .Filter(gc => !string.IsNullOrEmpty(gc[childKeyLevel]))
                 .Transform(childNodeFactory)
                 .DisposeMany()
                 .ObserveOn(scheduler)

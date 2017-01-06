@@ -5,6 +5,7 @@
              xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
              xmlns:infrastructure="clr-namespace:Doobry.Infrastructure"
              xmlns:management="clr-namespace:Doobry.Features.Management"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              Startup="App_OnStartup">
     <Application.Resources>
         <ResourceDictionary>
@@ -20,6 +21,8 @@
             <SolidColorBrush x:Key="ErrorForegroundBrush" Color="{StaticResource RedPrimary500Foreground}" />
             <Style TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource MaterialDesignTabablzControlStyle}" />
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <system:Boolean x:Key="BooleanTrue">True</system:Boolean>
+            <system:Boolean x:Key="BooleanFalse">False</system:Boolean>
             <infrastructure:EnumToIntConverter x:Key="EnumToIntConverter" />
             <infrastructure:NullableToVisibilityConverter x:Key="NullableToVisibilityConverter" />
             <Style TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">

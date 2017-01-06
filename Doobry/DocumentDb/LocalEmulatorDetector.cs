@@ -42,7 +42,7 @@ namespace Doobry.DocumentDb
 
             var documentClient = CreateDocumentClient();
 
-            return documentClient.CreateDatabaseQuery().AsEnumerable()
+            var result = documentClient.CreateDatabaseQuery().AsEnumerable()
                 .SelectMany(database =>
                 {
                     var connections = documentClient.CreateDocumentCollectionQuery(database.SelfLink)
@@ -58,6 +58,13 @@ namespace Doobry.DocumentDb
                     return connections;
                 }
                 ).ToList();
+
+            if (result.Count == 0)
+            {
+                result.Add(new Connection(LocalEmulator.Host, LocalEmulator.AuthorisationKey, null, null));
+            }
+
+            return result;
         }
 
         private static DocumentClient CreateDocumentClient()

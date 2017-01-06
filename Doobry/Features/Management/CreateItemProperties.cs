@@ -4,24 +4,27 @@ using System.ComponentModel;
 
 namespace Doobry.Features.Management
 {
-    public class CreateDatabaseProperties : INotifyPropertyChanged, INotifyDataErrorInfo
+    public class CreateItemProperties : INotifyPropertyChanged, INotifyDataErrorInfo
     {
-        private string _databaseId;
+        private string _itemId;
         private bool _hasErrors;
         private string _error;
 
-        public CreateDatabaseProperties()
+        public CreateItemProperties(string typeDescription)
         {
-            DatabaseId = string.Empty;
+            TypeDescription = typeDescription;
+            ItemId = string.Empty;
         }
 
-        public string DatabaseId
+        public string TypeDescription { get; }
+
+        public string ItemId
         {
-            get { return _databaseId; }
+            get { return _itemId; }
             set
             {
-                this.MutateVerbose(ref _databaseId, value, RaisePropertyChanged());
-                Error = string.IsNullOrWhiteSpace(DatabaseId) ? "Required" : null;
+                this.MutateVerbose(ref _itemId, value, RaisePropertyChanged());
+                Error = string.IsNullOrWhiteSpace(ItemId) ? "Required" : null;
                 HasErrors = Error != null;
             }
         }
@@ -49,8 +52,8 @@ namespace Doobry.Features.Management
         {
             switch (propertyName)
             {
-                case nameof(DatabaseId):
-                    if (string.IsNullOrWhiteSpace(DatabaseId))
+                case nameof(ItemId):
+                    if (string.IsNullOrWhiteSpace(ItemId))
                         yield return "Required";
                     break;
             }

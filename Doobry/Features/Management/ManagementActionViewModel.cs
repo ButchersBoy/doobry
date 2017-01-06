@@ -10,15 +10,15 @@ namespace Doobry.Features.Management
     public class ManagementActionViewModel<TProperties> : INotifyPropertyChanged, IDisposable
         where TProperties : INotifyDataErrorInfo, INotifyPropertyChanged
     {
-        private readonly Action<TProperties> _actionRunner;
+        private readonly Func<TProperties, Task> _taskFactory;
         private readonly Action _onEnd;
         private readonly IDisposable _disposable;
         private ManagementActionStep _step;
         private string _error;
 
-        public ManagementActionViewModel(TProperties propertiesViewModel, Action<TProperties> actionRunner, Action onEnd)
+        public ManagementActionViewModel(TProperties propertiesViewModel, Func<TProperties, Task> taskFactory, Action onEnd)
         {
-            _actionRunner = actionRunner;
+            _taskFactory = taskFactory;
             _onEnd = onEnd;
             PropertiesViewModel = propertiesViewModel;
             
@@ -46,18 +46,18 @@ namespace Doobry.Features.Management
 
         private void MangeRun()
         {
-            Step = ManagementActionStep.Run;            
-            Task.Factory.StartNew(() => _actionRunner(PropertiesViewModel))
-                .ContinueWith(t =>
-                {
-                    if (t.Exception != null)
+            Step = ManagementActionStep.Run;
+            _taskFactory(PropertiesViewModel)
+                    .ContinueWith(t =>
                     {
-                        Step = ManagementActionStep.ReportFailure;
-                        Error = t.Exception.ToString();
-                    }
-                    else
-                        _onEnd();
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+                        if (t.Exception != null)
+                        {
+                            Step = ManagementActionStep.ReportFailure;
+                            Error = t.Exception.ToString();
+                        }
+                        else
+                            _onEnd();
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         public string Error
