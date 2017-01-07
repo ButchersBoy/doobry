@@ -11,22 +11,20 @@ namespace Doobry.Features.Management
         where TProperties : INotifyDataErrorInfo, INotifyPropertyChanged
     {
         private readonly Func<TProperties, Task> _taskFactory;
-        private readonly Action _onEnd;
         private readonly IDisposable _disposable;
         private ManagementActionStep _step;
         private string _error;
 
-        public ManagementActionViewModel(TProperties propertiesViewModel, Func<TProperties, Task> taskFactory, Action onEnd)
+        public ManagementActionViewModel(TProperties propertiesViewModel, Func<TProperties, Task> taskFactory, Action<bool> onEnd)
         {
             _taskFactory = taskFactory;
-            _onEnd = onEnd;
             PropertiesViewModel = propertiesViewModel;
             
-            var okCommand = new Command(_ => MangeRun(), _ => !propertiesViewModel.HasErrors);
+            var okCommand = new Command(_ => MangeRun(onEnd), _ => !propertiesViewModel.HasErrors);
             _disposable = propertiesViewModel.WhenPropertyChanged(p => p.HasErrors).Subscribe(v => okCommand.Refresh());
 
             OkCommand = okCommand;
-            CancelCommand = new Command(_ => onEnd());
+            CancelCommand = new Command(_ => onEnd(false));
             DismissErrorCommand = new Command(_ => Step = ManagementActionStep.CollectInput);
         }
 
@@ -44,7 +42,7 @@ namespace Doobry.Features.Management
 
         public TProperties PropertiesViewModel { get; }
 
-        private void MangeRun()
+        private void MangeRun(Action<bool> onEnd)
         {
             Step = ManagementActionStep.Run;
             _taskFactory(PropertiesViewModel)
@@ -56,7 +54,7 @@ namespace Doobry.Features.Management
                             Error = t.Exception.ToString();
                         }
                         else
-                            _onEnd();
+                            onEnd(true);
                     }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 

@@ -186,6 +186,7 @@
     <Compile Include="Features\Management\ManagementAction.xaml.cs">
       <DependentUpon>ManagementAction.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Features\Management\ManagementActionAddResult.cs" />
     <Compile Include="Features\Management\ManagementActionsController.cs" />
     <Compile Include="Features\Management\ManagementActionStep.cs" />
     <Compile Include="Features\Management\ManagementActionViewModel.cs" />
