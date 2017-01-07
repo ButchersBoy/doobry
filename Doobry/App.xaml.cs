@@ -57,6 +57,7 @@ namespace Doobry
             var container = new Container(_ =>
             {
                 _.ForSingletonOf<DispatcherScheduler>().Use(DispatcherScheduler.Current);
+                _.ForSingletonOf<DispatcherTaskSchedulerProvider>().Use(DispatcherTaskSchedulerProvider.Create(Dispatcher));
                 _.ForSingletonOf<IGeneralSettings>().Use(generalSettings);
                 _.ForSingletonOf<IExplicitConnectionCache>().Use(explicitConnectionCache);
                 _.ForSingletonOf<IImplicitConnectionCache>();

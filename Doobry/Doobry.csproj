@@ -214,6 +214,7 @@
     <Compile Include="Infrastructure\ConfirmationDialog.cs" />
     <Compile Include="Infrastructure\DialogHeader.cs" />
     <Compile Include="Infrastructure\DialogTargetFinder.cs" />
+    <Compile Include="Infrastructure\DispatcherTaskSchedulerProvider.cs" />
     <Compile Include="Infrastructure\EnumToIntConverter.cs" />
     <Compile Include="Infrastructure\EqualityToVisibilityConverter.cs" />
     <Compile Include="Infrastructure\DependencyObjectExtensions.cs" />

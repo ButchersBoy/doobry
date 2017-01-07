@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Doobry.Infrastructure;
@@ -11,13 +12,21 @@ namespace Doobry.Features.Management
         where TProperties : INotifyDataErrorInfo, INotifyPropertyChanged
     {
         private readonly Func<TProperties, Task> _taskFactory;
+        private readonly DispatcherTaskSchedulerProvider _dispatcherTaskSchedulerProvider;
         private readonly IDisposable _disposable;
         private ManagementActionStep _step;
         private string _error;
 
-        public ManagementActionViewModel(TProperties propertiesViewModel, Func<TProperties, Task> taskFactory, Action<bool> onEnd)
+        public ManagementActionViewModel(TProperties propertiesViewModel, Func<TProperties, Task> taskFactory, Action<bool> onEnd, DispatcherTaskSchedulerProvider dispatcherTaskSchedulerProvider)
         {
+            if (propertiesViewModel == null) throw new ArgumentNullException(nameof(propertiesViewModel));
+            if (taskFactory == null) throw new ArgumentNullException(nameof(taskFactory));
+            if (onEnd == null) throw new ArgumentNullException(nameof(onEnd));
+            if (dispatcherTaskSchedulerProvider == null)
+                throw new ArgumentNullException(nameof(dispatcherTaskSchedulerProvider));
+
             _taskFactory = taskFactory;
+            _dispatcherTaskSchedulerProvider = dispatcherTaskSchedulerProvider;
             PropertiesViewModel = propertiesViewModel;
             
             var okCommand = new Command(_ => MangeRun(onEnd), _ => !propertiesViewModel.HasErrors);
@@ -55,7 +64,7 @@ namespace Doobry.Features.Management
                         }
                         else
                             onEnd(true);
-                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                    }, _dispatcherTaskSchedulerProvider.TaskScheduler);
         }
 
         public string Error

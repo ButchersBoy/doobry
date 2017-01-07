@@ -14,14 +14,18 @@ namespace Doobry.Features.Management
     {
         private readonly IDialogTargetFinder _dialogTargetFinder;
         private readonly ISnackbarMessageQueue _snackbarMessageQueue;
+        private readonly DispatcherTaskSchedulerProvider _dispatcherTaskSchedulerProvider;
 
-        public ManagementActionsController(IDialogTargetFinder dialogTargetFinder, ISnackbarMessageQueue snackbarMessageQueue)
+        public ManagementActionsController(IDialogTargetFinder dialogTargetFinder, ISnackbarMessageQueue snackbarMessageQueue, DispatcherTaskSchedulerProvider dispatcherTaskSchedulerProvider)
         {
             if (dialogTargetFinder == null) throw new ArgumentNullException(nameof(dialogTargetFinder));
             if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
+            if (dispatcherTaskSchedulerProvider == null)
+                throw new ArgumentNullException(nameof(dispatcherTaskSchedulerProvider));
 
             _dialogTargetFinder = dialogTargetFinder;
             _snackbarMessageQueue = snackbarMessageQueue;
+            _dispatcherTaskSchedulerProvider = dispatcherTaskSchedulerProvider;
         }
 
         public async Task<ManagementActionAddResult> AddDatabase(string host, string authorisationKey)
@@ -96,7 +100,7 @@ namespace Doobry.Features.Management
             var result = (bool) await DialogHost.Show(view, _dialogTargetFinder.SuggestDialogHostIdentifier(),
                 delegate (object sender, DialogOpenedEventArgs args)
                 {
-                    model = new ManagementActionViewModel<TProperties>(properties, taskFactory, res => args.Session.Close(res));
+                    model = new ManagementActionViewModel<TProperties>(properties, taskFactory, res => args.Session.Close(res), _dispatcherTaskSchedulerProvider);
                     view.DataContext = model;
                 });
             model?.Dispose();
