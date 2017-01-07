@@ -9,7 +9,10 @@ using Doobry.Settings;
 namespace Doobry.Features.Management
 {
     public class DatabaseNode : IDisposable
-    {        
+    {
+        private static readonly IComparer<CollectionNode> CollectionSortComparer =
+            SortExpressionComparer<CollectionNode>.Ascending(cn => cn.CollectionId);
+
         private readonly IDisposable _disposable;
 
         public DatabaseNode(HostNode owner, GroupedConnection groupedConnection, IManagementActionsController managementActionsController, IExplicitConnectionCache explicitConnectionCache, IImplicitConnectionCache implicitConnectionCache, DispatcherScheduler dispatcherScheduler)
@@ -20,9 +23,10 @@ namespace Doobry.Features.Management
                 implicitConnectionCache,
                 groupedConnection.Key,
                 GroupedConnectionKeyLevel.CollectionId,
-                dispatcherScheduler,
                 groupedCn =>
-                        new CollectionNode(this, groupedCn[GroupedConnectionKeyLevel.CollectionId], managementActionsController), 
+                        new CollectionNode(this, groupedCn[GroupedConnectionKeyLevel.CollectionId], managementActionsController),
+                CollectionSortComparer, 
+                dispatcherScheduler, 
                 out nodes);
             Collections = nodes;
 

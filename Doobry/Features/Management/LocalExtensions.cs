@@ -24,9 +24,10 @@ namespace Doobry.Features.Management
             this IExplicitConnectionCache explicitConnectionCache,
             IImplicitConnectionCache implicitConnectionCache,
             GroupedConnectionKey parentKey,
-            GroupedConnectionKeyLevel childKeyLevel,                        
-            IScheduler scheduler,
-            Func<GroupedConnection, TNode> childNodeFactory, 
+            GroupedConnectionKeyLevel childKeyLevel,
+            Func<GroupedConnection, TNode> childNodeFactory,
+            IComparer<TNode> sortComparer, 
+            IScheduler scheduler, 
             out ReadOnlyObservableCollection<TNode> nodes)
         {
             return explicitConnectionCache.Connect()
@@ -44,6 +45,7 @@ namespace Doobry.Features.Management
                         new GroupedConnection(key, left.GetOptionalConnections(), right.GetOptionalConnections()))
                 .Filter(gc => !string.IsNullOrEmpty(gc[childKeyLevel]))
                 .Transform(childNodeFactory)
+                //.Sort(sortComparer)
                 .DisposeMany()
                 .ObserveOn(scheduler)
                 .Bind(out nodes)

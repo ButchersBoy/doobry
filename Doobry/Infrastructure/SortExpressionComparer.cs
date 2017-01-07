@@ -17,7 +17,7 @@ namespace Doobry.Infrastructure
 
         public SortExpressionComparer(IEnumerable<SortExpression<TItem>> expressions)
         {
-            if (expressions == null) throw new ArgumentNullException("expressions");
+            if (expressions == null) throw new ArgumentNullException(nameof(expressions));
 
             _expressions = expressions.ToList();
         }
@@ -29,7 +29,7 @@ namespace Doobry.Infrastructure
 
         public SortExpressionComparer(IEnumerable<Func<TItem, IComparable>> expressions)
         {
-            if (expressions == null) throw new ArgumentNullException("expressions");
+            if (expressions == null) throw new ArgumentNullException(nameof(expressions));
 
             _expressions = expressions.Select(f => f.Ascending()).ToList();
         }
@@ -41,7 +41,7 @@ namespace Doobry.Infrastructure
 
         public static SortExpressionComparer<TItem> Ascending(Func<TItem, IComparable> expression)
         {
-            if (expression == null) throw new ArgumentNullException("expression");
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             return new SortExpressionComparer<TItem>(expression.Ascending());
         }
@@ -53,7 +53,7 @@ namespace Doobry.Infrastructure
 
         public static SortExpressionComparer<TItem> Descending(Func<TItem, IComparable> expression)
         {
-            if (expression == null) throw new ArgumentNullException("expression");
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
 
             return new SortExpressionComparer<TItem>(expression.Descending());
         }

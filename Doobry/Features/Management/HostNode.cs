@@ -10,6 +10,9 @@ namespace Doobry.Features.Management
 {
     public class HostNode : IDisposable
     {
+        private static readonly IComparer<DatabaseNode> DatabaseSortComparer =
+            SortExpressionComparer<DatabaseNode>.Ascending(cn => cn.DatabaseId);
+
         private readonly IDisposable _disposable;
 
         public HostNode(
@@ -40,10 +43,11 @@ namespace Doobry.Features.Management
                 implicitConnectionCache,
                 groupedConnection.Key,
                 GroupedConnectionKeyLevel.DatabaseId,
-                dispatcherScheduler,
                 groupedCn =>
                     new DatabaseNode(this, groupedCn, managementActionsController, explicitConnectionCache,
-                        implicitConnectionCache, dispatcherScheduler), out nodes);
+                        implicitConnectionCache, dispatcherScheduler),
+                DatabaseSortComparer,
+                dispatcherScheduler, out nodes);
             Databases = nodes;
         }
 
