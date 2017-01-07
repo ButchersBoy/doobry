@@ -19,7 +19,7 @@ namespace Doobry.DocumentDb
             if (implicitConnectionCache == null) throw new ArgumentNullException(nameof(implicitConnectionCache));
 
             _observable = Observable
-                .Timer(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(3))
+                .Timer(TimeSpan.FromMilliseconds(1500), TimeSpan.FromSeconds(3))
                 .Select(_ => SafeGetConnections())
                 .Publish()
                 .RefCount();

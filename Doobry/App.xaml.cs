@@ -62,7 +62,7 @@ namespace Doobry
                 _.ForSingletonOf<IImplicitConnectionCache>();
                 _.ForSingletonOf<LocalEmulatorDetector>();
                 _.ForSingletonOf<IInitialLayoutStructureProvider>().Use(initialLayoutStructureProvider);
-                _.ForSingletonOf<ISnackbarMessageQueue>().Use(new SnackbarMessageQueue());
+                _.ForSingletonOf<ISnackbarMessageQueue>().Use(new SnackbarMessageQueue(TimeSpan.FromSeconds(5)));
                 _.ForSingletonOf<FeatureRegistry>()
                     .Use(
                         ctx =>
@@ -90,11 +90,8 @@ namespace Doobry
             InterTabClient = new InterTabClient(windowInstanceManager);
             ClosingItemCallback = OnItemClosingHandler;
 
-            var localEmulatorDetector = container.GetInstance<LocalEmulatorDetector>();
-            var applicationDisposable = new CompositeDisposable(
-                LocalEmulatorActions.MergeConnectionsIntoCache(localEmulatorDetector, container.GetInstance<IImplicitConnectionCache>())
-                );
-            Exit += (o, args) => applicationDisposable.Dispose();
+            var localEmulatorSubscription = UseLocalEmulatorDetector(container);
+            Exit += (o, args) => localEmulatorSubscription.Dispose();
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var mainWindow = windowInstanceManager.Create();
@@ -123,7 +120,16 @@ namespace Doobry
             }
         }
 
-        private void OnItemClosingHandler(ItemActionCallbackArgs<TabablzControl> args)
+        private static IDisposable UseLocalEmulatorDetector(IContainer container)
+        {
+            var localEmulatorDetector = container.GetInstance<LocalEmulatorDetector>();
+            return new CompositeDisposable(
+                LocalEmulatorActions.MergeConnectionsIntoCache(localEmulatorDetector, container.GetInstance<IImplicitConnectionCache>()),
+                LocalEmulatorActions.LaunchGettingStarted(localEmulatorDetector, container.GetInstance<ISnackbarMessageQueue>())
+                );
+        }
+
+        private static void OnItemClosingHandler(ItemActionCallbackArgs<TabablzControl> args)
         {
             (args.DragablzItem.DataContext as TabItemContainer)?.TabContentLifetimeHost.Cleanup(TabCloseReason.TabClosed);
         }
