@@ -103,7 +103,10 @@ namespace Doobry.Features.Management
 
         private static DocumentClient CreateDocumentClient(HostNode hostNode)
         {
-            return new DocumentClient(new Uri(hostNode.Host), hostNode.AuthorisationKey);
+            return new DocumentClient(new Uri(hostNode.Host), hostNode.AuthorisationKey, new ConnectionPolicy
+            {
+                RequestTimeout = TimeSpan.FromSeconds(5)
+            });
         }
     }
 }

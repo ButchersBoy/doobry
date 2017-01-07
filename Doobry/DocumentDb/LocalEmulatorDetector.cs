@@ -69,7 +69,11 @@ namespace Doobry.DocumentDb
 
         private static DocumentClient CreateDocumentClient()
         {
-            return new DocumentClient(new Uri(LocalEmulator.Host), LocalEmulator.AuthorisationKey);
+            var connectionPolicy = new ConnectionPolicy
+            {
+                RequestTimeout = TimeSpan.FromSeconds(1)
+            };
+            return new DocumentClient(new Uri(LocalEmulator.Host), LocalEmulator.AuthorisationKey, connectionPolicy);
         }
 
         private static bool SniffEmulator()
