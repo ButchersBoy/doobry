@@ -32,28 +32,14 @@
                 </Grid.RowDefinitions>
                 <materialDesign:PackIcon Kind="Server" VerticalAlignment="Center" Margin="0 0 0 4" ToolTip="Host" />
                 <TextBlock Text="{Binding Host}" Grid.Column="1" Margin="8 0 0 4" VerticalAlignment="Center" />
-                <materialDesign:PackIcon Kind="Key" Grid.Row="1" VerticalAlignment="Center" Margin="0 4 0 0"  ToolTip="Authoirzation Key Hint" />
-                <TextBlock Text="{Binding AuthorisationKeyHint}" Grid.Row="1" Grid.Column="1" Margin="8 4 0 0" VerticalAlignment="Center" />
+                <materialDesign:PackIcon Kind="Key" Grid.Row="1" VerticalAlignment="Center" Margin="0 4 0 0" ToolTip="Authoirzation Key Hint" />
+                <TextBlock Text="{Binding AuthorisationKeyHint}" Grid.Row="1" Grid.Column="1" Margin="8 4 0 0" VerticalAlignment="Center" ToolTip="Authoirzation Key Hint" />
             </Grid>
         </HierarchicalDataTemplate>
         <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
             <Setter Property="ContextMenu">
                 <Setter.Value>
                     <ContextMenu>
-                        <MenuItem Header="Create Database..."
-                                  Command="{Binding CreateDatabaseCommand}"
-                                  Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="DatabasePlus" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Delete Database..."
-                                  Command="{Binding DeleteDatabaseCommand}"
-                                  Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
-                            <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="DatabaseMinus" />
-                            </MenuItem.Icon>
-                        </MenuItem>
                         <MenuItem Header="Create Collection..."
                                   Command="{Binding CreateCollectionCommand}"
                                   Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
@@ -66,6 +52,20 @@
                                   Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
                             <MenuItem.Icon>
                                 <materialDesign:PackIcon Kind="PlaylistMinus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Create Database..."
+                                  Command="{Binding CreateDatabaseCommand}"
+                                  Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="DatabasePlus" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Delete Database..."
+                                  Command="{Binding DeleteDatabaseCommand}"
+                                  Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Command, Converter={StaticResource NullableToVisibilityConverter}}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="DatabaseMinus" />
                             </MenuItem.Icon>
                         </MenuItem>
                     </ContextMenu>

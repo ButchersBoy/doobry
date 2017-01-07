@@ -162,7 +162,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="DocumentDb\LocalEmulator.cs" />
+    <Compile Include="DocumentDb\LocalEmulatorActions.cs" />
     <Compile Include="DocumentDb\LocalEmulatorDetector.cs" />
+    <Compile Include="DocumentDb\LocalEmulatorDetectorUnit.cs" />
     <Compile Include="Features\FeatureRegistry.cs" />
     <Compile Include="Features\IBackingStoreWriter.cs" />
     <Compile Include="Features\IFeatureFactory.cs" />

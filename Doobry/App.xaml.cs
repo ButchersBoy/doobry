@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Windows;
 using Doobry.DocumentDb;
@@ -30,7 +31,7 @@ namespace Doobry
             IGeneralSettings generalSettings = null;
             IExplicitConnectionCache explicitConnectionCache = null;
             IInitialLayoutStructureProvider initialLayoutStructureProvider = null;            
-
+            
             string rawData;
             if (new Persistance().TryLoadRaw(out rawData))
             {
@@ -89,11 +90,16 @@ namespace Doobry
             InterTabClient = new InterTabClient(windowInstanceManager);
             ClosingItemCallback = OnItemClosingHandler;
 
+            var localEmulatorDetector = container.GetInstance<LocalEmulatorDetector>();
+            var applicationDisposable = new CompositeDisposable(
+                LocalEmulatorActions.MergeConnectionsIntoCache(localEmulatorDetector, container.GetInstance<IImplicitConnectionCache>())
+                );
+            Exit += (o, args) => applicationDisposable.Dispose();
+
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var mainWindow = windowInstanceManager.Create();
             mainWindow.Show();
-
-            container.GetInstance<LocalEmulatorDetector>();
+                
             Task.Factory.StartNew(() => CheckForUpdates(container.GetInstance<ISnackbarMessageQueue>()));
         }
 

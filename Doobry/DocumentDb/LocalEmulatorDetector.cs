@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.NetworkInformation;
@@ -11,20 +10,22 @@ using Microsoft.Azure.Documents.Client;
 
 namespace Doobry.DocumentDb
 {
-    public class LocalEmulatorDetector : IDisposable
+    public class LocalEmulatorDetector : IObservable<LocalEmulatorDetectorUnit>
     {
-        private readonly IDisposable _disposable;
+        private readonly IObservable<LocalEmulatorDetectorUnit> _observable;
 
         public LocalEmulatorDetector(IImplicitConnectionCache implicitConnectionCache)
         {
             if (implicitConnectionCache == null) throw new ArgumentNullException(nameof(implicitConnectionCache));
 
-            _disposable = Observable
+            _observable = Observable
                 .Timer(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(3))
-                .Do(_ => implicitConnectionCache.Merge("LocalEmulator", SafeGetConnections())).Subscribe();
+                .Select(_ => SafeGetConnections())
+                .Publish()
+                .RefCount();
         }
 
-        private static IEnumerable<Connection> SafeGetConnections()
+        private static LocalEmulatorDetectorUnit SafeGetConnections()
         {
             try
             {
@@ -32,13 +33,13 @@ namespace Doobry.DocumentDb
             }
             catch
             {
-                return Enumerable.Empty<ExplicitConnection>();
+                return new LocalEmulatorDetectorUnit(false, Enumerable.Empty<ExplicitConnection>());
             }
         }
 
-        private static IEnumerable<Connection> GetConnections()
+        private static LocalEmulatorDetectorUnit GetConnections()
         {
-            if (!SniffEmulator()) return Enumerable.Empty<Connection>();
+            if (!SniffEmulator()) return new LocalEmulatorDetectorUnit(false, Enumerable.Empty<ExplicitConnection>());
 
             var documentClient = CreateDocumentClient();
 
@@ -64,7 +65,7 @@ namespace Doobry.DocumentDb
                 result.Add(new Connection(LocalEmulator.Host, LocalEmulator.AuthorisationKey, null, null));
             }
 
-            return result;
+            return new LocalEmulatorDetectorUnit(true, result);
         }
 
         private static DocumentClient CreateDocumentClient()
@@ -83,9 +84,9 @@ namespace Doobry.DocumentDb
                     .Any(p => p.ProcessName.StartsWith("DocumentDB.Emulator", StringComparison.InvariantCultureIgnoreCase));
         }
 
-        public void Dispose()
+        public IDisposable Subscribe(IObserver<LocalEmulatorDetectorUnit> observer)
         {
-            _disposable.Dispose();
+            return _observable.Subscribe(observer);
         }
     }
 }
