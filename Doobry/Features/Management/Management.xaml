@@ -21,15 +21,20 @@
             </StackPanel>
         </HierarchicalDataTemplate>
         <HierarchicalDataTemplate DataType="{x:Type local:HostNode}" ItemsSource="{Binding Databases}">
-            <StackPanel Orientation="Horizontal">
-                <materialDesign:PackIcon Kind="Server" VerticalAlignment="Center" />
-                <StackPanel Margin="8 0 0 0" VerticalAlignment="Center" >
-                    <TextBlock Text="{Binding Host}" />
-                    <!--
-                    <TextBlock Text="{Binding AuthorisationKeyHint}" />
-                    -->
-                </StackPanel>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <materialDesign:PackIcon Kind="Server" VerticalAlignment="Center" Margin="0 0 0 4" ToolTip="Host" />
+                <TextBlock Text="{Binding Host}" Grid.Column="1" Margin="8 0 0 4" VerticalAlignment="Center" />
+                <materialDesign:PackIcon Kind="Key" Grid.Row="1" VerticalAlignment="Center" Margin="0 4 0 0"  ToolTip="Authoirzation Key Hint" />
+                <TextBlock Text="{Binding AuthorisationKeyHint}" Grid.Row="1" Grid.Column="1" Margin="8 4 0 0" VerticalAlignment="Center" />
+            </Grid>
         </HierarchicalDataTemplate>
         <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
             <Setter Property="ContextMenu">
