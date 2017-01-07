@@ -45,8 +45,8 @@ namespace Doobry.Features.Management
                         new GroupedConnection(key, left.GetOptionalConnections(), right.GetOptionalConnections()))
                 .Filter(gc => !string.IsNullOrEmpty(gc[childKeyLevel]))
                 .Transform(childNodeFactory)
-                //.Sort(sortComparer)
                 .DisposeMany()
+                .Sort(sortComparer)
                 .ObserveOn(scheduler)
                 .Bind(out nodes)
                 .Subscribe();
