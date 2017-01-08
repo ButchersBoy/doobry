@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Doobry.Infrastructure;
 using DynamicData.Binding;
+using MaterialDesignThemes.Wpf;
 
 namespace Doobry.Features.Management
 {
@@ -17,8 +18,15 @@ namespace Doobry.Features.Management
         private ManagementActionStep _step;
         private string _error;
 
-        public ManagementActionViewModel(TProperties propertiesViewModel, Func<TProperties, Task> taskFactory, Action<bool> onEnd, DispatcherTaskSchedulerProvider dispatcherTaskSchedulerProvider)
+        public ManagementActionViewModel(
+            string title,
+            PackIconKind iconKind,
+            TProperties propertiesViewModel, 
+            Func<TProperties, Task> taskFactory, 
+            Action<bool> onEnd, 
+            DispatcherTaskSchedulerProvider dispatcherTaskSchedulerProvider)
         {
+            if (title == null) throw new ArgumentNullException(nameof(title));
             if (propertiesViewModel == null) throw new ArgumentNullException(nameof(propertiesViewModel));
             if (taskFactory == null) throw new ArgumentNullException(nameof(taskFactory));
             if (onEnd == null) throw new ArgumentNullException(nameof(onEnd));
@@ -27,6 +35,8 @@ namespace Doobry.Features.Management
 
             _taskFactory = taskFactory;
             _dispatcherTaskSchedulerProvider = dispatcherTaskSchedulerProvider;
+            Title = title;
+            IconKind = iconKind;
             PropertiesViewModel = propertiesViewModel;
             
             var okCommand = new Command(_ => MangeRun(onEnd), _ => !propertiesViewModel.HasErrors);
@@ -48,6 +58,10 @@ namespace Doobry.Features.Management
         public ICommand CancelCommand { get; }
 
         public ICommand DismissErrorCommand { get; }
+
+        public string Title { get; }
+
+        public PackIconKind IconKind { get; }
 
         public TProperties PropertiesViewModel { get; }
 

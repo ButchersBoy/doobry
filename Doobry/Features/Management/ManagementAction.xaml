@@ -41,16 +41,20 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Grid Margin="16 20 16 16" Visibility="{Binding Step, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={x:Static local:ManagementActionStep.CollectInput}}">
+        <Grid Visibility="{Binding Step, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter={x:Static local:ManagementActionStep.CollectInput}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ContentControl Content="{Binding PropertiesViewModel}" />
+            <infrastructure:DialogHeader Icon="{Binding IconKind}" Title="{Binding Title}" />
+            <ContentControl Content="{Binding PropertiesViewModel}"
+                            Grid.Row="1"
+                            Margin="16 20 16 0" />
             <StackPanel HorizontalAlignment="Right"
                         Orientation="Horizontal"
-                        Margin="0 24 0 0"
-                        Grid.Row="1">
+                        Margin="16 24 16 16"
+                        Grid.Row="2">
                 <Button IsCancel="True" 
                         Style="{StaticResource MaterialDesignFlatButton}"
                         Width="88"

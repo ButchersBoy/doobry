@@ -32,6 +32,8 @@ namespace Doobry.Features.Management
         {
             var createItemProperties = new CreateItemProperties("Database");
             return await DoAction(
+                "Add Database",
+                PackIconKind.Database,
                 createItemProperties,
                 properties => DoAddDatabase(properties, host, authorisationKey),
                 (result, properties) => result ? ManagementActionAddResult.Complete(properties.ItemId) : ManagementActionAddResult.Incomplete());
@@ -46,6 +48,8 @@ namespace Doobry.Features.Management
         {
             var createItemProperties = new CreateItemProperties("Collection");
             return await DoAction(
+                "Add Collection",
+                PackIconKind.ViewList,
                 createItemProperties,
                 properties => DoAddCollection(properties, host, authorisationKey, databaseId),
                 (result, properties) => result ? ManagementActionAddResult.Complete(properties.ItemId) : ManagementActionAddResult.Incomplete());
@@ -60,6 +64,8 @@ namespace Doobry.Features.Management
         {
             var deleteDatabaseProperties = new DeleteItemProperties("database", databaseId);
             return await DoAction(
+                "Delete Database?",
+                PackIconKind.Delete,
                 deleteDatabaseProperties,
                 p => DoDeleteDatabase(host, authorisationKey, databaseId));
         }
@@ -73,6 +79,8 @@ namespace Doobry.Features.Management
         {
             var createItemProperties = new DeleteItemProperties("Collection", collectionId);
             return await DoAction(
+                "Delete Collection?",
+                PackIconKind.Delete, 
                 createItemProperties,
                 properties => DoDeleteCollection(host, authorisationKey, databaseId, collectionId));
         }
@@ -85,13 +93,15 @@ namespace Doobry.Features.Management
                         collection.Owner.DatabaseId, collection.CollectionId);
         }
 
-        private async Task<bool> DoAction<TProperties>(TProperties properties, Func<TProperties, Task> taskFactory)
+        private async Task<bool> DoAction<TProperties>(string title, PackIconKind iconKind, TProperties properties, Func<TProperties, Task> taskFactory)
             where TProperties : INotifyPropertyChanged, INotifyDataErrorInfo
         {
-            return await DoAction(properties, taskFactory, (r, p) => r);
+            return await DoAction(title, iconKind, properties, taskFactory, (r, p) => r);
         }
 
-        private async Task<TResult> DoAction<TProperties, TResult>(TProperties properties, Func<TProperties, Task> taskFactory, Func<bool, TProperties, TResult> resultFormatter) 
+        private async Task<TResult> DoAction<TProperties, TResult>(
+            string title, PackIconKind iconKind,
+            TProperties properties, Func<TProperties, Task> taskFactory, Func<bool, TProperties, TResult> resultFormatter) 
             where TProperties : INotifyPropertyChanged, INotifyDataErrorInfo
         {
             var view = new ManagementAction();
@@ -100,7 +110,7 @@ namespace Doobry.Features.Management
             var result = (bool) await DialogHost.Show(view, _dialogTargetFinder.SuggestDialogHostIdentifier(),
                 delegate (object sender, DialogOpenedEventArgs args)
                 {
-                    model = new ManagementActionViewModel<TProperties>(properties, taskFactory, res => args.Session.Close(res), _dispatcherTaskSchedulerProvider);
+                    model = new ManagementActionViewModel<TProperties>(title, iconKind, properties, taskFactory, res => args.Session.Close(res), _dispatcherTaskSchedulerProvider);
                     view.DataContext = model;
                 });
             model?.Dispose();

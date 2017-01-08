@@ -22,6 +22,9 @@
                             <Button Grid.Column="1" HorizontalAlignment="Right" Style="{DynamicResource MaterialDesignToolForegroundButton}"
                                     materialDesign:RippleAssist.IsCentered="True"
                                     Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
+                                <Button.CommandParameter>
+                                    <system:Boolean>False</system:Boolean>
+                                </Button.CommandParameter>
                                 <materialDesign:PackIcon Kind="Close" />
                             </Button>
                         </Grid>
