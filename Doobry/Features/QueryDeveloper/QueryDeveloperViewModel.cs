@@ -22,11 +22,11 @@ namespace Doobry.Features.QueryDeveloper
         private string _documentId;
         private string _name;        
 
-        public QueryDeveloperViewModel(Guid id, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue) 
-            : this(id, null, explicitConnectionCache, sqlHighlightingDefinition, snackbarMessageQueue)
+        public QueryDeveloperViewModel(Guid id, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder) 
+            : this(id, null, explicitConnectionCache, sqlHighlightingDefinition, snackbarMessageQueue, dialogTargetFinder)
         { }
 
-        public QueryDeveloperViewModel(Guid id, ExplicitConnection explicitConnection, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue)
+        public QueryDeveloperViewModel(Guid id, ExplicitConnection explicitConnection, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
         {
             if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
 
@@ -38,8 +38,8 @@ namespace Doobry.Features.QueryDeveloper
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject)sender));
             EditSettingsCommand = new Command(sender => EditSettingsAsync((DependencyObject)sender));
-            QueryRunnerViewModel = new QueryRunnerViewModel(id, sqlHighlightingDefinition, () => _explicitConnection, () => _generalSettings, EditDocumentHandler, snackbarMessageQueue);
-            DocumentEditorViewModel = new DocumentEditorViewModel(() => _explicitConnection, snackbarMessageQueue);            
+            QueryRunnerViewModel = new QueryRunnerViewModel(id, sqlHighlightingDefinition, () => _explicitConnection, () => _generalSettings, EditDocumentHandler, snackbarMessageQueue, dialogTargetFinder);
+            DocumentEditorViewModel = new DocumentEditorViewModel(() => _explicitConnection, snackbarMessageQueue, dialogTargetFinder);            
 
             SetName();
         }

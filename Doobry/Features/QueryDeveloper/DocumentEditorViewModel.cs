@@ -19,13 +19,16 @@ namespace Doobry.Features.QueryDeveloper
     public class DocumentEditorViewModel : INotifyPropertyChanged
     {
         private readonly Func<ExplicitConnection> _connectionProvider;
+        private readonly IDialogTargetFinder _dialogTargetFinder;
         private const string SampleContent = "{ hello : \"world\" }";
 
-        public DocumentEditorViewModel(Func<ExplicitConnection> connectionProvider, ISnackbarMessageQueue snackbarMessageQueue)
+        public DocumentEditorViewModel(Func<ExplicitConnection> connectionProvider, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
         {
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
+            if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
 
             _connectionProvider = connectionProvider;
+            _dialogTargetFinder = dialogTargetFinder;
             SaveCommand = new Command(_ => Save(snackbarMessageQueue));
             NewCommand = new Command(_ => Document.Text = SampleContent);
 
@@ -50,7 +53,7 @@ namespace Doobry.Features.QueryDeveloper
             //TODO disable commands
             if (string.IsNullOrWhiteSpace(Document.Text) || connection == null) return;
 
-            await DialogHost.Show(new ProgressRing(), async delegate(object sender, DialogOpenedEventArgs args)
+            await DialogHost.Show(new ProgressRing(), _dialogTargetFinder.SuggestDialogHostIdentifier(), async delegate(object sender, DialogOpenedEventArgs args)
             {
                 try
                 {

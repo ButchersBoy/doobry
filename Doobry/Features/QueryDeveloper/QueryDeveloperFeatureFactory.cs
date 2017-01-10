@@ -8,41 +8,38 @@ using DynamicData.Kernel;
 using ICSharpCode.AvalonEdit.Highlighting;
 using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json.Linq;
+using StructureMap;
+using StructureMap.Pipeline;
 
 namespace Doobry.Features.QueryDeveloper
 {
     public class QueryDeveloperFeatureFactory : IFeatureFactory
     {
-        private readonly IExplicitConnectionCache _explicitConnectionCache;
-        private readonly IHighlightingDefinition _sqlHighlightingDefinition;
-        private readonly IQueryFileService _queryFileService;
-        private readonly ISnackbarMessageQueue _snackbarMessageQueue;        
-
+        private readonly IContainer _container;
         private const string ConnectionIdBackingStorePropertyName = "connectionId";
 
         internal static readonly Guid MyFeatureId = new Guid("A874603C-BEFF-4442-AF02-BA106C61B181");
+        private readonly IQueryFileService _queryFileService;
 
-        public QueryDeveloperFeatureFactory(IExplicitConnectionCache explicitConnectionCache,
-            IHighlightingDefinition sqlHighlightingDefinition, IQueryFileService queryFileService, ISnackbarMessageQueue snackbarMessageQueue)
+        public QueryDeveloperFeatureFactory(IContainer container)
         {
-            if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
-            if (sqlHighlightingDefinition == null) throw new ArgumentNullException(nameof(sqlHighlightingDefinition));
-            if (queryFileService == null) throw new ArgumentNullException(nameof(queryFileService));
-            if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
+            if (container == null) throw new ArgumentNullException(nameof(container));
 
-            FeatureId = MyFeatureId;            
+            _container = container;
+            FeatureId = MyFeatureId;
 
-            _explicitConnectionCache = explicitConnectionCache;
-            _sqlHighlightingDefinition = sqlHighlightingDefinition;
-            _queryFileService = queryFileService;
-            _snackbarMessageQueue = snackbarMessageQueue;
+            _queryFileService = _container.GetInstance<IQueryFileService>();
         }
 
         public Guid FeatureId { get; }
 
         public ITabContentLifetimeHost CreateTabContent()
         {
-            var tabViewModel = new QueryDeveloperViewModel(Guid.NewGuid(), _explicitConnectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
+            var explicitArguments = new ExplicitArguments();
+            explicitArguments.Set(typeof(Guid), Guid.NewGuid());
+            explicitArguments.Set(typeof(ExplicitConnection), null);
+
+            var tabViewModel = _container.GetInstance<QueryDeveloperViewModel>(explicitArguments);
             var disposable = Watch(tabViewModel);
             return new TabContentLifetimeHost(tabViewModel, closeReason => Cleanup(closeReason, tabViewModel, disposable));
         }
@@ -54,10 +51,14 @@ namespace Doobry.Features.QueryDeveloper
             ExplicitConnection explicitConnection = null;
             if (connectionPropVal != null && Guid.TryParse(connectionPropVal, out connectionId))
             {
-                explicitConnection = _explicitConnectionCache.Get(connectionId).ValueOrDefault();
+                explicitConnection = _container.GetInstance<IExplicitConnectionCache>().Get(connectionId).ValueOrDefault();
             }
 
-            var tabViewModel = new QueryDeveloperViewModel(tabItem.Id, explicitConnection, _explicitConnectionCache, _sqlHighlightingDefinition, _snackbarMessageQueue);
+            var explicitArguments = new ExplicitArguments();
+            explicitArguments.Set(typeof(Guid), Guid.NewGuid());
+            explicitArguments.Set(typeof(ExplicitConnection), explicitConnection);
+
+            var tabViewModel = _container.GetInstance<QueryDeveloperViewModel>(explicitArguments);
             PopulateDocument(tabViewModel);
             var disposable = Watch(tabViewModel);
 

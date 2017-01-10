@@ -58,7 +58,7 @@
                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8 16 8 8"
-                                    Visibility="{TemplateBinding ShowStandardButtons, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    Visibility="{TemplateBinding ShowStandardButtons, Converter={x:Static infrastructure:StaticMarkup.BooleanToVisibilityConverter}}">
                             <Button IsCancel="True"
                                     Style="{DynamicResource MaterialDesignFlatButton}"
                                     Width="88"
@@ -182,16 +182,19 @@
                                     Style="{DynamicResource MaterialDesignFlatButton}"                                
                                     Width="88"
                                     HorizontalAlignment="Right" Margin="8"
-                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
-                                    CommandParameter="{StaticResource BooleanFalse}"
-                                    >_CANCEL</Button>
+                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
+                                <Button.CommandParameter>
+                                    <system:Boolean>False</system:Boolean>
+                                </Button.CommandParameter>_CANCEL</Button>
                             <Button IsDefault="True"
                                     Style="{DynamicResource MaterialDesignFlatButton}"                                
                                     Width="88"
                                     HorizontalAlignment="Right" Margin="8"
-                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
-                                    CommandParameter="{StaticResource BooleanTrue}"
-                                    >_OK</Button>
+                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
+                                <Button.CommandParameter>
+                                    <system:Boolean>True</system:Boolean>
+                                </Button.CommandParameter>
+                                _OK</Button>
                         </StackPanel>
                     </Grid>
                 </ControlTemplate>

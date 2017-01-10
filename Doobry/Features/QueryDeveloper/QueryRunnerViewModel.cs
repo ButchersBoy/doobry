@@ -27,23 +27,26 @@ namespace Doobry.Features.QueryDeveloper
         private readonly Func<ExplicitConnection> _connectionProvider;
         private readonly Func<GeneralSettings> _generalSettingsProvider;
         private readonly Action<Result> _editHandler;
+        private readonly IDialogTargetFinder _dialogTargetFinder;
         private readonly Command _fetchMoreCommand;
         private string _query;
         private TextEditor _textEditor;
         private Tuple<DocumentClient, IDocumentQuery<dynamic>> _activeDocumentQuery;
 
-        public QueryRunnerViewModel(Guid tabId, IHighlightingDefinition highlightingDefinition, Func<ExplicitConnection> connectionProvider, Func<GeneralSettings> generalSettingsProvider, Action<Result> editHandler, ISnackbarMessageQueue snackbarMessageQueue)
+        public QueryRunnerViewModel(Guid tabId, IHighlightingDefinition highlightingDefinition, Func<ExplicitConnection> connectionProvider, Func<GeneralSettings> generalSettingsProvider, Action<Result> editHandler, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
         {
             if (highlightingDefinition == null) throw new ArgumentNullException(nameof(highlightingDefinition));
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
             if (generalSettingsProvider == null) throw new ArgumentNullException(nameof(generalSettingsProvider));
             if (editHandler == null) throw new ArgumentNullException(nameof(editHandler));
             if (snackbarMessageQueue == null) throw new ArgumentNullException(nameof(snackbarMessageQueue));
+            if (dialogTargetFinder == null) throw new ArgumentNullException(nameof(dialogTargetFinder));
 
             HighlightingDefinition = highlightingDefinition;
             _connectionProvider = connectionProvider;
             _generalSettingsProvider = generalSettingsProvider;
             _editHandler = editHandler;
+            _dialogTargetFinder = dialogTargetFinder;
             RunQueryCommand = new Command(_ => RunQuery());
             _fetchMoreCommand = new Command(_ => FetchMore(), _ => _activeDocumentQuery != null && _activeDocumentQuery.Item2.HasMoreResults);
 
@@ -135,7 +138,7 @@ namespace Doobry.Features.QueryDeveloper
                 DataContext = cancellableDialogViewModel
             };
 
-            await DialogHost.Show(cancellableDialog, delegate (object sender, DialogOpenedEventArgs args)
+            await DialogHost.Show(cancellableDialog, _dialogTargetFinder.SuggestDialogHostIdentifier(), delegate (object sender, DialogOpenedEventArgs args)
             {
                 RunQuery(connection, _generalSettingsProvider().MaxItemCount, query, waitHandle, source, args);
             });
@@ -239,11 +242,11 @@ namespace Doobry.Features.QueryDeveloper
                 Title = "Confirm Delete",
                 Content = $"Are you sure you wish to delete this document?{Environment.NewLine + Environment.NewLine}id: {result.Id.Raw + Environment.NewLine}_self: {result.Id.Self}"
             };
-            var confirmation = await DialogHost.Show(dialogContentControl);
+            var confirmation = await DialogHost.Show(dialogContentControl, _dialogTargetFinder.SuggestDialogHostIdentifier());
             if (!bool.TrueString.Equals(confirmation)) return;
 
             var progressRing = new ProgressRing();
-            await DialogHost.Show(progressRing, delegate (object sender, DialogOpenedEventArgs args)
+            await DialogHost.Show(progressRing, _dialogTargetFinder.SuggestDialogHostIdentifier(), delegate (object sender, DialogOpenedEventArgs args)
             {
                 Task.Factory.StartNew(async () =>
                 {

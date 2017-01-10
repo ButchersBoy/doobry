@@ -5,11 +5,11 @@ namespace Doobry.Features.QueryDeveloper
 {
     public struct DocumentId : IEquatable<DocumentId>
     {
-        public static DocumentId Empty => new DocumentId(string.Empty, string.Empty);
+        public static DocumentId Empty => new DocumentId(null, null);
 
         public DocumentId(string raw, string self)
         {
-            if (string.IsNullOrWhiteSpace(raw) || string.IsNullOrWhiteSpace(self))
+            if (string.IsNullOrWhiteSpace(raw) ^ string.IsNullOrWhiteSpace(self))
                 throw new ArgumentException("raw and self must be supplied together.", nameof(raw));
 
             Raw = raw ?? "";
@@ -21,15 +21,25 @@ namespace Doobry.Features.QueryDeveloper
             try
             {
                 var jObject = JObject.Parse(content);
-                var id = jObject["id"].ToString();
-                var self = jObject["_self"].ToString();
 
-                documentId = new DocumentId(id, self);
-                return true;
+                var idToken = jObject["id"];
+                var selfToken = jObject["_self"];
+
+                if (idToken != null && selfToken != null)
+                {
+                    var id = idToken.ToString();
+                    var self = selfToken.ToString();
+
+                    documentId = new DocumentId(id, self);
+                    return true;
+                }
+
+                documentId = Empty;
+                return false;
             }
             catch
             {
-                documentId = DocumentId.Empty;
+                documentId = Empty;
                 return false;
             }
         }
