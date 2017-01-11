@@ -4,6 +4,6 @@ namespace Doobry.Settings
 {
     public interface IQueryFileService
     {
-        string GetFileName(Guid tabId);
+        string GetFileName(Guid fileId);
     }
 }

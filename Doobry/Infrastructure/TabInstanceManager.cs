@@ -101,7 +101,7 @@ namespace Doobry.Infrastructure
 
         private void RemoveDocument(QueryDeveloperViewModel tabViewModel)
         {
-            var fileName = _queryFileService.GetFileName(tabViewModel.Id);
+            var fileName = _queryFileService.GetFileName(tabViewModel.autoFileId);
             if (!File.Exists(fileName)) return;
 
             try
@@ -115,7 +115,7 @@ namespace Doobry.Infrastructure
         {
             Task.Factory.StartNew(() =>
             {
-                var fileName = _queryFileService.GetFileName(tabViewModel.Id);
+                var fileName = _queryFileService.GetFileName(tabViewModel.autoFileId);
                 return File.Exists(fileName) ? File.ReadAllText(fileName) : string.Empty;
             }).ContinueWith(t =>
             {
@@ -147,9 +147,9 @@ namespace Doobry.Infrastructure
         {
             try
             {
-                var directoryName = Path.GetDirectoryName(_queryFileService.GetFileName(documentChangedUnit.TabId));
+                var directoryName = Path.GetDirectoryName(_queryFileService.GetFileName(documentChangedUnit.FileId));
                 Directory.CreateDirectory(directoryName);
-                File.WriteAllText(_queryFileService.GetFileName(documentChangedUnit.TabId), documentChangedUnit.Text);
+                File.WriteAllText(_queryFileService.GetFileName(documentChangedUnit.FileId), documentChangedUnit.Text);
             }
             catch (Exception)
             {

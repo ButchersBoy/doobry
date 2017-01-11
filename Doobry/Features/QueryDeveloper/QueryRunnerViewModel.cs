@@ -33,7 +33,7 @@ namespace Doobry.Features.QueryDeveloper
         private TextEditor _textEditor;
         private Tuple<DocumentClient, IDocumentQuery<dynamic>> _activeDocumentQuery;
 
-        public QueryRunnerViewModel(Guid tabId, IHighlightingDefinition highlightingDefinition, Func<ExplicitConnection> connectionProvider, Func<GeneralSettings> generalSettingsProvider, Action<Result> editHandler, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
+        public QueryRunnerViewModel(Guid fileId, IHighlightingDefinition highlightingDefinition, Func<ExplicitConnection> connectionProvider, Func<GeneralSettings> generalSettingsProvider, Action<Result> editHandler, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
         {
             if (highlightingDefinition == null) throw new ArgumentNullException(nameof(highlightingDefinition));
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
@@ -59,7 +59,7 @@ namespace Doobry.Features.QueryDeveloper
             {
                 return
                     Document.OnPropertyChanged(td => td.Text)
-                        .Subscribe(text => observer.OnNext(new DocumentChangedUnit(tabId, Document.Text)));
+                        .Subscribe(text => observer.OnNext(new DocumentChangedUnit(fileId, Document.Text)));
             });
 
             ResultSetExplorer = new ResultSetExplorerViewModel(_fetchMoreCommand, editDocumentCommand, deleteDocumentCommand);

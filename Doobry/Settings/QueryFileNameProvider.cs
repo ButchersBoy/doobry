@@ -5,9 +5,9 @@ namespace Doobry.Settings
 {
     public class QueryFileService : IQueryFileService
     {
-        public string GetFileName(Guid tabId)
+        public string GetFileName(Guid fileId)
         {
-            return Path.Combine(Persistance.QueryFileFolder, Path.ChangeExtension(tabId.ToString(), "sql"));
+            return Path.Combine(Persistance.QueryFileFolder, Path.ChangeExtension(fileId.ToString(), "sql"));
         }
     }
 }

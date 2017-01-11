@@ -126,7 +126,7 @@ namespace Doobry
             var localEmulatorDetector = container.GetInstance<LocalEmulatorDetector>();
             return new CompositeDisposable(
                 LocalEmulatorActions.MergeConnectionsIntoCache(localEmulatorDetector, container.GetInstance<IImplicitConnectionCache>()),
-                LocalEmulatorActions.LaunchGettingStarted(localEmulatorDetector, container.GetInstance<ISnackbarMessageQueue>(), container.GetInstance<IManagementActionsController>())
+                LocalEmulatorActions.LaunchGettingStarted(localEmulatorDetector, container.GetInstance<ISnackbarMessageQueue>(), container.GetInstance<IManagementActionsController>(), container.GetInstance<IExplicitConnectionCache>())
                 );
         }
 

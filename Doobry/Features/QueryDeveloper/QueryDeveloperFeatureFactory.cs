@@ -17,6 +17,7 @@ namespace Doobry.Features.QueryDeveloper
     {
         private readonly IContainer _container;
         private const string ConnectionIdBackingStorePropertyName = "connectionId";
+        private const string FileIdBackingStorePropertyName = "fileId";
 
         internal static readonly Guid MyFeatureId = new Guid("A874603C-BEFF-4442-AF02-BA106C61B181");
         private readonly IQueryFileService _queryFileService;
@@ -54,8 +55,13 @@ namespace Doobry.Features.QueryDeveloper
                 explicitConnection = _container.GetInstance<IExplicitConnectionCache>().Get(connectionId).ValueOrDefault();
             }
 
+            var fileIdPropVal = tabItem.ReadProperty(FileIdBackingStorePropertyName);
+            Guid fileId;
+            if (fileIdPropVal == null || !Guid.TryParse(fileIdPropVal, out fileId))
+                fileId = Guid.NewGuid();
+
             var explicitArguments = new ExplicitArguments();
-            explicitArguments.Set(typeof(Guid), Guid.NewGuid());
+            explicitArguments.Set(typeof(Guid), fileId);
             explicitArguments.Set(typeof(ExplicitConnection), explicitConnection);
 
             var tabViewModel = _container.GetInstance<QueryDeveloperViewModel>(explicitArguments);
@@ -71,6 +77,7 @@ namespace Doobry.Features.QueryDeveloper
             if (tabViewModel == null)
                 throw new InvalidOperationException("Expected view model type of " + typeof(QueryDeveloperViewModel).FullName);
 
+            into[FileIdBackingStorePropertyName] = tabViewModel.FileId;
             into[ConnectionIdBackingStorePropertyName] = tabViewModel.ConnectionId;
         }
 
@@ -90,7 +97,7 @@ namespace Doobry.Features.QueryDeveloper
 
         private void RemoveDocument(QueryDeveloperViewModel queryDeveloperViewModel)
         {
-            var fileName = _queryFileService.GetFileName(queryDeveloperViewModel.Id);
+            var fileName = _queryFileService.GetFileName(queryDeveloperViewModel.FileId);
             if (!File.Exists(fileName)) return;
 
             try
@@ -104,9 +111,9 @@ namespace Doobry.Features.QueryDeveloper
         {
             try
             {
-                var directoryName = Path.GetDirectoryName(_queryFileService.GetFileName(documentChangedUnit.TabId));
+                var directoryName = Path.GetDirectoryName(_queryFileService.GetFileName(documentChangedUnit.FileId));
                 Directory.CreateDirectory(directoryName);
-                File.WriteAllText(_queryFileService.GetFileName(documentChangedUnit.TabId), documentChangedUnit.Text);
+                File.WriteAllText(_queryFileService.GetFileName(documentChangedUnit.FileId), documentChangedUnit.Text);
             }
             catch (Exception)
             {
@@ -118,7 +125,7 @@ namespace Doobry.Features.QueryDeveloper
         {
             Task.Factory.StartNew(() =>
             {
-                var fileName = _queryFileService.GetFileName(queryDeveloperViewModel.Id);
+                var fileName = _queryFileService.GetFileName(queryDeveloperViewModel.FileId);
                 return File.Exists(fileName) ? File.ReadAllText(fileName) : string.Empty;
             }).ContinueWith(t =>
             {

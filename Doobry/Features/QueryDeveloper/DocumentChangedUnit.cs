@@ -4,13 +4,13 @@ namespace Doobry.Features.QueryDeveloper
 {
     public class DocumentChangedUnit
     {
-        public DocumentChangedUnit(Guid tabId, string text)
+        public DocumentChangedUnit(Guid fileId, string text)
         {
-            TabId = tabId;
+            FileId = fileId;
             Text = text;
         }
 
-        public Guid TabId { get; }
+        public Guid FileId { get; }
 
         public string Text { get; }
     }

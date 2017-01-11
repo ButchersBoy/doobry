@@ -22,15 +22,15 @@ namespace Doobry.Features.QueryDeveloper
         private string _documentId;
         private string _name;        
 
-        public QueryDeveloperViewModel(Guid id, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder) 
-            : this(id, null, explicitConnectionCache, sqlHighlightingDefinition, snackbarMessageQueue, dialogTargetFinder)
+        public QueryDeveloperViewModel(Guid fileId, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder) 
+            : this(fileId, null, explicitConnectionCache, sqlHighlightingDefinition, snackbarMessageQueue, dialogTargetFinder)
         { }
 
-        public QueryDeveloperViewModel(Guid id, ExplicitConnection explicitConnection, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
+        public QueryDeveloperViewModel(Guid fileId, ExplicitConnection explicitConnection, IExplicitConnectionCache explicitConnectionCache, IHighlightingDefinition sqlHighlightingDefinition, ISnackbarMessageQueue snackbarMessageQueue, IDialogTargetFinder dialogTargetFinder)
         {
             if (explicitConnectionCache == null) throw new ArgumentNullException(nameof(explicitConnectionCache));
 
-            Id = id;
+            FileId = fileId;
             _generalSettings = new GeneralSettings(10);
             _explicitConnection = explicitConnection;
             _explicitConnectionCache = explicitConnectionCache;
@@ -38,13 +38,13 @@ namespace Doobry.Features.QueryDeveloper
             FetchDocumentCommand = new Command(o => QueryRunnerViewModel.Run($"SELECT * FROM root r WHERE r.id = '{DocumentId}'"));
             EditConnectionCommand = new Command(sender => EditConnectionAsync((DependencyObject)sender));
             EditSettingsCommand = new Command(sender => EditSettingsAsync((DependencyObject)sender));
-            QueryRunnerViewModel = new QueryRunnerViewModel(id, sqlHighlightingDefinition, () => _explicitConnection, () => _generalSettings, EditDocumentHandler, snackbarMessageQueue, dialogTargetFinder);
+            QueryRunnerViewModel = new QueryRunnerViewModel(fileId, sqlHighlightingDefinition, () => _explicitConnection, () => _generalSettings, EditDocumentHandler, snackbarMessageQueue, dialogTargetFinder);
             DocumentEditorViewModel = new DocumentEditorViewModel(() => _explicitConnection, snackbarMessageQueue, dialogTargetFinder);            
 
             SetName();
         }
 
-        public Guid Id { get; }
+        public Guid FileId { get; }
 
         public IObservable<DocumentChangedUnit> DocumentChangedObservable => QueryRunnerViewModel.DocumentChangedObservable;
 
