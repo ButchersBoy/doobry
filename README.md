@@ -2,7 +2,7 @@
 
 # doobry for Azure DocumentDB
 
-doobry is a slick Windows based query development for Azure DocumentDb
+doobry is a slick Windows based query development for Azure DocumentDb/Cosmos DB
 
 * Develop, run, edit your DocumentDb SQL commands
 * Add, edit and delete documents
